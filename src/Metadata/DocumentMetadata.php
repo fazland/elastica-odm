@@ -143,6 +143,16 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
         return [$this->identifier->fieldName => $property->getValue($object)];
     }
 
+    public function getSingleIdentifier($object)
+    {
+        $id = $this->getIdentifierValues($object);
+        if (empty($id)) {
+            return null;
+        }
+
+        return reset($id);
+    }
+
     public function getField(string $fieldName)
     {
         foreach ($this->attributesMetadata as $metadata) {

@@ -162,10 +162,11 @@ final class UnitOfWork
      * Gets the document state.
      *
      * @param $document
+     * @param int|null $assume
      *
      * @return int
      */
-    public function getDocumentState($document)
+    public function getDocumentState($document, ?int $assume = null)
     {
         $oid = spl_object_hash($document);
 
@@ -173,15 +174,18 @@ final class UnitOfWork
             return $this->documentStates[$oid];
         }
 
+        if (null !== $assume) {
+            return $assume;
+        }
+
         // State here can only be NEW or DETACHED, as MANAGED and REMOVED states are known.
         $class = $this->manager->getClassMetadata(get_class($document));
-        $id = $class->getIdentifierValues($document);
+        $id = $class->getSingleIdentifier($document);
 
         if (empty($id)) {
             return self::STATE_NEW;
         }
 
-        $id = array_values($id)[0];
         if ($this->tryGetById($id, $class)) {
             return self::STATE_DETACHED;
         }
@@ -192,6 +196,16 @@ final class UnitOfWork
         }
 
         return self::STATE_NEW;
+    }
+
+    /**
+     * Detaches a document from the unit of work.
+     *
+     * @param $object
+     */
+    public function detach($object): void
+    {
+        $this->doDetach($object);
     }
 
     /**
@@ -273,14 +287,62 @@ final class UnitOfWork
         }
 
         $metadata = $this->manager->getClassMetadata($object);
-        $id = $metadata->getIdentifierValues($object);
+        $id = $metadata->getSingleIdentifier($object);
 
         if (empty($id)) {
             throw new InvalidIdentifierException('Documents must have an identifier in order to be added to the identity map.');
         }
 
         $this->objects[$oid] = $object;
-        $this->identityMap[$metadata->name][implode(' ', $id)] = $object;
+        $this->identityMap[$metadata->name][$id] = $object;
         $this->documentStates[$oid] = self::STATE_MANAGED;
+    }
+
+    /**
+     * Removes an object from identity map
+     *
+     * @param $object
+     *
+     * @throws InvalidIdentifierException
+     */
+    private function removeFromIdentityMap($object)
+    {
+        $class = $this->manager->getClassMetadata($object);
+        $id = $class->getSingleIdentifier($object);
+
+        if (empty($id)) {
+            throw new InvalidIdentifierException('Documents must have an identifier in order to be added to the identity map.');
+        }
+
+        unset($this->identityMap[$class->name][$id]);
+    }
+
+    private function doDetach($object, array &$visited = [])
+    {
+        $oid = spl_object_hash($object);
+        if (isset($visited[$oid])) {
+            return;
+        }
+
+        $visited[$oid] = true;
+
+        $state = $this->getDocumentState($object, self::STATE_DETACHED);
+        if (self::STATE_MANAGED !== $state) {
+            return;
+        }
+
+        unset(
+            $this->documentStates[$oid],
+            $this->objects[$oid],
+            $this->originalDocumentData[$oid]
+        );
+
+        $this->removeFromIdentityMap($object);
+        $this->cascadeDetach($object, $visited);
+    }
+
+    private function cascadeDetach($object, $visited)
+    {
+        // @todo
     }
 }

@@ -5,9 +5,11 @@ namespace Fazland\ODM\Elastica;
 use Doctrine\Common\EventManager;
 use Elastica\Client;
 use Elastica\SearchableInterface;
+use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
 use Fazland\ODM\Elastica\Metadata\MetadataFactory;
 use Fazland\ODM\Elastica\Search\Executor;
 use Fazland\ODM\Elastica\Type\TypeManager;
+use Kcs\Metadata\Factory\MetadataFactoryInterface;
 use ProxyManager\Factory\LazyLoadingGhostFactory;
 use ProxyManager\Proxy\LazyLoadingInterface;
 use ProxyManager\Proxy\ProxyInterface;
@@ -84,7 +86,7 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function persist($object)
+    public function persist($object): void
     {
         // TODO: Implement persist() method.
     }
@@ -92,7 +94,7 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function remove($object)
+    public function remove($object): void
     {
         // TODO: Implement remove() method.
     }
@@ -108,7 +110,7 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function clear($objectName = null)
+    public function clear($objectName = null): void
     {
         $this->unitOfWork->clear($objectName);
     }
@@ -116,23 +118,26 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function detach($object)
+    public function detach($object): void
     {
-        // TODO: Implement detach() method.
+        $this->unitOfWork->detach($object);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function refresh($object)
+    public function refresh($object): void
     {
-        // TODO: Implement refresh() method.
+        $class = $this->getClassMetadata(get_class($object));
+        $persister = $this->unitOfWork->getDocumentPersister($class->name);
+
+        $persister->load(['_id' => $class->getSingleIdentifier($object)], $object);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function flush()
+    public function flush(): void
     {
         // TODO: Implement flush() method.
     }
@@ -148,7 +153,7 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function getClassMetadata($className)
+    public function getClassMetadata($className): DocumentMetadata
     {
         if (is_object($className) && $className instanceof ProxyInterface) {
             $className = get_parent_class($className);
@@ -160,7 +165,7 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function getMetadataFactory()
+    public function getMetadataFactory(): MetadataFactoryInterface
     {
         return $this->metadataFactory;
     }
@@ -168,7 +173,7 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function initializeObject($obj)
+    public function initializeObject($obj): void
     {
         if ($obj instanceof LazyLoadingInterface) {
             $obj->initializeProxy();
