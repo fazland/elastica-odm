@@ -8,7 +8,7 @@ abstract class AbstractDateTimeTypeTest extends TestCase implements TypeTestInte
 {
     use EmptyValuesTrait;
 
-    public abstract function getExpectedClass(): string;
+    abstract public function getExpectedClass(): string;
 
     public function testToPhpWithDateTimeShouldReturnTheSameInstance(): void
     {

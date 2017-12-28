@@ -2,8 +2,10 @@
 
 namespace Fazland\ODM\Elastica;
 
-use Fazland\ODM\Elastica\Type\TypeManager;
+use Doctrine\Common\EventManager;
 use Doctrine\Common\Persistence\ObjectManager;
+use Elastica\SearchableInterface;
+use Fazland\ODM\Elastica\Type\TypeManager;
 use ProxyManager\Factory\LazyLoadingGhostFactory;
 
 interface DocumentManagerInterface extends ObjectManager
@@ -31,4 +33,20 @@ interface DocumentManagerInterface extends ObjectManager
      * @return UnitOfWork
      */
     public function getUnitOfWork(): UnitOfWork;
+
+    /**
+     * Gets the event manager used by this document manager.
+     *
+     * @return EventManager
+     */
+    public function getEventManager(): EventManager;
+
+    /**
+     * Gets the document collection for a given object class.
+     *
+     * @param string $className
+     *
+     * @return SearchableInterface
+     */
+    public function getCollection(string $className): SearchableInterface;
 }

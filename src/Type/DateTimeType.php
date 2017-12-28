@@ -7,7 +7,7 @@ final class DateTimeType extends AbstractType
     const NAME = 'datetime';
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function toPHP($value, array $options = [])
     {
@@ -23,7 +23,7 @@ final class DateTimeType extends AbstractType
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getName(): string
     {

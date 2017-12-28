@@ -3,7 +3,6 @@
 namespace Fazland\ODM\Elastica;
 
 use Elastica\Client as ElasticaClient;
-use Fazland\ODM\Elastica\Annotation;
 use Fazland\ODM\Elastica\Metadata\Loader;
 use Fazland\ODM\Elastica\Metadata\MetadataFactory;
 use Fazland\ODM\Elastica\Metadata\Processor;

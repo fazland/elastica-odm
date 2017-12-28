@@ -9,7 +9,7 @@ use Kcs\Metadata\Factory\AbstractMetadataFactory;
 class MetadataFactory extends AbstractMetadataFactory
 {
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function validate(ClassMetadataInterface $classMetadata): void
     {
@@ -52,7 +52,7 @@ class MetadataFactory extends AbstractMetadataFactory
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function createMetadata(\ReflectionClass $class): ClassMetadataInterface
     {

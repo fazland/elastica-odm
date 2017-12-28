@@ -3,7 +3,6 @@
 namespace Fazland\ODM\Elastica;
 
 use Fazland\ODM\Elastica\Type\TypeManager;
-use Elastica\Client;
 use Kcs\Metadata\Factory\MetadataFactoryInterface;
 use ProxyManager\Factory\LazyLoadingGhostFactory;
 use Psr\Cache\CacheItemPoolInterface;

@@ -10,10 +10,10 @@ use Kcs\Metadata\MetadataInterface;
 class IndexNameProcessor implements ProcessorInterface
 {
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      *
      * @param FieldMetadata $metadata
-     * @param IndexName $subject
+     * @param IndexName     $subject
      */
     public function process(MetadataInterface $metadata, $subject): void
     {

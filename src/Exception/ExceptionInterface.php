@@ -4,5 +4,4 @@ namespace Fazland\ODM\Elastica\Exception;
 
 interface ExceptionInterface
 {
-
 }

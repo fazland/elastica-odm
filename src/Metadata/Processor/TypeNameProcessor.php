@@ -10,10 +10,10 @@ use Kcs\Metadata\MetadataInterface;
 class TypeNameProcessor implements ProcessorInterface
 {
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      *
      * @param FieldMetadata $metadata
-     * @param TypeName $subject
+     * @param TypeName      $subject
      */
     public function process(MetadataInterface $metadata, $subject): void
     {

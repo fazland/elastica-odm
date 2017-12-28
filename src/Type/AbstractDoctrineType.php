@@ -17,7 +17,7 @@ abstract class AbstractDoctrineType extends AbstractType
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function toPHP($value, array $options = [])
     {
@@ -35,7 +35,7 @@ abstract class AbstractDoctrineType extends AbstractType
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getName(): string
     {

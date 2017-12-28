@@ -1,6 +1,7 @@
 {
     "name": "fazland/elastica-odm",
     "minimum-stability": "stable",
+    "description": "",
     "type": "library",
     "license": "MIT",
     "authors": [

@@ -13,7 +13,7 @@ final class ESDocumentType extends AbstractType implements ContainerAwareInterfa
     const NAME = 'es_document';
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function toPHP($value, array $options = [])
     {
@@ -27,7 +27,7 @@ final class ESDocumentType extends AbstractType implements ContainerAwareInterfa
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getName(): string
     {

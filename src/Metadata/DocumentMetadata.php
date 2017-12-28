@@ -21,7 +21,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     public $identifier;
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getIdentifier()
     {
@@ -29,7 +29,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function isIdentifier($fieldName)
     {
@@ -37,7 +37,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function hasField($fieldName)
     {
@@ -45,7 +45,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function hasAssociation($fieldName)
     {
@@ -53,7 +53,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function isSingleValuedAssociation($fieldName)
     {
@@ -61,7 +61,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function isCollectionValuedAssociation($fieldName)
     {
@@ -69,7 +69,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getFieldNames()
     {
@@ -77,7 +77,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getIdentifierFieldNames()
     {
@@ -85,7 +85,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getAssociationNames()
     {
@@ -93,7 +93,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getTypeOfField($fieldName)
     {
@@ -101,7 +101,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getAssociationTargetClass($assocName)
     {
@@ -109,7 +109,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function isAssociationInverseSide($assocName)
     {
@@ -117,7 +117,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getAssociationMappedByTargetField($assocName)
     {
@@ -125,7 +125,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getIdentifierValues($object)
     {

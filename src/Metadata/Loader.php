@@ -8,7 +8,7 @@ use Kcs\Metadata\MetadataInterface;
 class Loader extends AnnotationProcessorLoader
 {
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function createPropertyMetadata(\ReflectionProperty $reflectionProperty): MetadataInterface
     {

@@ -3,13 +3,11 @@
 namespace Fazland\ODM\Elastica;
 
 use Doctrine\Common\EventManager;
+use Elastica\Client;
+use Elastica\SearchableInterface;
 use Fazland\ODM\Elastica\Metadata\MetadataFactory;
 use Fazland\ODM\Elastica\Search\Executor;
 use Fazland\ODM\Elastica\Type\TypeManager;
-use Elastica\Client;
-use Elastica\Document;
-use Elastica\Exception\NotFoundException;
-use Elastica\Type;
 use ProxyManager\Factory\LazyLoadingGhostFactory;
 use ProxyManager\Proxy\LazyLoadingInterface;
 use ProxyManager\Proxy\ProxyInterface;
@@ -65,6 +63,7 @@ class DocumentManager implements DocumentManagerInterface
         $this->proxyFactory = $configuration->getProxyFactory();
         $this->typeManager = $configuration->getTypeManager();
         $this->hydrator = new Hydrator($this);
+        $this->unitOfWork = new UnitOfWork($this, $this->hydrator);
 
         $this->clear();
         $this->queryExecutor = new Executor($this, $this->hydrator, $this->elasticSearch);
@@ -75,39 +74,15 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function find($className, $id)
     {
-        $obj = $this->unitOfWork->tryGetById($className, $id);
-        if (null !== $obj) {
-            return $obj;
-        }
-
-        $document = $this->fetch($className, $id);
-        $result = $this->hydrator->hydrateOne($document, $className);
-
-        return $result;
+        return $this->getUnitOfWork()->getDocumentPersister($className)->load(['_id' => $id]);
     }
 
     /**
-     * Fetches a document from the ES index.
-     * Throws a NotFoundException if the document is not present.
-     *
-     * @param string $className
-     * @param $id
-     *
-     * @return Document
-     *
-     * @throws NotFoundException
-     */
-    public function fetch(string $className, $id): Document
-    {
-        return $this->getElasticaType($className)->getDocument($id);
-    }
-
-    /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function persist($object)
     {
@@ -115,7 +90,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function remove($object)
     {
@@ -123,7 +98,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function merge($object)
     {
@@ -131,19 +106,15 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function clear($objectName = null)
     {
-        if ($objectName) {
-            throw new \Exception('Not implemented yet');
-        }
-
-        $this->unitOfWork = new UnitOfWork($this);
+        $this->unitOfWork->clear($objectName);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function detach($object)
     {
@@ -151,7 +122,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function refresh($object)
     {
@@ -159,7 +130,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function flush()
     {
@@ -167,7 +138,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getRepository($className)
     {
@@ -175,7 +146,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getClassMetadata($className)
     {
@@ -187,7 +158,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getMetadataFactory()
     {
@@ -195,7 +166,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function initializeObject($obj)
     {
@@ -205,7 +176,7 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function contains($object): bool
     {
@@ -216,22 +187,42 @@ class DocumentManager implements DocumentManagerInterface
         return $this->unitOfWork->isInIdentityMap($object);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getProxyFactory(): LazyLoadingGhostFactory
     {
         return $this->proxyFactory;
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function getEventManager(): EventManager
+    {
+        return $this->eventManager;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getUnitOfWork(): UnitOfWork
     {
         return $this->unitOfWork;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getTypeManager(): TypeManager
     {
         return $this->typeManager;
     }
 
-    private function getElasticaType($className): Type
+    /**
+     * {@inheritdoc}
+     */
+    public function getCollection(string $className): SearchableInterface
     {
         $metadata = $this->getClassMetadata($className);
         list($indexName, $typeName) = explode('/', $metadata->typeName, 2);

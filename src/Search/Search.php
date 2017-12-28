@@ -105,7 +105,7 @@ class Search
      * Instructs the executor to use a result cache.
      *
      * @param string $cacheKey
-     * @param int $ttl
+     * @param int    $ttl
      *
      * @return $this|self
      */

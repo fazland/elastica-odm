@@ -18,13 +18,13 @@ final class TypeManager
 
     public function addType(TypeInterface $type): void
     {
-        $this->types[ $type->getName() ] = $type;
+        $this->types[$type->getName()] = $type;
     }
 
     public function getType(string $type): TypeInterface
     {
         if (! isset($this->types[$type])) {
-            throw new NoSuchTypeException('No such type "' . $type . '"');
+            throw new NoSuchTypeException('No such type "'.$type.'"');
         }
 
         return $this->types[$type];

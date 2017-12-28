@@ -7,7 +7,7 @@ final class DateTimeImmutableType extends AbstractType
     const NAME = 'datetime_immutable';
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function toPHP($value, array $options = [])
     {
@@ -23,7 +23,7 @@ final class DateTimeImmutableType extends AbstractType
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getName(): string
     {

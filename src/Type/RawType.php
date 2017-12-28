@@ -7,7 +7,7 @@ final class RawType extends AbstractType
     const NAME = 'raw';
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function toPHP($value, array $options = [])
     {
@@ -15,7 +15,7 @@ final class RawType extends AbstractType
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getName(): string
     {

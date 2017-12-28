@@ -2,11 +2,10 @@
 
 namespace Fazland\ODM\Elastica\Search;
 
-use Fazland\ODM\Elastica\DocumentManagerInterface;
-use Fazland\ODM\Elastica\Hydrator;
 use Elastica\Client;
 use Elastica\ResultSet;
-use Elastica\Type;
+use Fazland\ODM\Elastica\DocumentManagerInterface;
+use Fazland\ODM\Elastica\Hydrator;
 use Psr\Cache\CacheItemPoolInterface;
 
 final class Executor
@@ -58,7 +57,7 @@ final class Executor
     public function execute(Search $search): \Iterator
     {
         if ($search->isScroll()) {
-            $type = $this->getType($search->getDocumentClass());
+            $type = $this->manager->getCollection($search->getDocumentClass());
             $scroll = $type->createSearch($search->getQuery())->scroll();
 
             foreach ($scroll as $resultSet) {
@@ -76,7 +75,8 @@ final class Executor
             return $this->executeCachedSearch($search, $cacheProfile);
         }
 
-        $type = $this->getType($search->getDocumentClass());
+        $type = $this->manager->getCollection($search->getDocumentClass());
+
         return $type->search($search->getQuery());
     }
 
@@ -100,15 +100,5 @@ final class Executor
         }
 
         return $resultSet;
-    }
-
-    private function getType($className): Type
-    {
-        $metadata = $this->manager->getClassMetadata($className);
-        list($indexName, $typeName) = explode('/', $metadata->typeName, 2);
-
-        return $this->elasticSearch
-            ->getIndex($indexName)
-            ->getType($typeName);
     }
 }

@@ -2,12 +2,12 @@
 
 namespace Fazland\ODM\Elastica;
 
-use Fazland\ODM\Elastica\Metadata\FieldMetadata;
 use Doctrine\Instantiator\Instantiator;
 use Doctrine\Instantiator\InstantiatorInterface;
 use Elastica\Document;
 use Elastica\Exception\InvalidException;
 use Elastica\ResultSet;
+use Fazland\ODM\Elastica\Metadata\FieldMetadata;
 use ProxyManager\Factory\LazyLoadingGhostFactory;
 use ProxyManager\Proxy\GhostObjectInterface;
 
@@ -31,9 +31,11 @@ class Hydrator
 
     public function hydrateAll(ResultSet $resultSet, string $className)
     {
-        if ($resultSet->count() === 0) {
+        if (0 === $resultSet->count()) {
             return [];
         }
+
+        $class = $this->manager->getClassMetadata($className);
 
         try {
             $source = $resultSet->getQuery()->getParam('_source');
@@ -42,8 +44,8 @@ class Hydrator
         }
 
         if (null !== $source) {
-            $fields = $source === false ? [] : $source;
-            $instantiator = new class ($fields, $this) implements InstantiatorInterface {
+            $fields = false === $source ? [] : $source;
+            $instantiator = new class($fields, $this) implements InstantiatorInterface {
                 private $fields;
                 private $hydrator;
 
@@ -66,7 +68,7 @@ class Hydrator
 
         foreach ($resultSet as $result) {
             $document = $result->getDocument();
-            $object = $this->manager->getUnitOfWork()->tryGetById($className, $document->getId());
+            $object = $this->manager->getUnitOfWork()->tryGetById($document->getId(), $class);
 
             if (null === $object) {
                 $object = $instantiator->instantiate($className);
@@ -108,10 +110,10 @@ class Hydrator
             GhostObjectInterface $ghostObject,
             string $method,
             array $parameters,
-            & $initializer,
+            &$initializer,
             array $properties
         ) use ($fields, $allowedMethods, $metadata, $className) {
-            if (($method === '__set' || $method === '__get') && in_array($parameters['name'], $fields)) {
+            if (('__set' === $method || '__get' === $method) && in_array($parameters['name'], $fields)) {
                 return false;
             }
 
