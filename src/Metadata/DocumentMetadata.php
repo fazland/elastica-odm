@@ -183,9 +183,7 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
     /**
      * Registers a custom repository class.
      *
-     * @param string $repositoryClassName The class name of the custom mapper.
-     *
-     * @return void
+     * @param string $repositoryClassName the class name of the custom mapper
      */
     public function setCustomRepositoryClass(string $repositoryClassName): void
     {

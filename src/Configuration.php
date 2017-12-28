@@ -4,8 +4,8 @@ namespace Fazland\ODM\Elastica;
 
 use Fazland\ODM\Elastica\Exception\InvalidDocumentRepositoryException;
 use Fazland\ODM\Elastica\Repository\DefaultRepositoryFactory;
-use Fazland\ODM\Elastica\Repository\DocumentRepositoryInterface;
 use Fazland\ODM\Elastica\Repository\DocumentRepository;
+use Fazland\ODM\Elastica\Repository\DocumentRepositoryInterface;
 use Fazland\ODM\Elastica\Repository\RepositoryFactoryInterface;
 use Fazland\ODM\Elastica\Type\TypeManager;
 use Kcs\Metadata\Factory\MetadataFactoryInterface;
@@ -133,8 +133,6 @@ final class Configuration
      * Sets default repository class.
      *
      * @param string $className
-     *
-     * @return void
      *
      * @throws InvalidDocumentRepositoryException
      */

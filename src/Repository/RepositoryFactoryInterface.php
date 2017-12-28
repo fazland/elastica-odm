@@ -10,7 +10,7 @@ interface RepositoryFactoryInterface
      * Gets the repository for a document class.
      *
      * @param DocumentManagerInterface $documentManager
-     * @param string $documentName
+     * @param string                   $documentName
      *
      * @return DocumentRepositoryInterface
      */
@@ -20,8 +20,6 @@ interface RepositoryFactoryInterface
      * Sets the default repository fully-qualified class name.
      *
      * @param string $defaultRepositoryClassName
-     *
-     * @return void
      */
     public function setDefaultRepositoryClassName(string $defaultRepositoryClassName): void;
 }

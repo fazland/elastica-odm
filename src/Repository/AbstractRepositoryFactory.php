@@ -23,14 +23,14 @@ abstract class AbstractRepositoryFactory implements RepositoryFactoryInterface
     private $repositoryList = [];
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getRepository(
         DocumentManagerInterface $documentManager,
         string $documentName
     ): DocumentRepositoryInterface {
         $metadata = $documentManager->getClassMetadata($documentName);
-        $hashKey = $metadata->getName() . spl_object_hash($documentManager);
+        $hashKey = $metadata->getName().spl_object_hash($documentManager);
 
         if (isset($this->repositoryList[$hashKey])) {
             return $this->repositoryList[$hashKey];
@@ -44,7 +44,7 @@ abstract class AbstractRepositoryFactory implements RepositoryFactoryInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function setDefaultRepositoryClassName(string $defaultRepositoryClassName): void
     {
@@ -55,7 +55,7 @@ abstract class AbstractRepositoryFactory implements RepositoryFactoryInterface
      * Create a new repository instance for a document class.
      *
      * @param DocumentManagerInterface $documentManager
-     * @param string $documentName
+     * @param string                   $documentName
      *
      * @return DocumentRepositoryInterface
      */
@@ -72,9 +72,9 @@ abstract class AbstractRepositoryFactory implements RepositoryFactoryInterface
     /**
      * Instantiates requested repository.
      *
-     * @param string $repositoryClassName
+     * @param string                   $repositoryClassName
      * @param DocumentManagerInterface $documentManager
-     * @param DocumentMetadata $metadata
+     * @param DocumentMetadata         $metadata
      *
      * @return DocumentRepositoryInterface
      */

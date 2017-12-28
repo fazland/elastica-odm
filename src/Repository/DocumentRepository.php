@@ -45,7 +45,7 @@ class DocumentRepository implements DocumentRepositoryInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function find($id)
     {
@@ -53,7 +53,7 @@ class DocumentRepository implements DocumentRepositoryInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function findAll()
     {
@@ -61,7 +61,7 @@ class DocumentRepository implements DocumentRepositoryInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null): array
     {
@@ -69,7 +69,7 @@ class DocumentRepository implements DocumentRepositoryInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function findOneBy(array $criteria)
     {
@@ -77,7 +77,7 @@ class DocumentRepository implements DocumentRepositoryInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getDocumentName(): string
     {
@@ -85,7 +85,7 @@ class DocumentRepository implements DocumentRepositoryInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getClassName(): string
     {
@@ -93,7 +93,7 @@ class DocumentRepository implements DocumentRepositoryInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function matching(Criteria $criteria)
     {
