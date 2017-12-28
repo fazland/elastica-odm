@@ -3,7 +3,7 @@
 namespace Fazland\ODM\Elastica\Persister;
 
 use Elastica\Query;
-use Elastica\SearchableInterface;
+use Fazland\ODM\Elastica\Collection\CollectionInterface;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
 use Fazland\ODM\Elastica\Hydrator;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
@@ -26,7 +26,7 @@ class DocumentPersister
     private $class;
 
     /**
-     * @var SearchableInterface
+     * @var CollectionInterface
      */
     private $collection;
 
@@ -76,6 +76,18 @@ class DocumentPersister
         }
 
         return $this->hydrator->hydrateOne($esDoc, $this->class->name);
+    }
+
+    public function loadAll(array $criteria = []): array
+    {
+        $query = $this->prepareQuery($criteria);
+        $search = $this->collection->createSearch();
+        $search
+            ->setScroll(true)
+            ->setQuery($query)
+        ;
+
+        return $search->execute();
     }
 
     /**

@@ -112,7 +112,7 @@ class Hydrator
             array $parameters,
             &$initializer,
             array $properties
-        ) use ($fields, $allowedMethods, $metadata, $className) {
+        ) use ($fields, $allowedMethods, $metadata, $className): bool {
             if (('__set' === $method || '__get' === $method) && in_array($parameters['name'], $fields)) {
                 return false;
             }
@@ -123,18 +123,7 @@ class Hydrator
 
             $initializer = null;
 
-            $fields = [];
-            foreach ($metadata->getAttributesMetadata() as $field) {
-                if (! $field instanceof FieldMetadata) {
-                    continue;
-                }
-
-                $fields[] = $field->name;
-            }
-
-            $id = $metadata->getIdentifierValues($ghostObject);
-            $document = $this->manager->fetch($className, reset($id));
-            $this->manager->getUnitOfWork()->createDocument($document, $ghostObject, $fields);
+            $this->manager->refresh($ghostObject);
 
             return true;
         };

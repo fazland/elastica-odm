@@ -19,4 +19,11 @@ final class Document
      * @Required()
      */
     public $type;
+
+    /**
+     * The repository class.
+     *
+     * @var string
+     */
+    public $repositoryClass;
 }

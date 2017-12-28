@@ -2,6 +2,11 @@
 
 namespace Fazland\ODM\Elastica;
 
+use Fazland\ODM\Elastica\Exception\InvalidDocumentRepositoryException;
+use Fazland\ODM\Elastica\Repository\DefaultRepositoryFactory;
+use Fazland\ODM\Elastica\Repository\DocumentRepositoryInterface;
+use Fazland\ODM\Elastica\Repository\DocumentRepository;
+use Fazland\ODM\Elastica\Repository\RepositoryFactoryInterface;
 use Fazland\ODM\Elastica\Type\TypeManager;
 use Kcs\Metadata\Factory\MetadataFactoryInterface;
 use ProxyManager\Factory\LazyLoadingGhostFactory;
@@ -28,7 +33,7 @@ final class Configuration
      *
      * @var CacheItemPoolInterface
      */
-    private $resultCacheImpl;
+    private $resultCache;
 
     /**
      * The type manager.
@@ -36,6 +41,16 @@ final class Configuration
      * @var TypeManager
      */
     private $typeManager;
+
+    /**
+     * @var RepositoryFactoryInterface|null
+     */
+    private $repositoryFactory;
+
+    /**
+     * @var string|null
+     */
+    private $defaultRepositoryClassName;
 
     public function __construct()
     {
@@ -48,7 +63,7 @@ final class Configuration
      * @param LazyLoadingGhostFactory $proxyFactory
      * @required
      *
-     * @return $this|self
+     * @return $this
      */
     public function setProxyFactory(LazyLoadingGhostFactory $proxyFactory): self
     {
@@ -63,7 +78,7 @@ final class Configuration
      * @param MetadataFactoryInterface $metadataFactory
      * @required
      *
-     * @return $this|self
+     * @return $this
      */
     public function setMetadataFactory(MetadataFactoryInterface $metadataFactory): self
     {
@@ -75,23 +90,23 @@ final class Configuration
     /**
      * Sets the result cache implementation.
      *
-     * @param CacheItemPoolInterface $resultCacheImpl
+     * @param CacheItemPoolInterface $resultCache
      *
-     * @return $this|self
+     * @return $this
      */
-    public function setResultCacheImpl(?CacheItemPoolInterface $resultCacheImpl = null): self
+    public function setResultCache(?CacheItemPoolInterface $resultCache = null): self
     {
-        $this->resultCacheImpl = $resultCacheImpl;
+        $this->resultCache = $resultCache;
 
         return $this;
     }
 
     /**
-     * Sets the type manager implementation.
+     * Sets the type manager.
      *
      * @param TypeManager $typeManager
      *
-     * @return $this|self
+     * @return $this
      */
     public function setTypeManager(TypeManager $typeManager): self
     {
@@ -100,23 +115,104 @@ final class Configuration
         return $this;
     }
 
+    /**
+     * Sets the repository factory.
+     *
+     * @param RepositoryFactoryInterface|null $repositoryFactory
+     *
+     * @return $this
+     */
+    public function setRepositoryFactory(?RepositoryFactoryInterface $repositoryFactory): self
+    {
+        $this->repositoryFactory = $repositoryFactory;
+
+        return $this;
+    }
+
+    /**
+     * Sets default repository class.
+     *
+     * @param string $className
+     *
+     * @return void
+     *
+     * @throws InvalidDocumentRepositoryException
+     */
+    public function setDefaultRepositoryClassName($className): void
+    {
+        $reflectionClass = new \ReflectionClass($className);
+
+        if (! $reflectionClass->implementsInterface(DocumentRepositoryInterface::class)) {
+            throw new InvalidDocumentRepositoryException($className);
+        }
+
+        $this->defaultRepositoryClassName = $className;
+    }
+
+    /**
+     * Gets the document proxy factory.
+     *
+     * @return LazyLoadingGhostFactory
+     */
     public function getProxyFactory(): LazyLoadingGhostFactory
     {
         return $this->proxyFactory;
     }
 
+    /**
+     * Sets the metadata factory.
+     *
+     * @return MetadataFactoryInterface
+     */
     public function getMetadataFactory(): MetadataFactoryInterface
     {
         return $this->metadataFactory;
     }
 
-    public function getResultCacheImpl(): ?CacheItemPoolInterface
+    /**
+     * Gets the result cache implementation.
+     *
+     * @return null|CacheItemPoolInterface
+     */
+    public function getResultCache(): ?CacheItemPoolInterface
     {
-        return $this->resultCacheImpl;
+        return $this->resultCache;
     }
 
+    /**
+     * Gets the type manager.
+     *
+     * @return TypeManager
+     */
     public function getTypeManager(): TypeManager
     {
         return $this->typeManager;
+    }
+
+    /**
+     * Sets the repository factory.
+     *
+     * @return RepositoryFactoryInterface
+     */
+    public function getRepositoryFactory(): RepositoryFactoryInterface
+    {
+        if (null !== $this->repositoryFactory) {
+            return $this->repositoryFactory;
+        }
+
+        $factory = new DefaultRepositoryFactory();
+        $factory->setDefaultRepositoryClassName($this->getDefaultRepositoryClassName());
+
+        return $factory;
+    }
+
+    /**
+     * Get default repository class.
+     *
+     * @return string
+     */
+    public function getDefaultRepositoryClassName(): string
+    {
+        return $this->defaultRepositoryClassName ?: DocumentRepository::class;
     }
 }

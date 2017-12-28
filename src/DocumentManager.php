@@ -4,10 +4,13 @@ namespace Fazland\ODM\Elastica;
 
 use Doctrine\Common\EventManager;
 use Elastica\Client;
-use Elastica\SearchableInterface;
+use Fazland\ODM\Elastica\Collection\CollectionInterface;
+use Fazland\ODM\Elastica\Collection\Database;
+use Fazland\ODM\Elastica\Collection\DatabaseInterface;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
 use Fazland\ODM\Elastica\Metadata\MetadataFactory;
-use Fazland\ODM\Elastica\Search\Executor;
+use Fazland\ODM\Elastica\Repository\DocumentRepositoryInterface;
+use Fazland\ODM\Elastica\Repository\RepositoryFactoryInterface;
 use Fazland\ODM\Elastica\Type\TypeManager;
 use Kcs\Metadata\Factory\MetadataFactoryInterface;
 use ProxyManager\Factory\LazyLoadingGhostFactory;
@@ -17,14 +20,14 @@ use ProxyManager\Proxy\ProxyInterface;
 class DocumentManager implements DocumentManagerInterface
 {
     /**
+     * @var Configuration
+     */
+    private $configuration;
+
+    /**
      * @var MetadataFactory
      */
     private $metadataFactory;
-
-    /**
-     * @var Client
-     */
-    private $elasticSearch;
 
     /**
      * @var LazyLoadingGhostFactory
@@ -47,18 +50,24 @@ class DocumentManager implements DocumentManagerInterface
     private $hydrator;
 
     /**
-     * @var Executor
-     */
-    private $queryExecutor;
-
-    /**
      * @var EventManager
      */
     private $eventManager;
 
-    public function __construct(Client $client, Configuration $configuration, EventManager $eventManager = null)
+    /**
+     * @var RepositoryFactoryInterface
+     */
+    private $repositoryFactory;
+
+    /**
+     * @var DatabaseInterface
+     */
+    private $database;
+
+    public function __construct(Client $elasticSearch, Configuration $configuration, EventManager $eventManager = null)
     {
-        $this->elasticSearch = $client;
+        $this->configuration = $configuration;
+        $this->database = new Database($elasticSearch, $this);
         $this->eventManager = $eventManager ?: new EventManager();
 
         $this->metadataFactory = $configuration->getMetadataFactory();
@@ -68,11 +77,12 @@ class DocumentManager implements DocumentManagerInterface
         $this->unitOfWork = new UnitOfWork($this, $this->hydrator);
 
         $this->clear();
-        $this->queryExecutor = new Executor($this, $this->hydrator, $this->elasticSearch);
 
-        if (null !== $resultCache = $configuration->getResultCacheImpl()) {
-            $this->queryExecutor->setResultCacheImpl($resultCache);
+        if (null !== $resultCache = $configuration->getResultCache()) {
+            $this->database->setResultCache($resultCache);
         }
+
+        $this->repositoryFactory = $configuration->getRepositoryFactory();
     }
 
     /**
@@ -153,9 +163,9 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function getRepository($className)
+    public function getRepository($className): DocumentRepositoryInterface
     {
-        // TODO: Implement getRepository() method.
+        return $this->repositoryFactory->getRepository($className);
     }
 
     /**
@@ -201,6 +211,14 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
+     * @return Configuration
+     */
+    public function getConfiguration(): Configuration
+    {
+        return $this->configuration;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getProxyFactory(): LazyLoadingGhostFactory
@@ -235,13 +253,18 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function getCollection(string $className): SearchableInterface
+    public function getCollection(string $className): CollectionInterface
     {
-        $metadata = $this->getClassMetadata($className);
-        list($indexName, $typeName) = explode('/', $metadata->typeName, 2);
+        $class = $this->getClassMetadata($className);
 
-        return $this->elasticSearch
-            ->getIndex($indexName)
-            ->getType($typeName);
+        return $this->database->getCollection($class);
+    }
+
+    /**
+     * @return Hydrator
+     */
+    public function getHydrator(): Hydrator
+    {
+        return $this->hydrator;
     }
 }

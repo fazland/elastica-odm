@@ -2,9 +2,10 @@
 
 namespace Fazland\ODM\Elastica\Metadata;
 
+use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
 use Kcs\Metadata\ClassMetadata;
 
-final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\Persistence\Mapping\ClassMetadata
+final class DocumentMetadata extends ClassMetadata implements ClassMetadataInterface
 {
     /**
      * The elastica type name.
@@ -19,6 +20,14 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
      * @var FieldMetadata
      */
     public $identifier;
+
+    /**
+     * The fully-qualified class name of the custom repository class.
+     * (Optional).
+     *
+     * @var string|null
+     */
+    public $customRepositoryClassName;
 
     /**
      * {@inheritdoc}
@@ -47,7 +56,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     /**
      * {@inheritdoc}
      */
-    public function hasAssociation($fieldName)
+    public function hasAssociation($fieldName): bool
     {
         // TODO: Implement hasAssociation() method.
     }
@@ -55,7 +64,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     /**
      * {@inheritdoc}
      */
-    public function isSingleValuedAssociation($fieldName)
+    public function isSingleValuedAssociation($fieldName): bool
     {
         // TODO: Implement isSingleValuedAssociation() method.
     }
@@ -63,7 +72,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     /**
      * {@inheritdoc}
      */
-    public function isCollectionValuedAssociation($fieldName)
+    public function isCollectionValuedAssociation($fieldName): bool
     {
         // TODO: Implement isCollectionValuedAssociation() method.
     }
@@ -79,7 +88,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     /**
      * {@inheritdoc}
      */
-    public function getIdentifierFieldNames()
+    public function getIdentifierFieldNames(): array
     {
         return [$this->identifier->fieldName];
     }
@@ -87,7 +96,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     /**
      * {@inheritdoc}
      */
-    public function getAssociationNames()
+    public function getAssociationNames(): array
     {
         // TODO: Implement getAssociationNames() method.
     }
@@ -103,7 +112,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     /**
      * {@inheritdoc}
      */
-    public function getAssociationTargetClass($assocName)
+    public function getAssociationTargetClass($assocName): string
     {
         // TODO: Implement getAssociationTargetClass() method.
     }
@@ -111,7 +120,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     /**
      * {@inheritdoc}
      */
-    public function isAssociationInverseSide($assocName)
+    public function isAssociationInverseSide($assocName): bool
     {
         // TODO: Implement isAssociationInverseSide() method.
     }
@@ -119,7 +128,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     /**
      * {@inheritdoc}
      */
-    public function getAssociationMappedByTargetField($assocName)
+    public function getAssociationMappedByTargetField($assocName): string
     {
         // TODO: Implement getAssociationMappedByTargetField() method.
     }
@@ -169,5 +178,17 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
                 return $metadata;
             }
         }
+    }
+
+    /**
+     * Registers a custom repository class.
+     *
+     * @param string $repositoryClassName The class name of the custom mapper.
+     *
+     * @return void
+     */
+    public function setCustomRepositoryClass(string $repositoryClassName): void
+    {
+        $this->customRepositoryClassName = $repositoryClassName;
     }
 }

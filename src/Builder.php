@@ -2,7 +2,7 @@
 
 namespace Fazland\ODM\Elastica;
 
-use Elastica\Client as ElasticaClient;
+use Elastica\Client;
 use Fazland\ODM\Elastica\Metadata\Loader;
 use Fazland\ODM\Elastica\Metadata\MetadataFactory;
 use Fazland\ODM\Elastica\Metadata\Processor;
@@ -17,7 +17,7 @@ use Psr\Log\LoggerInterface;
 final class Builder
 {
     /**
-     * @var ElasticaClient
+     * @var Client
      */
     private $client;
 
@@ -74,7 +74,7 @@ final class Builder
         $this->typeManager = new TypeManager();
     }
 
-    public function setClient(ElasticaClient $client): self
+    public function setClient(Client $client): self
     {
         $this->client = $client;
 

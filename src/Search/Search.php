@@ -3,6 +3,9 @@
 namespace Fazland\ODM\Elastica\Search;
 
 use Elastica\Query;
+use Elastica\ResultSet;
+use Fazland\ODM\Elastica\Collection\CollectionInterface;
+use Fazland\ODM\Elastica\DocumentManagerInterface;
 
 class Search
 {
@@ -12,9 +15,9 @@ class Search
     private $documentClass;
 
     /**
-     * @var string|Query
+     * @var Query
      */
-    private $query = '';
+    private $query;
 
     /**
      * @var SearchCacheProfile
@@ -22,19 +25,21 @@ class Search
     private $cacheProfile;
 
     /**
-     * @var Executor
-     */
-    private $queryExecutor;
-
-    /**
      * @var bool
      */
-    private $scroll = false;
+    private $scroll;
+    /**
+     * @var DocumentManagerInterface
+     */
+    private $documentManager;
 
-    public function __construct(string $documentClass, Executor $queryExecutor)
+    public function __construct(DocumentManagerInterface $documentManager, string $documentClass)
     {
+        $this->documentManager = $documentManager;
         $this->documentClass = $documentClass;
-        $this->queryExecutor = $queryExecutor;
+        $this->scroll = false;
+
+        $this->setQuery('');
     }
 
     /**
@@ -47,14 +52,25 @@ class Search
         return $this->documentClass;
     }
 
-    /**
-     * Executes the query.
-     *
-     * @return array
-     */
     public function execute(): array
     {
-        return iterator_to_array($this->queryExecutor->execute($this), false);
+        return iterator_to_array($this->doExecute(), false);
+    }
+
+    private function doExecute(): \Generator
+    {
+        $collection = $this->documentManager->getCollection($this->documentClass);
+        $hydrator = $this->documentManager->getHydrator();
+
+        if ($this->isScroll()) {
+            $scroll = $collection->scroll($this->query);
+
+            foreach ($scroll as $resultSet) {
+                yield from $hydrator->hydrateAll($resultSet, $this->documentClass);
+            }
+        } else {
+            yield from $hydrator->hydrateAll($this->executeSearch($collection), $this->documentClass);
+        }
     }
 
     /**
@@ -66,7 +82,7 @@ class Search
      */
     public function setQuery($query): self
     {
-        $this->query = $query;
+        $this->query = Query::create($query);
 
         return $this;
     }
@@ -74,7 +90,7 @@ class Search
     /**
      * Gets the search query.
      *
-     * @return Query|string
+     * @return Query
      */
     public function getQuery()
     {
@@ -128,5 +144,39 @@ class Search
     public function getCacheProfile()
     {
         return $this->cacheProfile;
+    }
+
+    private function executeSearch(CollectionInterface $collection): ResultSet
+    {
+        if (null !== $this->cacheProfile) {
+            return $this->executeCachedSearch($collection);
+        }
+
+        return $collection->search($this->query);
+    }
+
+    private function executeCachedSearch(CollectionInterface $collection): ResultSet
+    {
+        $resultCache = $collection->getResultCache();
+
+        if (null !== $resultCache) {
+            $item = $resultCache->getItem($this->cacheProfile->getCacheKey());
+
+            if ($item->isHit()) {
+                return $item->get();
+            }
+        }
+
+        $search = clone $this;
+        $search->useResultCache(null, 0);
+        $resultSet = $search->executeSearch($collection);
+
+        if (isset($item)) {
+            $item->set($resultSet);
+            $item->expiresAfter($this->cacheProfile->getTtl());
+            $resultCache->save($item);
+        }
+
+        return $resultSet;
     }
 }
