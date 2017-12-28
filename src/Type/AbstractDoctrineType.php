@@ -25,6 +25,10 @@ abstract class AbstractDoctrineType extends AbstractType
             return null;
         }
 
+        if (! isset($options['class'])) {
+            throw new \InvalidArgumentException('Missing object fully qualified name.');
+        }
+
         $om = $this->registry->getManagerForClass($options['class']);
 
         return $om->find($options['class'], $value);

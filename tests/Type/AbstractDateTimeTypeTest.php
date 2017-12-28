@@ -2,39 +2,13 @@
 
 namespace Fazland\ODM\Elastica\Tests\Type;
 
-use Fazland\ODM\Elastica\Type\TypeInterface;
 use PHPUnit\Framework\TestCase;
 
-abstract class AbstractDateTimeTypeTest extends TestCase
+abstract class AbstractDateTimeTypeTest extends TestCase implements TypeTestInterface
 {
-    public abstract function getType(): TypeInterface;
+    use EmptyValuesTrait;
 
     public abstract function getExpectedClass(): string;
-
-    public function emptyValue(): array
-    {
-        return [
-            [''],
-            [null],
-            [[]],
-            [0],
-            [0.0],
-            ['0'],
-            [false],
-        ];
-    }
-
-    /**
-     * @dataProvider emptyValue
-     *
-     * @param mixed $value
-     */
-    public function testToPhpWithEmptyValueShouldReturnNull($value): void
-    {
-        $type = $this->getType();
-
-        $this->assertEquals(null, $type->toPHP($value));
-    }
 
     public function testToPhpWithDateTimeShouldReturnTheSameInstance(): void
     {
