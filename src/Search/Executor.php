@@ -8,7 +8,6 @@ use Elastica\Client;
 use Elastica\ResultSet;
 use Elastica\Type;
 use Psr\Cache\CacheItemPoolInterface;
-use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 final class Executor
 {
@@ -37,7 +36,6 @@ final class Executor
         $this->manager = $manager;
         $this->elasticSearch = $elasticSearch;
         $this->hydrator = $hydrator;
-        $this->resultCache = new ArrayAdapter();
     }
 
     /**
@@ -84,18 +82,22 @@ final class Executor
 
     private function executeCachedSearch(Search $search, SearchCacheProfile $cacheProfile): ResultSet
     {
-        $item = $this->resultCache->getItem($cacheProfile->getCacheKey());
-        if ($item->isHit()) {
-            return $item->get();
+        if (null !== $this->resultCache) {
+            $item = $this->resultCache->getItem($cacheProfile->getCacheKey());
+            if ($item->isHit()) {
+                return $item->get();
+            }
         }
 
         $search = clone $search;
         $search->useResultCache(null, 0);
         $resultSet = $this->executeSearch($search);
 
-        $item->set($resultSet);
-        $item->expiresAfter($cacheProfile->getTtl());
-        $this->resultCache->save($item);
+        if (isset($item)) {
+            $item->set($resultSet);
+            $item->expiresAfter($cacheProfile->getTtl());
+            $this->resultCache->save($item);
+        }
 
         return $resultSet;
     }
