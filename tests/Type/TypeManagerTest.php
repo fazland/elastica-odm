@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Fazland\ODM\Elastica\Tests;
+namespace Fazland\ODM\Elastica\Tests\Type;
 
 use Fazland\ODM\Elastica\Type\TypeInterface;
 use Fazland\ODM\Elastica\Type\TypeManager;
@@ -15,7 +15,7 @@ class TypeManagerTest extends TestCase
     public function testGetTypeShouldThrowOnUnknownType(): void
     {
         $typeManager = new TypeManager();
-        $typeManager->getType('unknown type');
+        $typeManager->getType('unknown_type');
     }
 
     public function testGetTypeShouldWork(): void

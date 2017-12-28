@@ -21,5 +21,4 @@ final class RawType extends AbstractType
     {
         return self::NAME;
     }
-
 }

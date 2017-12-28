@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class ClientTest extends TestCase
 {
-    public function testGetIndexWithAliasShouldReturnTheSameIndex():void
+    public function testGetIndexWithAliasShouldReturnTheSameIndex(): void
     {
         $client = new Client();
 

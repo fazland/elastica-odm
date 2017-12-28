@@ -2,9 +2,9 @@
 
 namespace Fazland\ODM\Elastica\Type;
 
-final class DateTimeType extends AbstractType
+final class DateTimeImmutableType extends AbstractType
 {
-    const NAME = 'datetime';
+    const NAME = 'datetime_immutable';
 
     /**
      * @inheritDoc
@@ -19,7 +19,7 @@ final class DateTimeType extends AbstractType
             $value = $value->format(\DateTime::ISO8601);
         }
 
-        return new \DateTime($value);
+        return new \DateTimeImmutable($value);
     }
 
     /**

@@ -37,5 +37,4 @@ abstract class AbstractDoctrineType extends AbstractType
     {
         return static::NAME;
     }
-
 }
