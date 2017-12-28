@@ -23,7 +23,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     /**
      * {@inheritdoc}
      */
-    public function getIdentifier()
+    public function getIdentifier(): array
     {
         return [$this->identifier->fieldName];
     }
@@ -31,7 +31,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     /**
      * {@inheritdoc}
      */
-    public function isIdentifier($fieldName)
+    public function isIdentifier($fieldName): bool
     {
         return $this->identifier->fieldName === $fieldName;
     }
@@ -39,7 +39,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     /**
      * {@inheritdoc}
      */
-    public function hasField($fieldName)
+    public function hasField($fieldName): bool
     {
         return isset($this->attributesMetadata[$fieldName]) && $this->attributesMetadata[$fieldName]->field;
     }
@@ -71,7 +71,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     /**
      * {@inheritdoc}
      */
-    public function getFieldNames()
+    public function getFieldNames(): array
     {
         return array_keys($this->attributesMetadata);
     }
@@ -95,7 +95,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     /**
      * {@inheritdoc}
      */
-    public function getTypeOfField($fieldName)
+    public function getTypeOfField($fieldName): string
     {
         return $this->attributesMetadata[$fieldName]->type;
     }
@@ -127,7 +127,7 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
     /**
      * {@inheritdoc}
      */
-    public function getIdentifierValues($object)
+    public function getIdentifierValues($object): array
     {
         $class = $this->name;
         if (! $object instanceof $class) {
@@ -153,7 +153,12 @@ final class DocumentMetadata extends ClassMetadata implements \Doctrine\Common\P
         return reset($id);
     }
 
-    public function getField(string $fieldName)
+    public function setIdentifierValue($object, $value): void
+    {
+        $this->identifier->setValue($object, $value);
+    }
+
+    public function getField(string $fieldName): ?FieldMetadata
     {
         foreach ($this->attributesMetadata as $metadata) {
             if (! $metadata instanceof FieldMetadata) {

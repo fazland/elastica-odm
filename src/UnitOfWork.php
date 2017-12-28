@@ -205,7 +205,23 @@ final class UnitOfWork
      */
     public function detach($object): void
     {
-        $this->doDetach($object);
+        $visited = [];
+
+        $this->doDetach($object, $visited);
+    }
+
+    /**
+     * Merges the given document with the managed one.
+     *
+     * @param $object
+     *
+     * @return object the managed copy of the document
+     */
+    public function merge($object)
+    {
+        $visited = [];
+
+        return $this->doMerge($object, $visited);
     }
 
     /**
@@ -299,7 +315,7 @@ final class UnitOfWork
     }
 
     /**
-     * Removes an object from identity map
+     * Removes an object from identity map.
      *
      * @param $object
      *
@@ -317,7 +333,84 @@ final class UnitOfWork
         unset($this->identityMap[$class->name][$id]);
     }
 
-    private function doDetach($object, array &$visited = [])
+    /**
+     * Executes a merge operation on a document.
+     *
+     * @param $object
+     * @param array $visited
+     *
+     * @return object the managed copy of the document
+     *
+     * @throws \InvalidArgumentException if document state is equal to NEW
+     */
+    private function doMerge($object, array &$visited)
+    {
+        $oid = spl_object_hash($object);
+
+        if (isset($visited[$oid])) {
+            return $visited[$oid];
+        }
+
+        $visited[$oid] = $object;
+
+        /** @var DocumentMetadata $class */
+        $class = $this->manager->getClassMetadata(get_class($object));
+        $managedCopy = $object;
+
+        if (self::STATE_MANAGED !== $this->getDocumentState($object, self::STATE_DETACHED)) {
+            $this->manager->initializeObject($object);
+
+            $id = $class->getSingleIdentifier($object);
+            $managedCopy = null;
+
+            if (null !== $id) {
+                $managedCopy = $this->manager->find($class->name, $id);
+
+                if (null !== $managedCopy && self::STATE_REMOVED === $this->getDocumentState($managedCopy)) {
+                    throw new \InvalidArgumentException('Removed document detected during merge.');
+                }
+
+                $this->manager->initializeObject($managedCopy);
+            }
+
+            if (null === $managedCopy) {
+                $managedCopy = $this->hydrator->getInstantiator()->instantiate($class->name);
+                if (null !== $id) {
+                    $class->setIdentifierValue($managedCopy, $id);
+                }
+
+                $this->persistNew($class, $managedCopy);
+            }
+
+            foreach ($class->getReflectionClass()->getProperties() as $property) {
+                $name = $property->name;
+                $property->setAccessible(true);
+
+                if (! isset($class->associationMappings[$name])) {
+                    if (! $class->isIdentifier($name)) {
+                        $property->setValue($managedCopy, $property->getValue($object));
+                    }
+                } else {
+                    // @todo
+                }
+            }
+        }
+
+        $visited[spl_object_hash($managedCopy)] = $managedCopy;
+        $this->cascadeMerge($object, $managedCopy, $visited);
+
+        return $managedCopy;
+    }
+
+    /**
+     * Execute detach operation.
+     *
+     * @param $object
+     * @param array $visited
+     *
+     * @throws InvalidIdentifierException+
+     */
+    private function doDetach($object, array &$visited)
     {
         $oid = spl_object_hash($object);
         if (isset($visited[$oid])) {
@@ -342,6 +435,16 @@ final class UnitOfWork
     }
 
     private function cascadeDetach($object, $visited)
+    {
+        // @todo
+    }
+
+    private function persistNew($class, $managedCopy)
+    {
+        // @todo
+    }
+
+    private function cascadeMerge($object, $managedCopy, $visited)
     {
         // @todo
     }

@@ -104,7 +104,11 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function merge($object)
     {
-        // TODO: Implement merge() method.
+        if (! is_object($object)) {
+            throw new \InvalidArgumentException('Expected object, '.gettype($object).' given.');
+        }
+
+        return $this->unitOfWork->merge($object);
     }
 
     /**
@@ -120,6 +124,10 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function detach($object): void
     {
+        if (! is_object($object)) {
+            throw new \InvalidArgumentException('Expected object, '.gettype($object).' given.');
+        }
+
         $this->unitOfWork->detach($object);
     }
 

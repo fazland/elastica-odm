@@ -89,7 +89,7 @@ class Hydrator
         return $result;
     }
 
-    private function getInstantiator(): Instantiator
+    public function getInstantiator(): Instantiator
     {
         static $instantiator = null;
         if (null === $instantiator) {
