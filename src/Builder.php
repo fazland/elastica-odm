@@ -164,11 +164,10 @@ final class Builder
         }
 
         $configuration = new Configuration();
-        $configuration->setClient($this->client);
         $configuration->setMetadataFactory($this->metadataFactory);
         $configuration->setProxyFactory($this->proxyFactory);
         $configuration->setTypeManager($this->typeManager);
 
-        return new DocumentManager($configuration);
+        return new DocumentManager($this->client, $configuration);
     }
 }

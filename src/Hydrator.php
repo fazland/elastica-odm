@@ -70,7 +70,7 @@ class Hydrator
 
             if (null === $object) {
                 $object = $instantiator->instantiate($className);
-                $this->hydrateDocument($document, $object);
+                $this->manager->getUnitOfWork()->createDocument($document, $object);
             }
 
             $results[] = $object;
@@ -82,7 +82,7 @@ class Hydrator
     public function hydrateOne(Document $document, string $className)
     {
         $result = $this->getInstantiator()->instantiate($className);
-        $this->hydrateDocument($document, $result);
+        $this->manager->getUnitOfWork()->createDocument($document, $result);
 
         return $result;
     }
@@ -132,7 +132,7 @@ class Hydrator
 
             $id = $metadata->getIdentifierValues($ghostObject);
             $document = $this->manager->fetch($className, reset($id));
-            $this->hydrateDocument($document, $ghostObject, $fields);
+            $this->manager->getUnitOfWork()->createDocument($document, $ghostObject, $fields);
 
             return true;
         };
@@ -164,56 +164,5 @@ class Hydrator
         ];
 
         return $this->proxyFactory->createProxy($className, $initializer, $proxyOptions);
-    }
-
-    private function hydrateDocument(Document $document, &$result, array $fields = null)
-    {
-        $metadata = $this->manager->getClassMetadata($result);
-        if (! $result instanceof $metadata->name) {
-            throw new \InvalidArgumentException('Unexpected object type for hydration');
-        }
-
-        $typeManager = $this->manager->getTypeManager();
-        $documentData = $document->getData();
-
-        foreach ($metadata->attributesMetadata as $fieldMetadata) {
-            if (! $fieldMetadata instanceof FieldMetadata) {
-                continue;
-            }
-
-            if ($fieldMetadata->identifier) {
-                $fieldMetadata->setValue($result, $document->getId());
-                continue;
-            }
-
-            if ($fieldMetadata->indexName) {
-                $fieldMetadata->setValue($result, $document->getIndex());
-                continue;
-            }
-
-            if ($fieldMetadata->typeName) {
-                $fieldMetadata->setValue($result, $document->getType());
-                continue;
-            }
-        }
-
-        foreach ($documentData as $key => $value) {
-            /** @var FieldMetadata $field */
-            $field = $metadata->getField($key);
-            if (null === $field) {
-                continue;
-            }
-
-            if (null !== $fields && ! in_array($field->getName(), $fields)) {
-                continue;
-            }
-
-            $fieldType = $typeManager->getType($field->type);
-            $value = $fieldType->toPHP($value, $field->options);
-
-            $field->setValue($result, $value);
-        }
-
-        $this->manager->getUnitOfWork()->addToIdentityMap($result);
     }
 }

@@ -11,13 +11,6 @@ use Psr\Cache\CacheItemPoolInterface;
 final class Configuration
 {
     /**
-     * The ES client.
-     *
-     * @var Client
-     */
-    private $client;
-
-    /**
      * The document metadata factory.
      *
      * @var MetadataFactoryInterface
@@ -48,21 +41,6 @@ final class Configuration
     public function __construct()
     {
         $this->typeManager = new TypeManager();
-    }
-
-    /**
-     * Sets the ES client.
-     *
-     * @param Client $client
-     * @required
-     *
-     * @return $this|self
-     */
-    public function setClient(Client $client): self
-    {
-        $this->client = $client;
-
-        return $this;
     }
 
     /**
@@ -121,11 +99,6 @@ final class Configuration
         $this->typeManager = $typeManager;
 
         return $this;
-    }
-
-    public function getClient(): Client
-    {
-        return $this->client;
     }
 
     public function getProxyFactory(): LazyLoadingGhostFactory

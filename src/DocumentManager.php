@@ -2,6 +2,7 @@
 
 namespace Fazland\ODM\Elastica;
 
+use Doctrine\Common\EventManager;
 use Fazland\ODM\Elastica\Metadata\MetadataFactory;
 use Fazland\ODM\Elastica\Search\Executor;
 use Fazland\ODM\Elastica\Type\TypeManager;
@@ -10,6 +11,7 @@ use Elastica\Document;
 use Elastica\Exception\NotFoundException;
 use Elastica\Type;
 use ProxyManager\Factory\LazyLoadingGhostFactory;
+use ProxyManager\Proxy\LazyLoadingInterface;
 use ProxyManager\Proxy\ProxyInterface;
 
 class DocumentManager implements DocumentManagerInterface
@@ -49,16 +51,22 @@ class DocumentManager implements DocumentManagerInterface
      */
     private $queryExecutor;
 
-    public function __construct(Configuration $configuration)
+    /**
+     * @var EventManager
+     */
+    private $eventManager;
+
+    public function __construct(Client $client, Configuration $configuration, EventManager $eventManager = null)
     {
+        $this->elasticSearch = $client;
+        $this->eventManager = $eventManager ?: new EventManager();
+
         $this->metadataFactory = $configuration->getMetadataFactory();
-        $this->elasticSearch = $configuration->getClient();
         $this->proxyFactory = $configuration->getProxyFactory();
         $this->typeManager = $configuration->getTypeManager();
+        $this->hydrator = new Hydrator($this);
 
         $this->clear();
-
-        $this->hydrator = new Hydrator($this);
         $this->queryExecutor = new Executor($this, $this->hydrator, $this->elasticSearch);
 
         if (null !== $resultCache = $configuration->getResultCacheImpl()) {
@@ -191,15 +199,21 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function initializeObject($obj)
     {
-        // TODO: Implement initializeObject() method.
+        if ($obj instanceof LazyLoadingInterface) {
+            $obj->initializeProxy();
+        }
     }
 
     /**
      * @inheritDoc
      */
-    public function contains($object)
+    public function contains($object): bool
     {
-        // TODO: Implement contains() method.
+        if (! is_object($object)) {
+            throw new \InvalidArgumentException('Expected object, '.gettype($object).' given.');
+        }
+
+        return $this->unitOfWork->isInIdentityMap($object);
     }
 
     public function getProxyFactory(): LazyLoadingGhostFactory
