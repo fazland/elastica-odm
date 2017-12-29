@@ -234,5 +234,7 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
                 return $metadata;
             }
         }
+
+        return null;
     }
 }

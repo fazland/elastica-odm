@@ -319,7 +319,7 @@ final class UnitOfWork
      */
     public function createDocument(Document $document, &$result, ?array $fields = null)
     {
-        $class = $this->manager->getClassMetadata($result);
+        $class = $this->manager->getClassMetadata(get_class($result));
         if (! $result instanceof $class->name) {
             throw new \InvalidArgumentException('Unexpected object type for hydration');
         }
@@ -454,7 +454,7 @@ final class UnitOfWork
             return;
         }
 
-        $class = $this->manager->getClassMetadata($object);
+        $class = $this->manager->getClassMetadata(get_class($object));
         $id = $class->getSingleIdentifier($object);
 
         if (empty($id)) {
