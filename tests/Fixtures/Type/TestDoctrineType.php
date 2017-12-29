@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Fazland\ODM\Elastica\Tests\Type;
+namespace Fazland\ODM\Elastica\Tests\Fixtures\Type;
 
 use Fazland\ODM\Elastica\Type\AbstractDoctrineType;
 
