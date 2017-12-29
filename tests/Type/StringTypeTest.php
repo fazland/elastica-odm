@@ -25,26 +25,10 @@ class StringTypeTest extends TestCase
         $type->toPHP([]);
     }
 
-    /**
-     * @dataProvider validValues
-     *
-     * @param mixed $value
-     */
-    public function testToPhpShouldWork($value): void
+    public function testToPhpShouldWork(): void
     {
         $type = new StringType();
 
-        $this->assertEquals((string) $value, $type->toPHP($value));
-    }
-
-    public function validValues(): array
-    {
-        return [
-            ['string'],
-            [0],
-            [0.0],
-            [true],
-            [new StringableObject()],
-        ];
+        $this->assertEquals('string', $type->toPHP('string'));
     }
 }

@@ -11,22 +11,30 @@ final class StringType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function toPHP($value, array $options = [])
+    public function toPHP($value, array $options = []): ?string
     {
         if (null === $value) {
             return null;
         }
 
-        return $this->castToString($value);
+        if (! is_string($value)) {
+            throw new ConversionFailedException($value, ['string', 'any value that can be converted to string']);
+        }
+
+        return $value;
     }
 
-    public function toDatabase($value, array $options = [])
+    public function toDatabase($value, array $options = []): ?string
     {
         if (null === $value) {
             return null;
         }
 
-        return $this->castToString($value);
+        if (! is_string($value)) {
+            throw new ConversionFailedException($value, ['string', 'any value that can be converted to string']);
+        }
+
+        return $value;
     }
 
     /**
@@ -35,22 +43,5 @@ final class StringType extends AbstractType
     public function getName(): string
     {
         return self::NAME;
-    }
-
-    private function castToString($value)
-    {
-        if (null === $value) {
-            return null;
-        }
-
-        if (! is_string($value)) {
-            try {
-                $value = (string) $value;
-            } catch (\Throwable $e) {
-                throw new ConversionFailedException($value, ['string', 'any value that can be converted to string']);
-            }
-        }
-
-        return $value;
     }
 }
