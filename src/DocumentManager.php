@@ -21,11 +21,6 @@ use ProxyManager\Proxy\ProxyInterface;
 class DocumentManager implements DocumentManagerInterface
 {
     /**
-     * @var Configuration
-     */
-    private $configuration;
-
-    /**
      * @var MetadataFactory
      */
     private $metadataFactory;
@@ -62,7 +57,6 @@ class DocumentManager implements DocumentManagerInterface
 
     public function __construct(Client $elasticSearch, Configuration $configuration, EventManager $eventManager = null)
     {
-        $this->configuration = $configuration;
         $this->database = new Database($elasticSearch, $this);
         $this->eventManager = $eventManager ?: new EventManager();
 
@@ -160,7 +154,7 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function getRepository($className): DocumentRepositoryInterface
     {
-        return $this->repositoryFactory->getRepository($className);
+        return $this->repositoryFactory->getRepository($this, $className);
     }
 
     /**
@@ -203,14 +197,6 @@ class DocumentManager implements DocumentManagerInterface
         }
 
         return $this->unitOfWork->isInIdentityMap($object);
-    }
-
-    /**
-     * @return Configuration
-     */
-    public function getConfiguration(): Configuration
-    {
-        return $this->configuration;
     }
 
     /**
