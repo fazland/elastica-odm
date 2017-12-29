@@ -25,10 +25,8 @@ abstract class AbstractRepositoryFactory implements RepositoryFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getRepository(
-        DocumentManagerInterface $documentManager,
-        string $documentName
-    ): DocumentRepositoryInterface {
+    public function getRepository(DocumentManagerInterface $documentManager, string $documentName): DocumentRepositoryInterface
+    {
         $metadata = $documentManager->getClassMetadata($documentName);
         $hashKey = $metadata->getName().spl_object_hash($documentManager);
 
@@ -37,7 +35,6 @@ abstract class AbstractRepositoryFactory implements RepositoryFactoryInterface
         }
 
         $repository = $this->createRepository($documentManager, ltrim($documentName, '\\'));
-
         $this->repositoryList[$hashKey] = $repository;
 
         return $repository;
@@ -59,10 +56,8 @@ abstract class AbstractRepositoryFactory implements RepositoryFactoryInterface
      *
      * @return DocumentRepositoryInterface
      */
-    protected function createRepository(
-        DocumentManagerInterface $documentManager,
-        string $documentName
-    ): DocumentRepositoryInterface {
+    protected function createRepository(DocumentManagerInterface $documentManager, string $documentName): DocumentRepositoryInterface
+    {
         $class = $documentManager->getClassMetadata($documentName);
         $repositoryClassName = $class->customRepositoryClassName ?: $this->defaultRepositoryClassName;
 

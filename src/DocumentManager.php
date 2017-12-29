@@ -7,6 +7,7 @@ use Elastica\Client;
 use Fazland\ODM\Elastica\Collection\CollectionInterface;
 use Fazland\ODM\Elastica\Collection\Database;
 use Fazland\ODM\Elastica\Collection\DatabaseInterface;
+use Fazland\ODM\Elastica\Hydrator\HydratorInterface;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
 use Fazland\ODM\Elastica\Metadata\MetadataFactory;
 use Fazland\ODM\Elastica\Repository\DocumentRepositoryInterface;
@@ -45,11 +46,6 @@ class DocumentManager implements DocumentManagerInterface
     private $unitOfWork;
 
     /**
-     * @var Hydrator
-     */
-    private $hydrator;
-
-    /**
      * @var EventManager
      */
     private $eventManager;
@@ -73,8 +69,7 @@ class DocumentManager implements DocumentManagerInterface
         $this->metadataFactory = $configuration->getMetadataFactory();
         $this->proxyFactory = $configuration->getProxyFactory();
         $this->typeManager = $configuration->getTypeManager();
-        $this->hydrator = new Hydrator($this);
-        $this->unitOfWork = new UnitOfWork($this, $this->hydrator);
+        $this->unitOfWork = new UnitOfWork($this);
 
         $this->clear();
 
@@ -261,10 +256,15 @@ class DocumentManager implements DocumentManagerInterface
     }
 
     /**
-     * @return Hydrator
+     * {@inheritdoc}
      */
-    public function getHydrator(): Hydrator
+    public function newHydrator(int $hydrationMode): HydratorInterface
     {
-        return $this->hydrator;
+        switch ($hydrationMode) {
+            case HydratorInterface::HYDRATE_OBJECT:
+                return new Hydrator\ObjectHydrator($this);
+        }
+
+        throw new \InvalidArgumentException('Invalid hydration mode '.$hydrationMode);
     }
 }

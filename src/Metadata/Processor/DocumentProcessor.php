@@ -18,5 +18,6 @@ class DocumentProcessor implements ProcessorInterface
     public function process(MetadataInterface $metadata, $subject): void
     {
         $metadata->typeName = $subject->type;
+        $metadata->customRepositoryClassName = $subject->repositoryClass;
     }
 }

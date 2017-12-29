@@ -7,10 +7,4 @@ use Doctrine\Common\Persistence\ObjectRepository;
 
 interface DocumentRepositoryInterface extends ObjectRepository, Selectable
 {
-    /**
-     * Gets the document fully-qualified name.
-     *
-     * @return string
-     */
-    public function getDocumentName(): string;
 }

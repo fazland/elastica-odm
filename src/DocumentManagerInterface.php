@@ -5,6 +5,7 @@ namespace Fazland\ODM\Elastica;
 use Doctrine\Common\EventManager;
 use Doctrine\Common\Persistence\ObjectManager;
 use Fazland\ODM\Elastica\Collection\CollectionInterface;
+use Fazland\ODM\Elastica\Hydrator\HydratorInterface;
 use Fazland\ODM\Elastica\Type\TypeManager;
 use ProxyManager\Factory\LazyLoadingGhostFactory;
 
@@ -51,9 +52,11 @@ interface DocumentManagerInterface extends ObjectManager
     public function getCollection(string $className): CollectionInterface;
 
     /**
-     * Gets the lonely hydrator.
+     * Gets an hydrator for the given hydration mode.
      *
-     * @return Hydrator
+     * @param int $hydrationMode
+     *
+     * @return HydratorInterface
      */
-    public function getHydrator(): Hydrator;
+    public function newHydrator(int $hydrationMode): HydratorInterface;
 }

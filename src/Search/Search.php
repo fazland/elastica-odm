@@ -6,29 +6,69 @@ use Elastica\Query;
 use Elastica\ResultSet;
 use Fazland\ODM\Elastica\Collection\CollectionInterface;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
+use Fazland\ODM\Elastica\Hydrator\HydratorInterface;
 
-class Search
+class Search implements \IteratorAggregate
 {
     /**
+     * The target document class.
+     *
      * @var string
      */
     private $documentClass;
 
     /**
+     * Hydration mode.
+     *
+     * @var int
+     */
+    private $hydrationMode;
+
+    /**
+     * Search query.
+     *
      * @var Query
      */
     private $query;
 
     /**
+     * Result cache profile.
+     *
      * @var SearchCacheProfile
      */
     private $cacheProfile;
 
     /**
+     * Whether to execute a scroll search or not.
+     *
      * @var bool
      */
     private $scroll;
+
     /**
+     * Sort fields.
+     *
+     * @var array
+     */
+    private $sort;
+
+    /**
+     * Max returned results.
+     *
+     * @var int
+     */
+    private $limit;
+
+    /**
+     * Skipped documents.
+     *
+     * @var int
+     */
+    private $offset;
+
+    /**
+     * The document manager which this search is bound.
+     *
      * @var DocumentManagerInterface
      */
     private $documentManager;
@@ -37,6 +77,7 @@ class Search
     {
         $this->documentManager = $documentManager;
         $this->documentClass = $documentClass;
+        $this->hydrationMode = HydratorInterface::HYDRATE_OBJECT;
         $this->scroll = false;
 
         $this->setQuery('');
@@ -52,24 +93,47 @@ class Search
         return $this->documentClass;
     }
 
+    /**
+     * Gets the query results.
+     *
+     * @return array
+     */
     public function execute(): array
     {
-        return iterator_to_array($this->doExecute(), false);
+        return iterator_to_array($this->getIterator(), false);
     }
 
-    private function doExecute(): \Generator
+    /**
+     * Iterate over the query results.
+     *
+     * @return \Iterator
+     */
+    public function getIterator(): \Iterator
     {
         $collection = $this->documentManager->getCollection($this->documentClass);
-        $hydrator = $this->documentManager->getHydrator();
+        $hydrator = $this->documentManager->newHydrator($this->hydrationMode);
+
+        $query = clone $this->query;
+        if (null !== $this->sort) {
+            $query->setSort($this->sort);
+        }
+
+        if (null !== $this->limit) {
+            $query->setSize($this->limit);
+        }
+
+        if (null !== $this->offset) {
+            $query->setFrom($this->offset);
+        }
 
         if ($this->isScroll()) {
-            $scroll = $collection->scroll($this->query);
+            $scroll = $collection->scroll($query);
 
             foreach ($scroll as $resultSet) {
                 yield from $hydrator->hydrateAll($resultSet, $this->documentClass);
             }
         } else {
-            yield from $hydrator->hydrateAll($this->executeSearch($collection), $this->documentClass);
+            yield from $hydrator->hydrateAll($this->executeSearch($query, $collection), $this->documentClass);
         }
     }
 
@@ -98,6 +162,90 @@ class Search
     }
 
     /**
+     * Sets the sort fields and directions.
+     *
+     * @param array|string $fieldName
+     * @param string       $order
+     *
+     * @return Search
+     */
+    public function setSort($fieldName, $order = 'asc'): self
+    {
+        if (null !== $fieldName) {
+            $sort = [];
+            $fields = is_array($fieldName) ? $fieldName : [$fieldName => $order];
+
+            foreach ($fields as $fieldName => $order) {
+                $sort[] = [$fieldName => $order];
+            }
+        } else {
+            $sort = null;
+        }
+
+        $this->sort = $sort;
+
+        return $this;
+    }
+
+    /**
+     * Gets the sort array.
+     *
+     * @return array
+     */
+    public function getSort(): ?array
+    {
+        return $this->sort;
+    }
+
+    /**
+     * Sets the query limit.
+     *
+     * @param int $limit
+     *
+     * @return $this
+     */
+    public function setLimit(?int $limit): self
+    {
+        $this->limit = $limit;
+
+        return $this;
+    }
+
+    /**
+     * Gets the max returned documents.
+     *
+     * @return int
+     */
+    public function getLimit(): ?int
+    {
+        return $this->limit;
+    }
+
+    /**
+     * Sets the query first result.
+     *
+     * @param int $offset
+     *
+     * @return $this
+     */
+    public function setOffset(?int $offset): self
+    {
+        $this->offset = $offset;
+
+        return $this;
+    }
+
+    /**
+     * Gets the query first result.
+     *
+     * @return int
+     */
+    public function getOffset(): ?int
+    {
+        return $this->offset;
+    }
+
+    /**
      * @param bool $scroll
      *
      * @return $this|self
@@ -114,7 +262,7 @@ class Search
      */
     public function isScroll(): bool
     {
-        return $this->scroll;
+        return null === $this->limit && null === $this->offset && $this->scroll;
     }
 
     /**
@@ -146,16 +294,16 @@ class Search
         return $this->cacheProfile;
     }
 
-    private function executeSearch(CollectionInterface $collection): ResultSet
+    private function executeSearch(Query $query, CollectionInterface $collection): ResultSet
     {
         if (null !== $this->cacheProfile) {
-            return $this->executeCachedSearch($collection);
+            return $this->executeCachedSearch($query, $collection);
         }
 
-        return $collection->search($this->query);
+        return $collection->search($query);
     }
 
-    private function executeCachedSearch(CollectionInterface $collection): ResultSet
+    private function executeCachedSearch(Query $query, CollectionInterface $collection): ResultSet
     {
         $resultCache = $collection->getResultCache();
 
@@ -169,7 +317,7 @@ class Search
 
         $search = clone $this;
         $search->useResultCache(null, 0);
-        $resultSet = $search->executeSearch($collection);
+        $resultSet = $search->executeSearch($query, $collection);
 
         if (isset($item)) {
             $item->set($resultSet);

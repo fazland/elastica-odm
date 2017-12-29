@@ -5,7 +5,7 @@ namespace Fazland\ODM\Elastica\Persister;
 use Elastica\Query;
 use Fazland\ODM\Elastica\Collection\CollectionInterface;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
-use Fazland\ODM\Elastica\Hydrator;
+use Fazland\ODM\Elastica\Hydrator\HydratorInterface;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
 
 class DocumentPersister
@@ -14,11 +14,6 @@ class DocumentPersister
      * @var DocumentManagerInterface
      */
     private $dm;
-
-    /**
-     * @var Hydrator
-     */
-    private $hydrator;
 
     /**
      * @var DocumentMetadata
@@ -32,13 +27,11 @@ class DocumentPersister
 
     public function __construct(
         DocumentManagerInterface $dm,
-        DocumentMetadata $class,
-        Hydrator $hydrator
+        DocumentMetadata $class
     ) {
         $this->dm = $dm;
-        $this->hydrator = $hydrator;
-
         $this->class = $class;
+
         $this->collection = $dm->getCollection($class->name);
     }
 
@@ -75,17 +68,27 @@ class DocumentPersister
             return $document;
         }
 
-        return $this->hydrator->hydrateOne($esDoc, $this->class->name);
+        return $this->dm->newHydrator(HydratorInterface::HYDRATE_OBJECT)
+            ->hydrateOne($esDoc, $this->class->name);
     }
 
-    public function loadAll(array $criteria = []): array
+    public function loadAll(array $criteria = [], array $orderBy = null, $limit = null, $offset = null): array
     {
         $query = $this->prepareQuery($criteria);
-        $search = $this->collection->createSearch();
-        $search
-            ->setScroll(true)
-            ->setQuery($query)
-        ;
+        $search = $this->collection->createSearch($query);
+        $search->setSort($orderBy);
+
+        if (null === $limit && null === $offset) {
+            $search->setScroll(true);
+        } else {
+            if (null !== $limit) {
+                $search->setLimit($limit);
+            }
+
+            if (null !== $offset) {
+                $search->setOffset($offset);
+            }
+        }
 
         return $search->execute();
     }

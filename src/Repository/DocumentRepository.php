@@ -13,7 +13,7 @@ class DocumentRepository implements DocumentRepositoryInterface
     /**
      * @var DocumentManagerInterface
      */
-    protected $documentManager;
+    protected $dm;
 
     /**
      * @var DocumentMetadata
@@ -23,25 +23,19 @@ class DocumentRepository implements DocumentRepositoryInterface
     /**
      * @var string
      */
-    protected $documentName;
+    protected $documentClass;
 
     /**
      * @var UnitOfWork
      */
-    private $unitOfWork;
-
-    /**
-     * @var DocumentPersister
-     */
-    private $persister;
+    protected $uow;
 
     public function __construct(DocumentManagerInterface $documentManager, DocumentMetadata $class)
     {
-        $this->documentManager = $documentManager;
+        $this->dm = $documentManager;
         $this->class = $class;
-        $this->documentName = $class->name;
-        $this->unitOfWork = $documentManager->getUnitOfWork();
-        $this->persister = $this->unitOfWork->getDocumentPersister($this->documentName);
+        $this->documentClass = $class->name;
+        $this->uow = $documentManager->getUnitOfWork();
     }
 
     /**
@@ -49,7 +43,7 @@ class DocumentRepository implements DocumentRepositoryInterface
      */
     public function find($id)
     {
-        return $this->documentManager->find($this->documentName, $id);
+        return $this->dm->find($this->documentClass, $id);
     }
 
     /**
@@ -65,7 +59,7 @@ class DocumentRepository implements DocumentRepositoryInterface
      */
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null): array
     {
-        return $this->persister->loadAll($criteria);
+        return $this->getDocumentPersister()->loadAll($criteria, $orderBy, $limit, $offset);
     }
 
     /**
@@ -73,15 +67,7 @@ class DocumentRepository implements DocumentRepositoryInterface
      */
     public function findOneBy(array $criteria)
     {
-        return $this->persister->load($criteria);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDocumentName(): string
-    {
-        return $this->documentName;
+        return $this->getDocumentPersister()->load($criteria);
     }
 
     /**
@@ -89,7 +75,7 @@ class DocumentRepository implements DocumentRepositoryInterface
      */
     public function getClassName(): string
     {
-        return $this->getDocumentName();
+        return $this->documentClass;
     }
 
     /**
@@ -98,5 +84,15 @@ class DocumentRepository implements DocumentRepositoryInterface
     public function matching(Criteria $criteria)
     {
         // TODO: Implement matching() method.
+    }
+
+    /**
+     * Gets the document persister for this document class.
+     *
+     * @return DocumentPersister
+     */
+    protected function getDocumentPersister(): DocumentPersister
+    {
+        return $this->uow->getDocumentPersister($this->documentClass);
     }
 }

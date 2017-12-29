@@ -68,16 +68,9 @@ final class UnitOfWork
      */
     private $evm;
 
-    /**
-     * @var Hydrator
-     */
-    private $hydrator;
-
-    public function __construct(DocumentManagerInterface $manager, Hydrator $hydrator)
+    public function __construct(DocumentManagerInterface $manager)
     {
         $this->manager = $manager;
-        $this->hydrator = $hydrator;
-
         $this->evm = $manager->getEventManager();
     }
 
@@ -117,7 +110,7 @@ final class UnitOfWork
             return $this->documentPersisters[$documentClass];
         }
 
-        return $this->documentPersisters[$documentClass] = new DocumentPersister($this->manager, $this->manager->getClassMetadata($documentClass), $this->hydrator);
+        return $this->documentPersisters[$documentClass] = new DocumentPersister($this->manager, $this->manager->getClassMetadata($documentClass));
     }
 
     /**
@@ -148,14 +141,14 @@ final class UnitOfWork
             return false;
         }
 
-        $metadata = $this->manager->getClassMetadata($object);
-        $id = $metadata->getIdentifierValues($object);
+        $class = $this->manager->getClassMetadata($object);
+        $id = $class->getIdentifierValues($object);
 
         if (empty($id)) {
             return false;
         }
 
-        return isset($this->identityMap[$metadata->name][$id]);
+        return isset($this->identityMap[$class->name][$id]);
     }
 
     /**
@@ -236,15 +229,15 @@ final class UnitOfWork
      */
     public function createDocument(Document $document, &$result, ?array $fields = null)
     {
-        $metadata = $this->manager->getClassMetadata($result);
-        if (! $result instanceof $metadata->name) {
+        $class = $this->manager->getClassMetadata($result);
+        if (! $result instanceof $class->name) {
             throw new \InvalidArgumentException('Unexpected object type for hydration');
         }
 
         $typeManager = $this->manager->getTypeManager();
         $documentData = $document->getData();
 
-        foreach ($metadata->attributesMetadata as $fieldMetadata) {
+        foreach ($class->attributesMetadata as $fieldMetadata) {
             if (! $fieldMetadata instanceof FieldMetadata) {
                 continue;
             }
@@ -267,7 +260,7 @@ final class UnitOfWork
 
         foreach ($documentData as $key => $value) {
             /** @var FieldMetadata $field */
-            $field = $metadata->getField($key);
+            $field = $class->getField($key);
             if (null === $field) {
                 continue;
             }
@@ -302,15 +295,15 @@ final class UnitOfWork
             return;
         }
 
-        $metadata = $this->manager->getClassMetadata($object);
-        $id = $metadata->getSingleIdentifier($object);
+        $class = $this->manager->getClassMetadata($object);
+        $id = $class->getSingleIdentifier($object);
 
         if (empty($id)) {
             throw new InvalidIdentifierException('Documents must have an identifier in order to be added to the identity map.');
         }
 
         $this->objects[$oid] = $object;
-        $this->identityMap[$metadata->name][$id] = $object;
+        $this->identityMap[$class->name][$id] = $object;
         $this->documentStates[$oid] = self::STATE_MANAGED;
     }
 
@@ -374,7 +367,7 @@ final class UnitOfWork
             }
 
             if (null === $managedCopy) {
-                $managedCopy = $this->hydrator->getInstantiator()->instantiate($class->name);
+                $managedCopy = $class->newInstance();
                 if (null !== $id) {
                     $class->setIdentifierValue($managedCopy, $id);
                 }

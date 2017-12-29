@@ -3,6 +3,7 @@
 namespace Fazland\ODM\Elastica\Metadata;
 
 use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
+use Doctrine\Instantiator\Instantiator;
 use Kcs\Metadata\ClassMetadata;
 
 final class DocumentMetadata extends ClassMetadata implements ClassMetadataInterface
@@ -23,11 +24,35 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
 
     /**
      * The fully-qualified class name of the custom repository class.
-     * (Optional).
+     * Optional.
      *
      * @var string|null
      */
     public $customRepositoryClassName;
+
+    /**
+     * The instantiator used to build new object instances.
+     *
+     * @var Instantiator
+     */
+    private $instantiator;
+
+    public function __construct(\ReflectionClass $class)
+    {
+        parent::__construct($class);
+
+        $this->instantiator = new Instantiator();
+    }
+
+    /**
+     * Returns a new object instance.
+     *
+     * @return object
+     */
+    public function newInstance()
+    {
+        return $this->instantiator->instantiate($this->name);
+    }
 
     /**
      * {@inheritdoc}
@@ -178,15 +203,5 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
                 return $metadata;
             }
         }
-    }
-
-    /**
-     * Registers a custom repository class.
-     *
-     * @param string $repositoryClassName the class name of the custom mapper
-     */
-    public function setCustomRepositoryClass(string $repositoryClassName): void
-    {
-        $this->customRepositoryClassName = $repositoryClassName;
     }
 }
