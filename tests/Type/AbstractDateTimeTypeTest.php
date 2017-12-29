@@ -24,7 +24,7 @@ abstract class AbstractDateTimeTypeTest extends TestCase implements TypeTestInte
     {
         $type = $this->getType();
 
-        $time = 'tomorrow midnight';
+        $time = '2017-12-29T15:43:00+01:00';
         $expectedClass = $this->getExpectedClass();
 
         $expected = new $expectedClass($time);

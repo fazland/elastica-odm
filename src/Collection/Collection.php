@@ -3,9 +3,11 @@
 namespace Fazland\ODM\Elastica\Collection;
 
 use Elastica\Query;
+use Elastica\Response;
 use Elastica\ResultSet;
 use Elastica\Scroll;
 use Elastica\SearchableInterface;
+use Elasticsearch\Endpoints;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
 use Fazland\ODM\Elastica\Search\Search;
 use Psr\Cache\CacheItemPoolInterface;
@@ -31,6 +33,11 @@ class Collection implements CollectionInterface
      * @var CacheItemPoolInterface|null
      */
     private $resultCache;
+
+    /**
+     * @var null|string
+     */
+    private $_lastInsertId;
 
     public function __construct(DocumentManagerInterface $documentManager, string $documentClass, SearchableInterface $searchable)
     {
@@ -94,5 +101,37 @@ class Collection implements CollectionInterface
     public function count(Query $query): int
     {
         return $this->searchable->count($query);
+    }
+
+    public function create(?string $id, array $body): Response
+    {
+        $endpoint = new Endpoints\Index();
+        if (! empty($id)) {
+            $endpoint->setID($id);
+        }
+
+        $endpoint->setBody($body);
+        $response = $this->searchable->requestEndpoint($endpoint);
+
+        $data = $response->getData();
+        if (! $response->isOk()) {
+            throw new \RuntimeException('Response not OK');
+        }
+
+        if (isset($data['_id'])) {
+            $this->_lastInsertId = $data['_id'];
+        } else {
+            $this->_lastInsertId = null;
+        }
+
+        return $response;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getLastInsertedId(): ?string
+    {
+        return $this->_lastInsertId;
     }
 }

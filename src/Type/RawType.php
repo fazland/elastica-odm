@@ -17,6 +17,14 @@ final class RawType extends AbstractType
     /**
      * {@inheritdoc}
      */
+    public function toDatabase($value, array $options = [])
+    {
+        return $value;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getName(): string
     {
         return self::NAME;

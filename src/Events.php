@@ -11,4 +11,12 @@ final class Events
      * @var string
      */
     const onClear = 'onClear';
+
+    /**
+     * The preFlush event occurs when the DocumentManager#flush() operation is invoked,
+     * but before any changes to managed documents have been calculated.
+     *
+     * @var string
+     */
+    const preFlush = 'preFlush';
 }

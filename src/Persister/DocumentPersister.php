@@ -2,11 +2,14 @@
 
 namespace Fazland\ODM\Elastica\Persister;
 
+use Elastica\Document;
 use Elastica\Query;
 use Fazland\ODM\Elastica\Collection\CollectionInterface;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
 use Fazland\ODM\Elastica\Hydrator\HydratorInterface;
+use Fazland\ODM\Elastica\Id\PostInsertId;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
+use Fazland\ODM\Elastica\Metadata\FieldMetadata;
 
 class DocumentPersister
 {
@@ -115,5 +118,61 @@ class DocumentPersister
         }
 
         return Query::create($bool);
+    }
+
+    public function insert($document): ?PostInsertId
+    {
+        /** @var DocumentMetadata $class */
+        $class = $this->dm->getClassMetadata($document);
+        $idGenerator = $this->dm->getUnitOfWork()->getIdGenerator($class->idGeneratorType);
+        $postIdGenerator = $idGenerator->isPostInsertGenerator();
+
+        $id = $postIdGenerator ? null : $class->getSingleIdentifier($document);
+        $body = $this->prepareInsertData($class, $document);
+
+        $response = $this->collection->create($id, $body);
+        $data = $response->getData();
+
+        foreach ($class->attributesMetadata as $field) {
+            if (! $field instanceof FieldMetadata) {
+                continue;
+            }
+
+            if ($field->indexName) {
+                $field->setValue($document, $data['_index'] ?? null);
+            }
+
+            if ($field->typeName) {
+                $field->setValue($document, $data['_type'] ?? null);
+            }
+        }
+
+        $postInsertId = null;
+        if ($postIdGenerator) {
+            $postInsertId = new PostInsertId($document, $this->collection->getLastInsertedId());
+        }
+
+        return $postInsertId;
+    }
+
+    private function prepareInsertData(DocumentMetadata $class, $document): array
+    {
+        $body = [];
+        $typeManager = $this->dm->getTypeManager();
+
+        foreach ($class->attributesMetadata as $field) {
+            if (! $field instanceof FieldMetadata) {
+                continue;
+            }
+
+            if ($field->identifier || $field->indexName || $field->typeName) {
+                continue;
+            }
+
+            $type = $typeManager->getType($field->type);
+            $body[$field->fieldName] = $type->toDatabase($field->getValue($document));
+        }
+
+        return $body;
     }
 }

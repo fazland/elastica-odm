@@ -3,6 +3,7 @@
 namespace Fazland\ODM\Elastica\Collection;
 
 use Elastica\Query;
+use Elastica\Response;
 use Elastica\ResultSet;
 use Elastica\Scroll;
 use Fazland\ODM\Elastica\Search\Search;
@@ -60,4 +61,21 @@ interface CollectionInterface
      * @return int
      */
     public function count(Query $query): int;
+
+    /**
+     * Request the index of a document.
+     *
+     * @param null|string $id
+     * @param array $body
+     *
+     * @return Response
+     */
+    public function create(?string $id, array $body): Response;
+
+    /**
+     * Returns the last inserted identifier as string.
+     *
+     * @return string
+     */
+    public function getLastInsertedId(): ?string;
 }

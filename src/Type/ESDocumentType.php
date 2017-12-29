@@ -6,6 +6,9 @@ use Fazland\ODM\Elastica\DocumentManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
+/**
+ * TODO: Please remove this and handle associations in uow.
+ */
 final class ESDocumentType extends AbstractType implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
@@ -24,6 +27,14 @@ final class ESDocumentType extends AbstractType implements ContainerAwareInterfa
         $om = $this->container->get(DocumentManagerInterface::class);
 
         return $om->find($options['class'], $value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function toDatabase($value, array $options = [])
+    {
+        // @todo
     }
 
     /**

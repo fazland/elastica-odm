@@ -5,9 +5,13 @@ namespace Fazland\ODM\Elastica\Metadata;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata as ClassMetadataInterface;
 use Doctrine\Instantiator\Instantiator;
 use Kcs\Metadata\ClassMetadata;
+use Kcs\Metadata\MetadataInterface;
 
 final class DocumentMetadata extends ClassMetadata implements ClassMetadataInterface
 {
+    const GENERATOR_TYPE_NONE = 0;
+    const GENERATOR_TYPE_AUTO = 1;
+
     /**
      * The elastica type name.
      *
@@ -21,6 +25,13 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
      * @var FieldMetadata
      */
     public $identifier;
+
+    /**
+     * Identifier generator type.
+     *
+     * @var int
+     */
+    public $idGeneratorType;
 
     /**
      * The fully-qualified class name of the custom repository class.
@@ -42,6 +53,21 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
         parent::__construct($class);
 
         $this->instantiator = new Instantiator();
+    }
+
+    /**
+     * @inheritdoc
+     *
+     * @param self $metadata
+     */
+    public function merge(MetadataInterface $metadata): void
+    {
+        parent::merge($metadata);
+
+        $this->customRepositoryClassName = $this->customRepositoryClassName ?? $metadata->customRepositoryClassName;
+        $this->typeName = $this->typeName ?? $metadata->typeName;
+        $this->identifier = $this->identifier ?? $metadata->identifier;
+        $this->idGeneratorType = $this->idGeneratorType ?? $metadata->idGeneratorType;
     }
 
     /**
@@ -175,6 +201,11 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
         $property = $this->identifier->getReflection();
 
         return [$this->identifier->fieldName => $property->getValue($object)];
+    }
+
+    public function getSingleIdentifierFieldName()
+    {
+        return $this->identifier->fieldName;
     }
 
     public function getSingleIdentifier($object)

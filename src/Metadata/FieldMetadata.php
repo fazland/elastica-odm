@@ -42,9 +42,21 @@ class FieldMetadata extends PropertyMetadata
     public $options = [];
 
     /**
+     * @var DocumentMetadata
+     */
+    public $documentMetadata;
+
+    /**
      * @var \ReflectionProperty
      */
     private $reflectionProperty;
+
+    public function __construct(DocumentMetadata $class, string $name)
+    {
+        $this->documentMetadata = $class;
+
+        parent::__construct($class->name, $name);
+    }
 
     public function getReflection(): \ReflectionProperty
     {
@@ -54,6 +66,11 @@ class FieldMetadata extends PropertyMetadata
         }
 
         return $this->reflectionProperty;
+    }
+
+    public function getValue($object)
+    {
+        return $this->getReflection()->getValue($object);
     }
 
     public function setValue($object, $value)

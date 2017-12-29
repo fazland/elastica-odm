@@ -4,7 +4,12 @@ namespace Fazland\ODM\Elastica;
 
 use Doctrine\Common\EventManager;
 use Elastica\Document;
+use Fazland\ODM\Elastica\Events\LifecycleEventManager;
+use Fazland\ODM\Elastica\Events\PreFlushEventArgs;
 use Fazland\ODM\Elastica\Exception\InvalidIdentifierException;
+use Fazland\ODM\Elastica\Id\AssignedIdGenerator;
+use Fazland\ODM\Elastica\Id\GeneratorInterface;
+use Fazland\ODM\Elastica\Id\IdentityGenerator;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
 use Fazland\ODM\Elastica\Metadata\FieldMetadata;
 use Fazland\ODM\Elastica\Persister\DocumentPersister;
@@ -68,10 +73,48 @@ final class UnitOfWork
      */
     private $evm;
 
+    /**
+     * The current lifecycle event manager.
+     *
+     * @var LifecycleEventManager
+     */
+    private $lifecycleEventManager;
+
+    /**
+     * Map of pending document deletions.
+     *
+     * @var array
+     */
+    private $documentDeletions = [];
+
+    /**
+     * Map of pending document insertions.
+     *
+     * @var array
+     */
+    private $documentInsertions = [];
+
+    /**
+     * Map of read-only document.
+     * Keys are the object hash.
+     *
+     * @var array
+     */
+    private $readOnlyObjects = [];
+
+    /**
+     * Maps of document change sets.
+     * Keys are the object hash.
+     *
+     * @var array
+     */
+    private $documentChangeSets;
+
     public function __construct(DocumentManagerInterface $manager)
     {
         $this->manager = $manager;
         $this->evm = $manager->getEventManager();
+        $this->lifecycleEventManager = new LifecycleEventManager($this->evm);
     }
 
     /**
@@ -87,6 +130,9 @@ final class UnitOfWork
             $this->objects =
             $this->documentStates =
             $this->documentPersisters =
+            $this->documentDeletions =
+            $this->documentChangeSets =
+            $this->readOnlyObjects =
             $this->originalDocumentData = [];
         } else {
             throw new \Exception('Not implemented yet.');
@@ -192,6 +238,40 @@ final class UnitOfWork
     }
 
     /**
+     * Commits all the operations pending in this unit of work.
+     */
+    public function commit()
+    {
+        if ($this->evm->hasListeners(Events::preFlush)) {
+            $this->evm->dispatchEvent(Events::preFlush, new PreFlushEventArgs($this->manager));
+        }
+
+        $this->computeChangeSets();
+
+        if (! ($this->documentInsertions)) {
+            // Nothing to do.
+            $this->dispatchOnFlush();
+            $this->dispatchPostFlush();
+
+            return;
+        }
+
+        $this->dispatchOnFlush();
+
+        $this->executeInserts();
+
+        $this->dispatchPostFlush();
+        $this->postCommitCleanup();
+    }
+
+    public function computeChangeSets(): void
+    {
+        $this->computeScheduledInsertsChangeSets();
+
+        // @todo
+    }
+
+    /**
      * Detaches a document from the unit of work.
      *
      * @param $object
@@ -199,8 +279,18 @@ final class UnitOfWork
     public function detach($object): void
     {
         $visited = [];
-
         $this->doDetach($object, $visited);
+    }
+
+    /**
+     * Persists a document as part of this unit of work.
+     *
+     * @param $object
+     */
+    public function persist($object): void
+    {
+        $visited = [];
+        $this->doPersist($object, $visited);
     }
 
     /**
@@ -258,7 +348,7 @@ final class UnitOfWork
             }
         }
 
-        foreach ($documentData as $key => $value) {
+        foreach ($documentData as $key => &$value) {
             /** @var FieldMetadata $field */
             $field = $class->getField($key);
             if (null === $field) {
@@ -277,6 +367,75 @@ final class UnitOfWork
 
         $this->originalDocumentData[spl_object_hash($result)] = $documentData;
         $this->addToIdentityMap($result);
+    }
+
+    /**
+     * INTERNAL:
+     * Gets an id generator for the given type
+     *
+     * @param int $generatorType
+     *
+     * @return GeneratorInterface
+     * @internal
+     */
+    public function getIdGenerator(int $generatorType): GeneratorInterface
+    {
+        static $generators = [];
+        if (isset($generators[$generatorType])) {
+            return $generators[$generatorType];
+        }
+
+        switch ($generatorType) {
+            case DocumentMetadata::GENERATOR_TYPE_NONE:
+                $generator = new AssignedIdGenerator();
+                break;
+
+            case DocumentMetadata::GENERATOR_TYPE_AUTO:
+                $generator = new IdentityGenerator();
+                break;
+
+            default:
+                throw new \InvalidArgumentException('Unknown id generator type '.$generatorType);
+        }
+
+        return $generators[$generatorType] = $generator;
+    }
+
+    /**
+     * Computes the changes that happened to a single document.
+     *
+     * @param DocumentMetadata $class
+     * @param $document
+     */
+    private function computeChangeSet(DocumentMetadata $class, $document): void
+    {
+        $oid = spl_object_hash($document);
+        if (isset($this->readOnlyObjects[$oid])) {
+            return;
+        }
+
+        $actualData = [];
+        foreach ($class->attributesMetadata as $field) {
+            if (! $field instanceof FieldMetadata) {
+                continue;
+            }
+
+            if ($field->identifier || $field->indexName || $field->typeName) {
+                continue;
+            }
+
+            $actualData[$field->fieldName] = $field->getValue($document);
+        }
+
+        if (! isset($this->originalDocumentData[$oid])) {
+            // Entity is either NEW or MANAGED but not yet fully persisted.
+            $this->originalDocumentData[$oid] = $actualData;
+
+            $changeSet = [];
+            $this->documentChangeSets[$oid] = [];
+        } else {
+            // @todo
+        }
     }
 
     /**
@@ -327,9 +486,46 @@ final class UnitOfWork
     }
 
     /**
+     * Executes a persist operation.
+     *
+     * @param object $object
+     * @param array $visited
+     *
+     * @throws \InvalidArgumentException if document state is equal to NEW
+     */
+    private function doPersist($object, array &$visited): void
+    {
+        $oid = spl_object_hash($object);
+        if (isset($visited[$oid])) {
+            return;
+        }
+
+        $visited[$oid] = true;
+        $class = $this->manager->getClassMetadata($object);
+
+        $documentState = $this->getDocumentState($object, self::STATE_NEW);
+        switch ($documentState) {
+            case self::STATE_MANAGED:
+                break;
+
+            case self::STATE_NEW:
+                $this->persistNew($class, $object);
+                break;
+
+            case self::STATE_REMOVED:
+                unset($this->documentDeletions[$oid]);
+                $this->documentStates[$oid] = self::STATE_MANAGED;
+
+                break;
+        }
+
+        $this->cascadePersist($object, $visited);
+    }
+
+    /**
      * Executes a merge operation on a document.
      *
-     * @param $object
+     * @param object $object
      * @param array $visited
      *
      * @return object the managed copy of the document
@@ -401,7 +597,7 @@ final class UnitOfWork
      * @param $object
      * @param array $visited
      *
-     * @throws InvalidIdentifierException+
+     * @throws InvalidIdentifierException
      */
     private function doDetach($object, array &$visited)
     {
@@ -432,13 +628,98 @@ final class UnitOfWork
         // @todo
     }
 
-    private function persistNew($class, $managedCopy)
+    private function persistNew(DocumentMetadata $class, $object)
     {
-        // @todo
+        $this->lifecycleEventManager->prePersist($class, $object);
+        $oid = spl_object_hash($object);
+
+        if ($class->identifier) {
+            $idGenerator = $this->getIdGenerator($class->idGeneratorType);
+            if (! $idGenerator->isPostInsertGenerator()) {
+                $id = $idGenerator->generate($this->manager, $object);
+                $class->setIdentifierValue($object, $id);
+            }
+        } else {
+            // @todo Embedded
+        }
+
+        $this->documentStates[$oid] = self::STATE_MANAGED;
+        $this->scheduleForInsert($object);
     }
 
     private function cascadeMerge($object, $managedCopy, $visited)
     {
         // @todo
+    }
+
+    private function cascadePersist($object, $visited)
+    {
+        // @todo
+    }
+
+    /**
+     * Schedule a document for insertion.
+     * If the document already has an identifier it will be added to the identity map.
+     *
+     * @param object $object
+     *
+     * @throws InvalidIdentifierException
+     */
+    private function scheduleForInsert($object)
+    {
+        $oid = spl_object_hash($object);
+        $class = $this->manager->getClassMetadata(get_class($object));
+
+        $this->documentInsertions[$oid] = $object;
+
+        if (null !== $class->getSingleIdentifier($object)) {
+            $this->addToIdentityMap($object);
+        }
+    }
+
+    private function dispatchOnFlush()
+    {
+        // @todo
+    }
+
+    private function dispatchPostFlush()
+    {
+        // @todo
+    }
+
+    private function executeInserts()
+    {
+        foreach ($this->documentInsertions as $oid => $document) {
+            /** @var DocumentMetadata $class */
+            $class = $this->manager->getClassMetadata(get_class($document));
+            $persister = $this->getDocumentPersister($class->name);
+
+            $postInsertId = $persister->insert($document);
+
+            if (null !== $postInsertId) {
+                $id = $postInsertId->getId();
+                $oid = spl_object_hash($document);
+
+                $class->setIdentifierValue($document, $id);
+                $this->documentStates[$oid] = self::STATE_MANAGED;
+
+                $this->addToIdentityMap($document);
+            }
+
+            $this->lifecycleEventManager->postPersist($class, $document);
+        }
+    }
+
+    private function postCommitCleanup()
+    {
+        $this->documentInsertions = [];
+    }
+
+    private function computeScheduledInsertsChangeSets()
+    {
+        foreach ($this->documentInsertions as $document) {
+            $class = $this->manager->getClassMetadata(get_class($document));
+            $this->computeChangeSet($class, $document);
+        }
     }
 }

@@ -2,12 +2,18 @@
 
 namespace Fazland\ODM\Elastica\Annotation;
 
-use Doctrine\Common\Annotations\Annotation\Target;
-
 /**
  * @Annotation
  * @Target({"PROPERTY"})
  */
 final class DocumentId
 {
+    /**
+     * Id generator strategy.
+     *
+     * @var string
+     * @Required()
+     * @Enum({"auto", "none"})
+     */
+    public $strategy = 'auto';
 }

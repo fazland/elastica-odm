@@ -91,7 +91,11 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function persist($object): void
     {
-        // TODO: Implement persist() method.
+        if (! is_object($object)) {
+            throw new \InvalidArgumentException('Expected object, '.gettype($object).' given.');
+        }
+
+        $this->unitOfWork->persist($object);
     }
 
     /**
@@ -150,7 +154,7 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function flush(): void
     {
-        // TODO: Implement flush() method.
+        $this->unitOfWork->commit();
     }
 
     /**
@@ -166,7 +170,11 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function getClassMetadata($className): DocumentMetadata
     {
-        if (is_object($className) && $className instanceof ProxyInterface) {
+        if (is_object($className)) {
+            $className = get_class($className);
+        }
+
+        if (is_subclass_of($className, ProxyInterface::class)) {
             $className = get_parent_class($className);
         }
 

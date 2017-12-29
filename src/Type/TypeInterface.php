@@ -2,6 +2,8 @@
 
 namespace Fazland\ODM\Elastica\Type;
 
+use Fazland\ODM\Elastica\Exception\ConversionFailedException;
+
 interface TypeInterface
 {
     /**
@@ -13,6 +15,18 @@ interface TypeInterface
      * @return mixed
      */
     public function toPHP($value, array $options = []);
+
+    /**
+     * Converts the PHP value to the target database type.
+     *
+     * @param mixed $value
+     * @param array $options
+     *
+     * @return mixed
+     *
+     * @throws ConversionFailedException If conversion fails.
+     */
+    public function toDatabase($value, array $options = []);
 
     /**
      * Returns the name of this type.

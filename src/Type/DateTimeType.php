@@ -2,6 +2,8 @@
 
 namespace Fazland\ODM\Elastica\Type;
 
+use Fazland\ODM\Elastica\Exception\ConversionFailedException;
+
 final class DateTimeType extends AbstractType
 {
     const NAME = 'datetime';
@@ -20,6 +22,22 @@ final class DateTimeType extends AbstractType
         }
 
         return new \DateTime($value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function toDatabase($value, array $options = [])
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        if (! $value instanceof \DateTimeInterface) {
+            throw new ConversionFailedException($value, \DateTimeInterface::class);
+        }
+
+        return $value->format($options['format'] ?? \DateTime::ISO8601);
     }
 
     /**
