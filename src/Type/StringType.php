@@ -16,6 +16,9 @@ final class StringType extends AbstractType
         return $this->doConversion($value);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function toDatabase($value, array $options = []): ?string
     {
         return $this->doConversion($value);
