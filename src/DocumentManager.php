@@ -170,10 +170,6 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function getClassMetadata($className): DocumentMetadata
     {
-        if (is_object($className)) {
-            $className = get_class($className);
-        }
-
         if (is_subclass_of($className, ProxyInterface::class)) {
             $className = get_parent_class($className);
         }

@@ -12,7 +12,6 @@ final class DocumentId
      * Id generator strategy.
      *
      * @var string
-     * @Required()
      * @Enum({"auto", "none"})
      */
     public $strategy = 'auto';

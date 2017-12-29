@@ -187,7 +187,7 @@ final class UnitOfWork
             return false;
         }
 
-        $class = $this->manager->getClassMetadata($object);
+        $class = $this->manager->getClassMetadata(get_class($object));
         $id = $class->getIdentifierValues($object);
 
         if (empty($id)) {
@@ -475,7 +475,7 @@ final class UnitOfWork
      */
     private function removeFromIdentityMap($object)
     {
-        $class = $this->manager->getClassMetadata($object);
+        $class = $this->manager->getClassMetadata(get_class($object));
         $id = $class->getSingleIdentifier($object);
 
         if (empty($id)) {
@@ -501,7 +501,7 @@ final class UnitOfWork
         }
 
         $visited[$oid] = true;
-        $class = $this->manager->getClassMetadata($object);
+        $class = $this->manager->getClassMetadata(get_class($object));
 
         $documentState = $this->getDocumentState($object, self::STATE_NEW);
         switch ($documentState) {

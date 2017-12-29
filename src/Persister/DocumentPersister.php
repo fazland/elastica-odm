@@ -123,7 +123,7 @@ class DocumentPersister
     public function insert($document): ?PostInsertId
     {
         /** @var DocumentMetadata $class */
-        $class = $this->dm->getClassMetadata($document);
+        $class = $this->dm->getClassMetadata(get_class($document));
         $idGenerator = $this->dm->getUnitOfWork()->getIdGenerator($class->idGeneratorType);
         $postIdGenerator = $idGenerator->isPostInsertGenerator();
 
