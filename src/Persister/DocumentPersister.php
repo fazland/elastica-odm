@@ -110,7 +110,7 @@ class DocumentPersister
     /**
      * Insert a document in the collection.
      *
-     * @param $document
+     * @param object $document
      *
      * @return PostInsertId|null
      */
@@ -150,9 +150,24 @@ class DocumentPersister
     }
 
     /**
+     * Updates a managed document.
+     *
+     * @param object $document
+     * @param array $changeSet
+     */
+    public function update($document, array $changeSet)
+    {
+        $class = $this->dm->getClassMetadata(get_class($document));
+        $body = $this->prepareUpdateData($class, $changeSet);
+        $id = $class->getSingleIdentifier($document);
+
+        $this->collection->update((string) $id, $body);
+    }
+
+    /**
      * Deletes a managed document.
      *
-     * @param $document
+     * @param object $document
      */
     public function delete($document): void
     {
@@ -182,9 +197,7 @@ class DocumentPersister
 
     private function prepareInsertData(DocumentMetadata $class, $document): array
     {
-        $body = [];
-        $typeManager = $this->dm->getTypeManager();
-
+        $fields = [];
         foreach ($class->attributesMetadata as $field) {
             if (! $field instanceof FieldMetadata) {
                 continue;
@@ -194,8 +207,22 @@ class DocumentPersister
                 continue;
             }
 
+            $fields[$field->name] = [null, $field->getValue($document)];
+        }
+
+        return $this->prepareUpdateData($class, $fields);
+    }
+
+    private function prepareUpdateData(DocumentMetadata $class, array $fields): array
+    {
+        $body = [];
+        $typeManager = $this->dm->getTypeManager();
+
+        foreach ($fields as $name => $value) {
+            $field = $class->attributesMetadata[$name];
+
             $type = $typeManager->getType($field->type);
-            $body[$field->fieldName] = $type->toDatabase($field->getValue($document));
+            $body[$field->fieldName] = $type->toDatabase($value[1]);
         }
 
         return $body;

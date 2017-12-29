@@ -142,6 +142,25 @@ class Collection implements CollectionInterface
     /**
      * @inheritdoc
      */
+    public function update(string $id, array $body): void
+    {
+        $endpoint = new Endpoints\Update();
+        $endpoint->setID($id);
+
+        $endpoint->setBody([
+            'doc' => $body
+        ]);
+
+        $response = $this->searchable->requestEndpoint($endpoint);
+
+        if (! $response->isOk()) {
+            throw new \RuntimeException('Response not OK');
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function delete(string $id): void
     {
         $endpoint = new Endpoints\Delete();

@@ -13,6 +13,7 @@ use Fazland\ODM\Elastica\Id\IdentityGenerator;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
 use Fazland\ODM\Elastica\Metadata\FieldMetadata;
 use Fazland\ODM\Elastica\Persister\DocumentPersister;
+use ProxyManager\Proxy\LazyLoadingInterface;
 
 final class UnitOfWork
 {
@@ -129,7 +130,7 @@ final class UnitOfWork
     {
         $this->manager = $manager;
         $this->evm = $manager->getEventManager();
-        $this->lifecycleEventManager = new LifecycleEventManager($this->evm);
+        $this->lifecycleEventManager = new LifecycleEventManager($this, $this->evm);
     }
 
     /**
@@ -265,10 +266,12 @@ final class UnitOfWork
 
         $this->computeChangeSets();
 
-        if (!
-            ($this->documentInsertions ||
-            $this->documentDeletions)
-        ) {
+        if (! (
+            $this->documentInsertions ||
+            $this->documentDeletions ||
+            $this->documentUpdates ||
+            $this->documentChangeSets
+        )) {
             // Nothing to do.
             $this->dispatchOnFlush();
             $this->dispatchPostFlush();
@@ -279,6 +282,7 @@ final class UnitOfWork
         $this->dispatchOnFlush();
 
         $this->executeInserts();
+        $this->executeUpdates();
         $this->executeDeletions();
 
         $this->refreshIndices();
@@ -291,7 +295,46 @@ final class UnitOfWork
     {
         $this->computeScheduledInsertsChangeSets();
 
+        foreach ($this->identityMap as $className => $documents) {
+            $class = $this->manager->getClassMetadata($className);
+
+            // @todo readonly
+
+            foreach ($documents as $document) {
+                if ($document instanceof LazyLoadingInterface && ! $document->isProxyInitialized()) {
+                    continue;
+                }
+
+                $oid = spl_object_hash($document);
+                if (! isset($this->documentInsertions[$oid]) && ! isset($this->documentDeletions[$oid]) && isset($this->documentStates[$oid])) {
+                    $this->computeChangeSet($class, $document);
+                }
+            }
+        }
+    }
+
+    public function recomputeSingleDocumentChangeset($document)
+    {
         // @todo
+    }
+
+    /**
+     * Retrieve the computed changeset for a given document.
+     *
+     * @param object$document
+     *
+     * @return array
+     */
+    public function & getDocumentChangeSet($document)
+    {
+        $oid = spl_object_hash($document);
+        $data = [];
+
+        if (! isset($this->documentChangeSets[$oid])) {
+            return $data;
+        }
+
+        return $this->documentChangeSets[$oid];
     }
 
     /**
@@ -466,9 +509,37 @@ final class UnitOfWork
             $this->originalDocumentData[$oid] = $actualData;
 
             $changeSet = [];
-            $this->documentChangeSets[$oid] = [];
+            foreach ($actualData as $field => $value) {
+                $changeSet[$field] = [null, $value];
+            }
+
+            $this->documentChangeSets[$oid] = $changeSet;
         } else {
-            // @todo
+            // Document is MANAGED
+            $originalData = $this->originalDocumentData[$oid];
+            $changeSet = [];
+
+            foreach ($actualData as $propName => $actualValue) {
+                // skip field, its a partially omitted one!
+                if ( ! array_key_exists($propName, $originalData)) {
+                    continue;
+                }
+
+                $orgValue = $originalData[$propName];
+
+                // skip if value haven't changed
+                if ($orgValue === $actualValue) {
+                    continue;
+                }
+
+                $changeSet[$propName] = [$orgValue, $actualValue];
+            }
+
+            if ($changeSet) {
+                $this->documentChangeSets[$oid] = $changeSet;
+                $this->originalDocumentData[$oid] = $actualData;
+                $this->documentUpdates[$oid] = $document;
+            }
         }
     }
 
@@ -822,6 +893,23 @@ final class UnitOfWork
         }
     }
 
+    private function executeUpdates()
+    {
+        foreach ($this->documentUpdates as $oid => $document) {
+            $class = $this->manager->getClassMetadata(get_class($document));
+            $this->lifecycleEventManager->preUpdate($class, $document);
+
+            $persister = $this->getDocumentPersister(get_class($document));
+            if ( ! empty($this->documentChangeSets[$oid])) {
+                $persister->update($document, $this->documentChangeSets[$oid]);
+            }
+
+            unset($this->documentUpdates[$oid], $this->documentChangeSets[$oid]);
+            $this->lifecycleEventManager->postUpdate($class, $document);
+            $this->refresh[spl_object_hash($persister)] = $persister;
+        }
+    }
+
     private function executeDeletions()
     {
         foreach ($this->documentDeletions as $oid => $document) {
@@ -845,7 +933,9 @@ final class UnitOfWork
     private function postCommitCleanup()
     {
         $this->documentDeletions =
-        $this->documentInsertions = [];
+        $this->documentInsertions =
+        $this->documentUpdates =
+        $this->documentChangeSets = [];
     }
 
     private function computeScheduledInsertsChangeSets()

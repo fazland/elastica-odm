@@ -78,6 +78,14 @@ interface CollectionInterface
     public function create(?string $id, array $body): Response;
 
     /**
+     * Updates a document.
+     *
+     * @param string $id
+     * @param array $body
+     */
+    public function update(string $id, array $body): void;
+
+    /**
      * Request the deletion of a document
      *
      * @param string $id

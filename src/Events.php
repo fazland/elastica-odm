@@ -5,6 +5,23 @@ namespace Fazland\ODM\Elastica;
 final class Events
 {
     /**
+     * The preUpdate event occurs before the collection updates document data.
+     * This is a lifecycle event.
+     *
+     * @var string
+     */
+    const preUpdate = 'preUpdate';
+
+    /**
+     * The postUpdate event occurs after the collection update operations
+     * have been completed.
+     * This is a lifecycle event.
+     *
+     * @var string
+     */
+    const postUpdate = 'postUpdate';
+
+    /**
      * The onClear event occurs when the DocumentManager#clear() operation is invoked,
      * after all references to documents have been removed from the unit of work.
      *
