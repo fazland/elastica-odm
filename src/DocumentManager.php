@@ -58,6 +58,10 @@ class DocumentManager implements DocumentManagerInterface
     public function __construct(Client $elasticSearch, Configuration $configuration, EventManager $eventManager = null)
     {
         $this->database = new Database($elasticSearch, $this);
+        foreach ($configuration->getIndexAliases() as $alias => $index) {
+            $this->database->addAlias($alias, $index);
+        }
+
         $this->eventManager = $eventManager ?: new EventManager();
 
         $this->metadataFactory = $configuration->getMetadataFactory();
