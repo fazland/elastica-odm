@@ -4,19 +4,20 @@ namespace Fazland\ODM\Elastica\Type;
 
 use Fazland\ODM\Elastica\Exception\ConversionFailedException;
 
-final class StringType extends AbstractType
+final class IntegerType extends AbstractType
 {
-    const NAME = 'string';
+    const NAME = 'integer';
 
     /**
      * {@inheritdoc}
      */
-    public function toPHP($value, array $options = []): ?string
+    public function toPHP($value, array $options = []): ?int
     {
         return $this->doConversion($value);
+
     }
 
-    public function toDatabase($value, array $options = []): ?string
+    public function toDatabase($value, array $options = []): ?int
     {
         return $this->doConversion($value);
     }
@@ -29,14 +30,14 @@ final class StringType extends AbstractType
         return self::NAME;
     }
 
-    private function doConversion($value): ?string
+    private function doConversion($value): ?int
     {
         if (null === $value) {
             return null;
         }
 
-        if (! is_string($value)) {
-            throw new ConversionFailedException($value, 'string');
+        if (! is_int($value)) {
+            throw new ConversionFailedException($value, 'integer');
         }
 
         return $value;

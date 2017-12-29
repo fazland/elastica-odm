@@ -2,18 +2,18 @@
 
 namespace Fazland\ODM\Elastica\Tests\Type;
 
-use Fazland\ODM\Elastica\Type\StringType;
+use Fazland\ODM\Elastica\Type\FloatType;
 use Fazland\ODM\Elastica\Type\TypeInterface;
 
-class StringTypeTest extends AbstractPrimitiveTypeTest
+class FloatTypeTest extends AbstractPrimitiveTypeTest
 {
     public function getType(): TypeInterface
     {
-        return new StringType();
+        return new FloatType();
     }
 
-    public function getValue(): string
+    public function getValue(): float
     {
-        return 'string';
+        return 456.1;
     }
 }

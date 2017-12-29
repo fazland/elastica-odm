@@ -2,18 +2,18 @@
 
 namespace Fazland\ODM\Elastica\Tests\Type;
 
-use Fazland\ODM\Elastica\Type\StringType;
+use Fazland\ODM\Elastica\Type\IntegerType;
 use Fazland\ODM\Elastica\Type\TypeInterface;
 
-class StringTypeTest extends AbstractPrimitiveTypeTest
+class IntegerTypeTest extends AbstractPrimitiveTypeTest
 {
     public function getType(): TypeInterface
     {
-        return new StringType();
+        return new IntegerType();
     }
 
-    public function getValue(): string
+    public function getValue(): int
     {
-        return 'string';
+        return 123;
     }
 }
