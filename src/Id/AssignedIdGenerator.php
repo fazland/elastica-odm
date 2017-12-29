@@ -9,7 +9,7 @@ use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
 final class AssignedIdGenerator extends AbstractIdGenerator
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function generate(DocumentManagerInterface $dm, $document)
     {

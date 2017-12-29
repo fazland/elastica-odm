@@ -5,7 +5,7 @@ namespace Fazland\ODM\Elastica\Id;
 abstract class AbstractIdGenerator implements GeneratorInterface
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function isPostInsertGenerator(): bool
     {

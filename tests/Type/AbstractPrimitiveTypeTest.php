@@ -7,9 +7,9 @@ use PHPUnit\Framework\TestCase;
 
 abstract class AbstractPrimitiveTypeTest extends TestCase
 {
-    public abstract function getType(): TypeInterface;
+    abstract public function getType(): TypeInterface;
 
-    public abstract function getValue();
+    abstract public function getValue();
 
     public function testToPhpWithNullValueShouldReturnNull(): void
     {

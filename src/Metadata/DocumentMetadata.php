@@ -56,7 +56,7 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      *
      * @param self $metadata
      */

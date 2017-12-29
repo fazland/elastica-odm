@@ -30,7 +30,7 @@ class DatabaseTest extends TestCase
     private $database;
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function setUp(): void
     {

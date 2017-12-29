@@ -153,9 +153,9 @@ class DocumentPersister
      * Updates a managed document.
      *
      * @param object $document
-     * @param array $changeSet
+     * @param array  $changeSet
      */
-    public function update($document, array $changeSet)
+    public function update($document, array $changeSet): void
     {
         $class = $this->dm->getClassMetadata(get_class($document));
         $body = $this->prepareUpdateData($class, $changeSet);

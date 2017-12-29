@@ -3,13 +3,11 @@
 namespace Fazland\ODM\Elastica\Id;
 
 use Fazland\ODM\Elastica\DocumentManagerInterface;
-use Fazland\ODM\Elastica\Exception\InvalidIdentifierException;
-use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
 
 final class IdentityGenerator extends AbstractIdGenerator
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function generate(DocumentManagerInterface $dm, $document)
     {

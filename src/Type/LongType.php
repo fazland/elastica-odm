@@ -42,7 +42,7 @@ final class LongType extends AbstractType
         }
 
         if (! is_int($value) || self::MIN_VALUE > $value || self::MAX_VALUE < $value) {
-            throw new ConversionFailedException($value, 'integer between [-' . self::MIN_VALUE . ', ' . self::MAX_VALUE . ']');
+            throw new ConversionFailedException($value, 'integer between [-'.self::MIN_VALUE.', '.self::MAX_VALUE.']');
         }
 
         return $value;

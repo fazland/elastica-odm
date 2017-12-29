@@ -35,5 +35,8 @@
     },
     "config": {
         "sort-packages": true
+    },
+    "archive": {
+        "exclude": ["tests", "vendor", ".php_cs", ".gitignore", "phpunit.xml.dist", "README.md"]
     }
 }

@@ -24,7 +24,7 @@ interface TypeInterface
      *
      * @return mixed
      *
-     * @throws ConversionFailedException If conversion fails.
+     * @throws ConversionFailedException if conversion fails
      */
     public function toDatabase($value, array $options = []);
 

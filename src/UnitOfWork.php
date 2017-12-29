@@ -325,7 +325,7 @@ final class UnitOfWork
      *
      * @return array
      */
-    public function & getDocumentChangeSet($document)
+    public function &getDocumentChangeSet($document)
     {
         $oid = spl_object_hash($document);
         $data = [];
@@ -448,11 +448,12 @@ final class UnitOfWork
 
     /**
      * INTERNAL:
-     * Gets an id generator for the given type
+     * Gets an id generator for the given type.
      *
      * @param int $generatorType
      *
      * @return GeneratorInterface
+     *
      * @internal
      */
     public function getIdGenerator(int $generatorType): GeneratorInterface
@@ -521,7 +522,7 @@ final class UnitOfWork
 
             foreach ($actualData as $propName => $actualValue) {
                 // skip field, its a partially omitted one!
-                if ( ! array_key_exists($propName, $originalData)) {
+                if (! array_key_exists($propName, $originalData)) {
                     continue;
                 }
 
@@ -594,7 +595,7 @@ final class UnitOfWork
      * Executes a persist operation.
      *
      * @param object $object
-     * @param array $visited
+     * @param array  $visited
      *
      * @throws \InvalidArgumentException if document state is equal to NEW
      */
@@ -631,7 +632,7 @@ final class UnitOfWork
      * Executes a remove operation.
      *
      * @param object $object
-     * @param array $visited
+     * @param array  $visited
      *
      * @throws \InvalidArgumentException if document state is equal to NEW
      */
@@ -663,7 +664,6 @@ final class UnitOfWork
 
             case self::STATE_DETACHED:
                 throw new \InvalidArgumentException('Detached document cannot be removed');
-
             default:
                 throw new \InvalidArgumentException('Unexpected document state '.$documentState);
         }
@@ -673,7 +673,7 @@ final class UnitOfWork
      * Executes a merge operation on a document.
      *
      * @param object $object
-     * @param array $visited
+     * @param array  $visited
      *
      * @return object the managed copy of the document
      *
@@ -845,6 +845,7 @@ final class UnitOfWork
             }
 
             unset($this->documentInsertions[$oid], $this->documentStates[$oid]);
+
             return;
         }
 
@@ -900,7 +901,7 @@ final class UnitOfWork
             $this->lifecycleEventManager->preUpdate($class, $document);
 
             $persister = $this->getDocumentPersister(get_class($document));
-            if ( ! empty($this->documentChangeSets[$oid])) {
+            if (! empty($this->documentChangeSets[$oid])) {
                 $persister->update($document, $this->documentChangeSets[$oid]);
             }
 
@@ -921,7 +922,7 @@ final class UnitOfWork
 
             unset($this->documentDeletions[$oid], $this->originalDocumentData[$oid], $this->documentStates[$oid]);
 
-            if ($class->idGeneratorType !== DocumentMetadata::GENERATOR_TYPE_NONE) {
+            if (DocumentMetadata::GENERATOR_TYPE_NONE !== $class->idGeneratorType) {
                 $class->setIdentifierValue($document, null);
             }
 

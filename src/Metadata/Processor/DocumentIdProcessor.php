@@ -20,7 +20,7 @@ class DocumentIdProcessor implements ProcessorInterface
     {
         $metadata->identifier = true;
 
-        if ($subject->strategy === 'auto') {
+        if ('auto' === $subject->strategy) {
             $metadata->documentMetadata->idGeneratorType = DocumentMetadata::GENERATOR_TYPE_AUTO;
         } else {
             $metadata->documentMetadata->idGeneratorType = DocumentMetadata::GENERATOR_TYPE_NONE;

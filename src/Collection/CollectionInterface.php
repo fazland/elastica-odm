@@ -71,7 +71,7 @@ interface CollectionInterface
      * Request the index of a document.
      *
      * @param null|string $id
-     * @param array $body
+     * @param array       $body
      *
      * @return Response
      */
@@ -81,12 +81,12 @@ interface CollectionInterface
      * Updates a document.
      *
      * @param string $id
-     * @param array $body
+     * @param array  $body
      */
     public function update(string $id, array $body): void;
 
     /**
-     * Request the deletion of a document
+     * Request the deletion of a document.
      *
      * @param string $id
      */

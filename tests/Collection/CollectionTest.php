@@ -41,7 +41,7 @@ class CollectionTest extends TestCase
     private $collection;
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function setUp(): void
     {

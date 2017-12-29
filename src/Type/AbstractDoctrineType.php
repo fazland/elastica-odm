@@ -50,7 +50,7 @@ abstract class AbstractDoctrineType extends AbstractType
         $om = $this->registry->getManagerForClass($options['class']);
         $class = $om->getClassMetadata($options['class']);
 
-        if (count($class->getIdentifier()) === 1) {
+        if (1 === count($class->getIdentifier())) {
             $id = array_values($class->getIdentifierValues($value))[0];
         } else {
             $id = $class->getIdentifierValues($value);

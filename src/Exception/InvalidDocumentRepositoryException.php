@@ -8,6 +8,6 @@ class InvalidDocumentRepositoryException extends \Exception implements Exception
 {
     public function __construct(string $className)
     {
-        parent::__construct("Repository class '".$className."' is invalid. It must implement ".DocumentRepositoryInterface::class.".");
+        parent::__construct('Repository class "'.$className.'" is invalid. It must implement "'.DocumentRepositoryInterface::class.'".');
     }
 }

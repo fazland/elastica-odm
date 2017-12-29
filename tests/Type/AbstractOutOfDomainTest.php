@@ -4,9 +4,9 @@ namespace Fazland\ODM\Elastica\Tests\Type;
 
 abstract class AbstractOutOfDomainTest extends AbstractPrimitiveTypeTest
 {
-    public abstract function getOutOfDomainPositiveValue();
+    abstract public function getOutOfDomainPositiveValue();
 
-    public abstract function getOutOfDomainNegativeValue();
+    abstract public function getOutOfDomainNegativeValue();
 
     /**
      * @expectedException \Fazland\ODM\Elastica\Exception\ConversionFailedException

@@ -14,7 +14,6 @@ final class BooleanType extends AbstractType
     public function toPHP($value, array $options = []): ?bool
     {
         return $this->doConversion($value);
-
     }
 
     public function toDatabase($value, array $options = []): ?bool

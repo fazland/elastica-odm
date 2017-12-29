@@ -104,7 +104,7 @@ class Collection implements CollectionInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function refresh(): void
     {
@@ -113,7 +113,7 @@ class Collection implements CollectionInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function create(?string $id, array $body): Response
     {
@@ -140,7 +140,7 @@ class Collection implements CollectionInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function update(string $id, array $body): void
     {
@@ -148,7 +148,7 @@ class Collection implements CollectionInterface
         $endpoint->setID($id);
 
         $endpoint->setBody([
-            'doc' => $body
+            'doc' => $body,
         ]);
 
         $response = $this->searchable->requestEndpoint($endpoint);
@@ -159,7 +159,7 @@ class Collection implements CollectionInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function delete(string $id): void
     {
