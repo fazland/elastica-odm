@@ -103,6 +103,18 @@ class Collection implements CollectionInterface
         return $this->searchable->count($query);
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function refresh(): void
+    {
+        $endpoint = new Endpoints\Indices\Refresh();
+        $this->searchable->requestEndpoint($endpoint);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function create(?string $id, array $body): Response
     {
         $endpoint = new Endpoints\Index();
@@ -125,6 +137,21 @@ class Collection implements CollectionInterface
         }
 
         return $response;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function delete(string $id): void
+    {
+        $endpoint = new Endpoints\Delete();
+        $endpoint->setID($id);
+
+        $response = $this->searchable->requestEndpoint($endpoint);
+
+        if (! $response->isOk()) {
+            throw new \RuntimeException('Response not OK');
+        }
     }
 
     /**

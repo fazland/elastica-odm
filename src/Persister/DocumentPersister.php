@@ -2,7 +2,6 @@
 
 namespace Fazland\ODM\Elastica\Persister;
 
-use Elastica\Document;
 use Elastica\Query;
 use Fazland\ODM\Elastica\Collection\CollectionInterface;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
@@ -28,10 +27,8 @@ class DocumentPersister
      */
     private $collection;
 
-    public function __construct(
-        DocumentManagerInterface $dm,
-        DocumentMetadata $class
-    ) {
+    public function __construct(DocumentManagerInterface $dm, DocumentMetadata $class)
+    {
         $this->dm = $dm;
         $this->class = $class;
 
@@ -110,16 +107,13 @@ class DocumentPersister
         return $this->collection->count($query) > 0;
     }
 
-    private function prepareQuery(array $criteria): Query
-    {
-        $bool = new Query\BoolQuery();
-        foreach ($criteria as $key => $value) {
-            $bool->addFilter(new Query\Term([$key => ['value' => $value]]));
-        }
-
-        return Query::create($bool);
-    }
-
+    /**
+     * Insert a document in the collection.
+     *
+     * @param $document
+     *
+     * @return PostInsertId|null
+     */
     public function insert($document): ?PostInsertId
     {
         /** @var DocumentMetadata $class */
@@ -153,6 +147,37 @@ class DocumentPersister
         }
 
         return $postInsertId;
+    }
+
+    /**
+     * Deletes a managed document.
+     *
+     * @param $document
+     */
+    public function delete($document): void
+    {
+        $class = $this->dm->getClassMetadata(get_class($document));
+        $id = $class->getSingleIdentifier($document);
+
+        $this->collection->delete((string) $id);
+    }
+
+    /**
+     * Refreshes the underlying collection.
+     */
+    public function refreshCollection(): void
+    {
+        $this->collection->refresh();
+    }
+
+    private function prepareQuery(array $criteria): Query
+    {
+        $bool = new Query\BoolQuery();
+        foreach ($criteria as $key => $value) {
+            $bool->addFilter(new Query\Term([$key => ['value' => $value]]));
+        }
+
+        return Query::create($bool);
     }
 
     private function prepareInsertData(DocumentMetadata $class, $document): array

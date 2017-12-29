@@ -103,7 +103,11 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function remove($object): void
     {
-        // TODO: Implement remove() method.
+        if (! is_object($object)) {
+            throw new \InvalidArgumentException('Expected object, '.gettype($object).' given.');
+        }
+
+        $this->unitOfWork->remove($object);
     }
 
     /**

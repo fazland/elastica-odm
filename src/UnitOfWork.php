@@ -95,6 +95,21 @@ final class UnitOfWork
     private $documentInsertions = [];
 
     /**
+     * Map of pending document updates.
+     *
+     * @var array
+     */
+    private $documentUpdates = [];
+
+    /**
+     * Map of document persisters with pending refresh.
+     * Keys are object hash.
+     *
+     * @var array
+     */
+    private $refresh = [];
+
+    /**
      * Map of read-only document.
      * Keys are the object hash.
      *
@@ -131,8 +146,10 @@ final class UnitOfWork
             $this->documentStates =
             $this->documentPersisters =
             $this->documentDeletions =
+            $this->documentUpdates =
             $this->documentChangeSets =
             $this->readOnlyObjects =
+            $this->refresh =
             $this->originalDocumentData = [];
         } else {
             throw new \Exception('Not implemented yet.');
@@ -188,7 +205,7 @@ final class UnitOfWork
         }
 
         $class = $this->manager->getClassMetadata(get_class($object));
-        $id = $class->getIdentifierValues($object);
+        $id = $class->getSingleIdentifier($object);
 
         if (empty($id)) {
             return false;
@@ -248,7 +265,10 @@ final class UnitOfWork
 
         $this->computeChangeSets();
 
-        if (! ($this->documentInsertions)) {
+        if (!
+            ($this->documentInsertions ||
+            $this->documentDeletions)
+        ) {
             // Nothing to do.
             $this->dispatchOnFlush();
             $this->dispatchPostFlush();
@@ -259,6 +279,9 @@ final class UnitOfWork
         $this->dispatchOnFlush();
 
         $this->executeInserts();
+        $this->executeDeletions();
+
+        $this->refreshIndices();
 
         $this->dispatchPostFlush();
         $this->postCommitCleanup();
@@ -291,6 +314,17 @@ final class UnitOfWork
     {
         $visited = [];
         $this->doPersist($object, $visited);
+    }
+
+    /**
+     * Removes a document as part of this unit of work.
+     *
+     * @param $object
+     */
+    public function remove($object): void
+    {
+        $visited = [];
+        $this->doRemove($object, $visited);
     }
 
     /**
@@ -523,6 +557,48 @@ final class UnitOfWork
     }
 
     /**
+     * Executes a remove operation.
+     *
+     * @param object $object
+     * @param array $visited
+     *
+     * @throws \InvalidArgumentException if document state is equal to NEW
+     */
+    private function doRemove($object, array &$visited): void
+    {
+        $oid = spl_object_hash($object);
+        if (isset($visited[$oid])) {
+            return;
+        }
+
+        $visited[$oid] = true;
+
+        // Cascade first to avoid problems with proxy initializing out of the identity map.
+        $this->cascadeRemove($object, $visited);
+
+        $class = $this->manager->getClassMetadata(get_class($object));
+        $documentState = $this->getDocumentState($object);
+
+        switch ($documentState) {
+            case self::STATE_NEW:
+            case self::STATE_REMOVED:
+                // Nothing to do.
+                break;
+
+            case self::STATE_MANAGED:
+                $this->lifecycleEventManager->preRemove($class, $object);
+                $this->scheduleForDeletion($object);
+                break;
+
+            case self::STATE_DETACHED:
+                throw new \InvalidArgumentException('Detached document cannot be removed');
+
+            default:
+                throw new \InvalidArgumentException('Unexpected document state '.$documentState);
+        }
+    }
+
+    /**
      * Executes a merge operation on a document.
      *
      * @param object $object
@@ -623,11 +699,6 @@ final class UnitOfWork
         $this->cascadeDetach($object, $visited);
     }
 
-    private function cascadeDetach($object, $visited)
-    {
-        // @todo
-    }
-
     private function persistNew(DocumentMetadata $class, $object)
     {
         $this->lifecycleEventManager->prePersist($class, $object);
@@ -647,7 +718,17 @@ final class UnitOfWork
         $this->scheduleForInsert($object);
     }
 
+    private function cascadeDetach($object, $visited)
+    {
+        // @todo
+    }
+
     private function cascadeMerge($object, $managedCopy, $visited)
+    {
+        // @todo
+    }
+
+    private function cascadeRemove($object, $visited)
     {
         // @todo
     }
@@ -675,6 +756,36 @@ final class UnitOfWork
         if (null !== $class->getSingleIdentifier($object)) {
             $this->addToIdentityMap($object);
         }
+    }
+
+    /**
+     * Schedule a document for deletion.
+     *
+     * @param object $object
+     *
+     * @throws InvalidIdentifierException
+     */
+    private function scheduleForDeletion($object)
+    {
+        $oid = spl_object_hash($object);
+        if (isset($this->documentInsertions[$oid])) {
+            if ($this->isInIdentityMap($object)) {
+                $this->removeFromIdentityMap($object);
+            }
+
+            unset($this->documentInsertions[$oid], $this->documentStates[$oid]);
+            return;
+        }
+
+        if (! $this->isInIdentityMap($object)) {
+            return;
+        }
+
+        $this->removeFromIdentityMap($object);
+        unset($this->documentUpdates[$oid]);
+
+        $this->documentDeletions[$oid] = $object;
+        $this->documentStates[$oid] = self::STATE_REMOVED;
     }
 
     private function dispatchOnFlush()
@@ -707,11 +818,33 @@ final class UnitOfWork
             }
 
             $this->lifecycleEventManager->postPersist($class, $document);
+            $this->refresh[spl_object_hash($persister)] = $persister;
+        }
+    }
+
+    private function executeDeletions()
+    {
+        foreach ($this->documentDeletions as $oid => $document) {
+            /** @var DocumentMetadata $class */
+            $class = $this->manager->getClassMetadata(get_class($document));
+            $persister = $this->getDocumentPersister($class->name);
+
+            $persister->delete($document);
+
+            unset($this->documentDeletions[$oid], $this->originalDocumentData[$oid], $this->documentStates[$oid]);
+
+            if ($class->idGeneratorType !== DocumentMetadata::GENERATOR_TYPE_NONE) {
+                $class->setIdentifierValue($document, null);
+            }
+
+            $this->lifecycleEventManager->postRemove($class, $document);
+            $this->refresh[spl_object_hash($persister)] = $persister;
         }
     }
 
     private function postCommitCleanup()
     {
+        $this->documentDeletions =
         $this->documentInsertions = [];
     }
 
@@ -721,5 +854,15 @@ final class UnitOfWork
             $class = $this->manager->getClassMetadata(get_class($document));
             $this->computeChangeSet($class, $document);
         }
+    }
+
+    private function refreshIndices()
+    {
+        /** @var DocumentPersister $persister */
+        foreach ($this->refresh as $persister) {
+            $persister->refreshCollection();
+        }
+
+        $this->refresh = [];
     }
 }

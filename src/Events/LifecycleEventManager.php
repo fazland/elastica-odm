@@ -17,12 +17,22 @@ class LifecycleEventManager
         $this->evm = $evm;
     }
 
+    public function postPersist(DocumentMetadata $class, $object)
+    {
+        // @todo
+    }
+
     public function prePersist(DocumentMetadata $class, $object)
     {
         // @todo
     }
 
-    public function postPersist(DocumentMetadata $class, $object)
+    public function preRemove(DocumentMetadata $class, $object)
+    {
+        // @todo
+    }
+
+    public function postRemove(DocumentMetadata $class, $object)
     {
         // @todo
     }

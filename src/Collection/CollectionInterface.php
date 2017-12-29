@@ -63,6 +63,11 @@ interface CollectionInterface
     public function count(Query $query): int;
 
     /**
+     * Executes a refresh operation on the index.
+     */
+    public function refresh(): void;
+
+    /**
      * Request the index of a document.
      *
      * @param null|string $id
@@ -71,6 +76,13 @@ interface CollectionInterface
      * @return Response
      */
     public function create(?string $id, array $body): Response;
+
+    /**
+     * Request the deletion of a document
+     *
+     * @param string $id
+     */
+    public function delete(string $id): void;
 
     /**
      * Returns the last inserted identifier as string.
