@@ -3,6 +3,7 @@
 namespace Fazland\ODM\Elastica;
 
 use Elastica\Client;
+use Fazland\ODM\Elastica\Collection\Database;
 use Fazland\ODM\Elastica\Metadata\Loader;
 use Fazland\ODM\Elastica\Metadata\MetadataFactory;
 use Fazland\ODM\Elastica\Metadata\Processor;
@@ -167,6 +168,6 @@ final class Builder
         $configuration->setProxyFactory($this->proxyFactory);
         $configuration->setTypeManager($this->typeManager);
 
-        return new DocumentManager($this->client, $configuration);
+        return new DocumentManager(new Database($this->client), $configuration);
     }
 }

@@ -15,11 +15,6 @@ use Psr\Cache\CacheItemPoolInterface;
 class Collection implements CollectionInterface
 {
     /**
-     * @var DocumentManagerInterface
-     */
-    private $documentManager;
-
-    /**
      * @var string
      */
     private $documentClass;
@@ -39,9 +34,8 @@ class Collection implements CollectionInterface
      */
     private $_lastInsertId;
 
-    public function __construct(DocumentManagerInterface $documentManager, string $documentClass, SearchableInterface $searchable)
+    public function __construct(string $documentClass, SearchableInterface $searchable)
     {
-        $this->documentManager = $documentManager;
         $this->documentClass = $documentClass;
         $this->searchable = $searchable;
     }
@@ -87,9 +81,9 @@ class Collection implements CollectionInterface
     /**
      * {@inheritdoc}
      */
-    public function createSearch(Query $query): Search
+    public function createSearch(DocumentManagerInterface $documentManager, Query $query): Search
     {
-        $search = new Search($this->documentManager, $this->documentClass);
+        $search = new Search($documentManager, $this->documentClass);
         $search->setQuery($query);
 
         return $search;

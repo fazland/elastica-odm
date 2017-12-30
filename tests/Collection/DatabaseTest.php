@@ -40,38 +40,20 @@ class DatabaseTest extends TestCase
         $this->database = new Database($this->client->reveal(), $this->documentManager->reveal());
     }
 
-    public function testGetIndexWithAliasShouldReturnTheSameIndex(): void
-    {
-        $index = 'index';
-        $alias1 = 'alias1';
-        $alias2 = 'alias2';
-
-        $this->database->addAlias($alias1, $index);
-        $this->database->addAlias($alias2, $index);
-
-        $this->client->getIndex($index)->willReturn($this->prophesize(Index::class))->shouldBeCalledTimes(2);
-
-        $this->database->getIndex($alias1);
-        $this->database->getIndex($alias2);
-    }
-
     public function testGetCollectionShouldReturnACollectionWithTheDatabaseCache(): void
     {
         $class = new DocumentMetadata(new \ReflectionClass(\stdClass::class));
         $class->name = 'document_name';
         $class->typeName = 'type_name';
 
-        $index = $this->prophesize(Index::class);
-
-        $this->client->getIndex($class->typeName)->willReturn($index);
+        $this->client->getIndex($class->typeName)
+            ->willReturn($this->prophesize(Index::class));
 
         $resultCache = $this->prophesize(CacheItemPoolInterface::class);
-
         $this->database->setResultCache($resultCache->reveal());
 
         $collection = $this->database->getCollection($class);
         $this->assertInstanceOf(CollectionInterface::class, $collection);
-
         $this->assertEquals($resultCache->reveal(), $collection->getResultCache());
     }
 
@@ -81,12 +63,11 @@ class DatabaseTest extends TestCase
         $class->name = 'document_name';
         $class->typeName = 'type_name';
 
-        $index = $this->prophesize(Index::class);
-
-        $this->client->getIndex($class->typeName)->willReturn($index);
+        $this->client->getIndex($class->typeName)
+            ->shouldBeCalledTimes(1)
+            ->willReturn($this->prophesize(Index::class));
 
         $collection = $this->database->getCollection($class);
-
         $collection2 = $this->database->getCollection($class);
 
         $this->assertEquals($collection, $collection2);

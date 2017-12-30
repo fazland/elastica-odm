@@ -3,9 +3,7 @@
 namespace Fazland\ODM\Elastica;
 
 use Doctrine\Common\EventManager;
-use Elastica\Client;
 use Fazland\ODM\Elastica\Collection\CollectionInterface;
-use Fazland\ODM\Elastica\Collection\Database;
 use Fazland\ODM\Elastica\Collection\DatabaseInterface;
 use Fazland\ODM\Elastica\Hydrator\HydratorInterface;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
@@ -20,6 +18,11 @@ use ProxyManager\Proxy\ProxyInterface;
 
 class DocumentManager implements DocumentManagerInterface
 {
+    /**
+     * @var DatabaseInterface
+     */
+    private $database;
+
     /**
      * @var MetadataFactory
      */
@@ -50,32 +53,18 @@ class DocumentManager implements DocumentManagerInterface
      */
     private $repositoryFactory;
 
-    /**
-     * @var DatabaseInterface
-     */
-    private $database;
-
-    public function __construct(Client $elasticSearch, Configuration $configuration, EventManager $eventManager = null)
+    public function __construct(DatabaseInterface $database, Configuration $configuration, EventManager $eventManager = null)
     {
-        $this->database = new Database($elasticSearch, $this);
-        foreach ($configuration->getIndexAliases() as $alias => $index) {
-            $this->database->addAlias($alias, $index);
-        }
-
+        $this->database = $database;
         $this->eventManager = $eventManager ?: new EventManager();
 
         $this->metadataFactory = $configuration->getMetadataFactory();
         $this->proxyFactory = $configuration->getProxyFactory();
         $this->typeManager = $configuration->getTypeManager();
         $this->unitOfWork = new UnitOfWork($this);
+        $this->repositoryFactory = $configuration->getRepositoryFactory();
 
         $this->clear();
-
-        if (null !== $resultCache = $configuration->getResultCache()) {
-            $this->database->setResultCache($resultCache);
-        }
-
-        $this->repositoryFactory = $configuration->getRepositoryFactory();
     }
 
     /**

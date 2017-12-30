@@ -75,7 +75,7 @@ class DocumentPersister
     public function loadAll(array $criteria = [], array $orderBy = null, $limit = null, $offset = null): array
     {
         $query = $this->prepareQuery($criteria);
-        $search = $this->collection->createSearch($query);
+        $search = $this->collection->createSearch($this->dm, $query);
         $search->setSort($orderBy);
 
         if (null === $limit && null === $offset) {

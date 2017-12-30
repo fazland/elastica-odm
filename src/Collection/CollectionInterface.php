@@ -6,6 +6,7 @@ use Elastica\Query;
 use Elastica\Response;
 use Elastica\ResultSet;
 use Elastica\Scroll;
+use Fazland\ODM\Elastica\DocumentManagerInterface;
 use Fazland\ODM\Elastica\Search\Search;
 use Psr\Cache\CacheItemPoolInterface;
 
@@ -47,11 +48,12 @@ interface CollectionInterface
     /**
      * Creates a search object.
      *
-     * @param Query $query
+     * @param DocumentManagerInterface $documentManager
+     * @param Query                    $query
      *
      * @return Search
      */
-    public function createSearch(Query $query): Search;
+    public function createSearch(DocumentManagerInterface $documentManager, Query $query): Search;
 
     /**
      * Counts document matching query.

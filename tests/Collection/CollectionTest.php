@@ -45,13 +45,11 @@ class CollectionTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->documentManager = $this->prophesize(DocumentManagerInterface::class);
         $this->searchable = $this->prophesize(SearchableInterface::class);
         $this->query = $this->prophesize(Query::class);
         $this->documentClass = \stdClass::class;
 
         $this->collection = new Collection(
-            $this->documentManager->reveal(),
             $this->documentClass,
             $this->searchable->reveal()
         );
@@ -83,7 +81,8 @@ class CollectionTest extends TestCase
 
     public function testCreateSearchShouldWork(): void
     {
-        $search = $this->collection->createSearch($this->query->reveal());
+        $documentManager = $this->prophesize(DocumentManagerInterface::class);
+        $search = $this->collection->createSearch($documentManager->reveal(), $this->query->reveal());
 
         $this->assertEquals($this->query->reveal(), $search->getQuery());
     }
