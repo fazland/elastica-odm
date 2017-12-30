@@ -3,6 +3,7 @@
 namespace Fazland\ODM\Elastica;
 
 use Doctrine\Common\EventManager;
+use Doctrine\Common\Persistence\ObjectManagerAware;
 use Elastica\Document;
 use Fazland\ODM\Elastica\Events\LifecycleEventManager;
 use Fazland\ODM\Elastica\Events\PreFlushEventArgs;
@@ -397,12 +398,13 @@ final class UnitOfWork
     public function createDocument(Document $document, &$result, ?array $fields = null)
     {
         $class = $this->manager->getClassMetadata(get_class($result));
-        if (! $result instanceof $class->name) {
-            throw new \InvalidArgumentException('Unexpected object type for hydration');
-        }
-
         $typeManager = $this->manager->getTypeManager();
         $documentData = $document->getData();
+
+        // inject ObjectManager upon refresh.
+        if ($result instanceof ObjectManagerAware) {
+            $result->injectObjectManager($this->manager, $class);
+        }
 
         foreach ($class->attributesMetadata as $fieldMetadata) {
             if (! $fieldMetadata instanceof FieldMetadata) {
@@ -710,7 +712,7 @@ final class UnitOfWork
             }
 
             if (null === $managedCopy) {
-                $managedCopy = $class->newInstance();
+                $managedCopy = $this->newInstance($class);
                 if (null !== $id) {
                     $class->setIdentifierValue($managedCopy, $id);
                 }
@@ -955,5 +957,24 @@ final class UnitOfWork
         }
 
         $this->refresh = [];
+    }
+
+    /**
+     * Creates a new instance of given class and inject object manager if needed.
+     *
+     * @param DocumentMetadata $class
+     *
+     * @return object
+     */
+    private function newInstance(DocumentMetadata $class)
+    {
+        $document = $class->newInstance();
+
+        // inject ObjectManager upon refresh.
+        if ($document instanceof ObjectManagerAware) {
+            $document->injectObjectManager($this->manager, $class);
+        }
+
+        return $document;
     }
 }
