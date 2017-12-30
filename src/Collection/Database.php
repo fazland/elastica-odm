@@ -12,7 +12,7 @@ class Database implements DatabaseInterface
     /**
      * @var Client
      */
-    private $elasticSearch;
+    protected $elasticSearch;
 
     /**
      * @var CacheItemPoolInterface|null
@@ -50,7 +50,7 @@ class Database implements DatabaseInterface
         $this->resultCache = $resultCache;
     }
 
-    private function getSearchable(DocumentMetadata $class): SearchableInterface
+    protected function getSearchable(DocumentMetadata $class): SearchableInterface
     {
         list($indexName, $typeName) = explode('/', $class->typeName, 2) + [null, null];
 
