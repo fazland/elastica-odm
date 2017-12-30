@@ -52,14 +52,8 @@ final class Configuration
      */
     private $defaultRepositoryClassName;
 
-    /**
-     * @var string[]
-     */
-    private $indexAliases;
-
     public function __construct()
     {
-        $this->indexAliases = [];
         $this->typeManager = new TypeManager();
     }
 
@@ -218,30 +212,5 @@ final class Configuration
     public function getDefaultRepositoryClassName(): string
     {
         return $this->defaultRepositoryClassName ?: DocumentRepository::class;
-    }
-
-    /**
-     * Sets an alias for the given index.
-     *
-     * @param string $index
-     * @param string $alias
-     *
-     * @return Configuration
-     */
-    public function setIndexAlias(string $index, string $alias): self
-    {
-        $this->indexAliases[$alias] = $index;
-
-        return $this;
-    }
-
-    /**
-     * Gets the configured index aliases.
-     *
-     * @return string[]
-     */
-    public function getIndexAliases(): array
-    {
-        return $this->indexAliases;
     }
 }
