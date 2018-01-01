@@ -18,16 +18,6 @@ abstract class AbstractPrimitiveTypeTest extends TestCase
         $this->assertEquals(null, $type->toPHP(null));
     }
 
-    /**
-     * @expectedException \Fazland\ODM\Elastica\Exception\ConversionFailedException
-     */
-    public function testToPhpWithNonStringValueShouldThrow(): void
-    {
-        $type = $this->getType();
-
-        $type->toPHP([]);
-    }
-
     public function testToPhpShouldWork(): void
     {
         $type = $this->getType();
@@ -41,16 +31,6 @@ abstract class AbstractPrimitiveTypeTest extends TestCase
         $type = $this->getType();
 
         $this->assertEquals(null, $type->toDatabase(null));
-    }
-
-    /**
-     * @expectedException \Fazland\ODM\Elastica\Exception\ConversionFailedException
-     */
-    public function testToDatabaseWithNonStringValueShouldThrow(): void
-    {
-        $type = $this->getType();
-
-        $type->toDatabase([]);
     }
 
     public function testToDatabaseShouldWork(): void

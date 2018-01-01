@@ -16,6 +16,9 @@ final class BooleanType extends AbstractType
         return $this->doConversion($value);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function toDatabase($value, array $options = []): ?bool
     {
         return $this->doConversion($value);
@@ -27,6 +30,14 @@ final class BooleanType extends AbstractType
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMappingDeclaration(array $options = []): array
+    {
+        return ['type' => 'boolean'];
     }
 
     private function doConversion($value): ?bool

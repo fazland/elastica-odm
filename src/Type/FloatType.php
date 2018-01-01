@@ -13,26 +13,17 @@ final class FloatType extends AbstractType
      */
     public function toPHP($value, array $options = []): ?float
     {
-        return $this->doConversion($value);
+        if (null === $value) {
+            return null;
+        }
+
+        return (float) $value;
     }
 
     /**
      * {@inheritdoc}
      */
     public function toDatabase($value, array $options = []): ?float
-    {
-        return $this->doConversion($value);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName(): string
-    {
-        return self::NAME;
-    }
-
-    private function doConversion($value): ?float
     {
         if (null === $value) {
             return null;
@@ -43,5 +34,34 @@ final class FloatType extends AbstractType
         }
 
         return $value;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getName(): string
+    {
+        return self::NAME;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMappingDeclaration(array $options = []): array
+    {
+        switch ($options['length'] ?? 4) {
+            case 4:
+                $type = 'float';
+                break;
+
+            case 8:
+                $type = 'double';
+                break;
+
+            default:
+                throw new \InvalidArgumentException('Invalid length for float field');
+        }
+
+        return ['type' => $type];
     }
 }

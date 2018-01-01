@@ -2,43 +2,9 @@
 
 namespace Fazland\ODM\Elastica\Type;
 
-use Fazland\ODM\Elastica\Exception\ConversionFailedException;
-
-final class DateTimeType extends AbstractType
+final class DateTimeType extends AbstractDateTimeType
 {
     const NAME = 'datetime';
-
-    /**
-     * {@inheritdoc}
-     */
-    public function toPHP($value, array $options = [])
-    {
-        if (empty($value)) {
-            return null;
-        }
-
-        if ($value instanceof \DateTimeInterface) {
-            $value = $value->format(\DateTime::ISO8601);
-        }
-
-        return new \DateTime($value);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function toDatabase($value, array $options = [])
-    {
-        if (empty($value)) {
-            return null;
-        }
-
-        if (! $value instanceof \DateTimeInterface) {
-            throw new ConversionFailedException($value, \DateTimeInterface::class);
-        }
-
-        return $value->format($options['format'] ?? \DateTime::ISO8601);
-    }
 
     /**
      * {@inheritdoc}
@@ -46,5 +12,13 @@ final class DateTimeType extends AbstractType
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getClass(): string
+    {
+        return \DateTime::class;
     }
 }

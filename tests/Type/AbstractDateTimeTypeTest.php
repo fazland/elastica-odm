@@ -31,4 +31,13 @@ abstract class AbstractDateTimeTypeTest extends TestCase implements TypeTestInte
 
         $this->assertEquals($expected, $type->toPHP($time));
     }
+
+    public function testDefaultMappingDeclarationShouldHaveIso8601AsFormat()
+    {
+        $type = $this->getType();
+        $mapping = $type->getMappingDeclaration();
+
+        $this->assertArrayHasKey('format', $mapping);
+        $this->assertEquals('YYYY-MM-dd\'T\'HH:mm:ssZ', $mapping['format']);
+    }
 }

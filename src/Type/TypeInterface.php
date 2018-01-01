@@ -34,4 +34,13 @@ interface TypeInterface
      * @return string
      */
     public function getName(): string;
+
+    /**
+     * Gets the mapping type for the current field type.
+     *
+     * @param array $options
+     *
+     * @return array
+     */
+    public function getMappingDeclaration(array $options = []): array;
 }

@@ -13,26 +13,17 @@ final class StringType extends AbstractType
      */
     public function toPHP($value, array $options = []): ?string
     {
-        return $this->doConversion($value);
+        if (null === $value) {
+            return null;
+        }
+
+        return (string) $value;
     }
 
     /**
      * {@inheritdoc}
      */
     public function toDatabase($value, array $options = []): ?string
-    {
-        return $this->doConversion($value);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName(): string
-    {
-        return self::NAME;
-    }
-
-    private function doConversion($value): ?string
     {
         if (null === $value) {
             return null;
@@ -43,5 +34,22 @@ final class StringType extends AbstractType
         }
 
         return $value;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getName(): string
+    {
+        return self::NAME;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMappingDeclaration(array $options = []): array
+    {
+        // TODO: keyword/text
+        return ['type' => 'text'];
     }
 }

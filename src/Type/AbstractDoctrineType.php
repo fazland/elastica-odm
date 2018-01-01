@@ -66,4 +66,12 @@ abstract class AbstractDoctrineType extends AbstractType
     {
         return static::NAME;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMappingDeclaration(array $options = []): array
+    {
+        return ['type' => 'object'];
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace Fazland\ODM\Elastica\Type;
 
+// TODO: remove me!
 final class RawType extends AbstractType
 {
     const NAME = 'raw';
@@ -28,5 +29,10 @@ final class RawType extends AbstractType
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getMappingDeclaration(array $options = []): array
+    {
+        return [];
     }
 }

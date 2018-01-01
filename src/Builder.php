@@ -7,8 +7,6 @@ use Fazland\ODM\Elastica\Collection\Database;
 use Fazland\ODM\Elastica\Metadata\Loader;
 use Fazland\ODM\Elastica\Metadata\MetadataFactory;
 use Fazland\ODM\Elastica\Metadata\Processor;
-use Fazland\ODM\Elastica\Type\DateTimeType;
-use Fazland\ODM\Elastica\Type\RawType;
 use Fazland\ODM\Elastica\Type\TypeInterface;
 use Fazland\ODM\Elastica\Type\TypeManager;
 use Kcs\Metadata\Loader\Processor\ProcessorFactory;
@@ -129,8 +127,16 @@ final class Builder
     public function addDefaultTypes(): self
     {
         return $this
-            ->addType(new RawType())
-            ->addType(new DateTimeType())
+            ->addType(new Type\BooleanType())
+            ->addType(new Type\ByteType())
+            ->addType(new Type\DateTimeImmutableType())
+            ->addType(new Type\DateTimeType())
+            ->addType(new Type\FloatType())
+            ->addType(new Type\IntegerType())
+            ->addType(new Type\LongType())
+            ->addType(new Type\ShortType())
+            ->addType(new Type\StringType())
+            ->addType(new Type\RawType())
         ;
     }
 

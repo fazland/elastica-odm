@@ -8,9 +8,6 @@ final class IntegerType extends AbstractType
 {
     const NAME = 'integer';
 
-    const MAX_VALUE = 2147483647;
-    const MIN_VALUE = -2147483648;
-
     /**
      * {@inheritdoc}
      */
@@ -35,16 +32,46 @@ final class IntegerType extends AbstractType
         return self::NAME;
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function getMappingDeclaration(array $options = []): array
+    {
+        $length = $options['length'] ?? 4;
+        switch ($length) {
+            case 1:
+                $type = 'byte';
+                break;
+
+            case 2:
+                $type = 'short';
+                break;
+
+            case 4:
+                $type = 'integer';
+                break;
+
+            case 8:
+                $type = 'long';
+                break;
+
+            default:
+                throw new \InvalidArgumentException('Invalid length '.$length.' for integer');
+        }
+
+        return ['type' => $type];
+    }
+
     private function doConversion($value): ?int
     {
         if (null === $value) {
             return null;
         }
 
-        if (! is_int($value) || self::MIN_VALUE > $value || self::MAX_VALUE < $value) {
-            throw new ConversionFailedException($value, 'integer');
+        if (! is_numeric($value)) {
+            throw new ConversionFailedException($value, self::NAME);
         }
 
-        return $value;
+        return (int) $value;
     }
 }
