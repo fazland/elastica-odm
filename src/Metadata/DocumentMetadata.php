@@ -13,11 +13,18 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
     const GENERATOR_TYPE_AUTO = 1;
 
     /**
-     * The elastica type name.
+     * Whether this class is representing a document.
+     *
+     * @var bool
+     */
+    public $document;
+
+    /**
+     * The elastic index/type name.
      *
      * @var string
      */
-    public $typeName;
+    public $collectionName;
 
     /**
      * The identifier field name.
@@ -53,6 +60,7 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
         parent::__construct($class);
 
         $this->instantiator = new Instantiator();
+        $this->document = false;
     }
 
     /**
@@ -65,7 +73,7 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
         parent::merge($metadata);
 
         $this->customRepositoryClassName = $this->customRepositoryClassName ?? $metadata->customRepositoryClassName;
-        $this->typeName = $this->typeName ?? $metadata->typeName;
+        $this->collectionName = $this->collectionName ?? $metadata->collectionName;
         $this->identifier = $this->identifier ?? $metadata->identifier;
         $this->idGeneratorType = $this->idGeneratorType ?? $metadata->idGeneratorType;
     }

@@ -127,14 +127,15 @@ final class Builder
     public function addDefaultTypes(): self
     {
         return $this
+            ->addType(new Type\BinaryType())
             ->addType(new Type\BooleanType())
-            ->addType(new Type\ByteType())
             ->addType(new Type\DateTimeImmutableType())
             ->addType(new Type\DateTimeType())
             ->addType(new Type\FloatType())
+            ->addType(new Type\GeoPointType())
             ->addType(new Type\IntegerType())
-            ->addType(new Type\LongType())
-            ->addType(new Type\ShortType())
+            ->addType(new Type\IpType())
+            ->addType(new Type\PercolatorType())
             ->addType(new Type\StringType())
             ->addType(new Type\RawType())
         ;

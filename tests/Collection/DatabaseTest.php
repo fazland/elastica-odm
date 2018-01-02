@@ -44,9 +44,9 @@ class DatabaseTest extends TestCase
     {
         $class = new DocumentMetadata(new \ReflectionClass(\stdClass::class));
         $class->name = 'document_name';
-        $class->typeName = 'type_name';
+        $class->collectionName = 'type_name';
 
-        $this->client->getIndex($class->typeName)
+        $this->client->getIndex($class->collectionName)
             ->willReturn($this->prophesize(Index::class));
 
         $resultCache = $this->prophesize(CacheItemPoolInterface::class);
@@ -61,9 +61,9 @@ class DatabaseTest extends TestCase
     {
         $class = new DocumentMetadata(new \ReflectionClass(\stdClass::class));
         $class->name = 'document_name';
-        $class->typeName = 'type_name';
+        $class->collectionName = 'type_name';
 
-        $this->client->getIndex($class->typeName)
+        $this->client->getIndex($class->collectionName)
             ->shouldBeCalledTimes(1)
             ->willReturn($this->prophesize(Index::class));
 
