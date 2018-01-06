@@ -15,6 +15,7 @@ use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
 use Fazland\ODM\Elastica\Metadata\FieldMetadata;
 use Fazland\ODM\Elastica\Persister\DocumentPersister;
 use ProxyManager\Proxy\LazyLoadingInterface;
+use ProxyManager\Proxy\ProxyInterface;
 
 final class UnitOfWork
 {
@@ -529,20 +530,22 @@ final class UnitOfWork
             $originalData = $this->originalDocumentData[$oid];
             $changeSet = [];
 
-            foreach ($actualData as $propName => $actualValue) {
-                // skip field, its a partially omitted one!
-                if (! array_key_exists($propName, $originalData)) {
-                    continue;
+            if (! $document instanceof LazyLoadingInterface || $document->isProxyInitialized()) {
+                foreach ($actualData as $propName => $actualValue) {
+                    // skip field, its a partially omitted one!
+                    if (! array_key_exists($propName, $originalData)) {
+                        continue;
+                    }
+
+                    $orgValue = $originalData[$propName];
+
+                    // skip if value haven't changed
+                    if ($orgValue === $actualValue) {
+                        continue;
+                    }
+
+                    $changeSet[$propName] = [$orgValue, $actualValue];
                 }
-
-                $orgValue = $originalData[$propName];
-
-                // skip if value haven't changed
-                if ($orgValue === $actualValue) {
-                    continue;
-                }
-
-                $changeSet[$propName] = [$orgValue, $actualValue];
             }
 
             if ($changeSet) {
@@ -911,7 +914,7 @@ final class UnitOfWork
 
             $persister = $this->getDocumentPersister(get_class($document));
             if (! empty($this->documentChangeSets[$oid])) {
-                $persister->update($document, $this->documentChangeSets[$oid]);
+                $persister->update($document);
             }
 
             unset($this->documentUpdates[$oid], $this->documentChangeSets[$oid]);

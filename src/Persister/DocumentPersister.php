@@ -46,14 +46,21 @@ class DocumentPersister
     /**
      * Finds a document by a set of criteria.
      *
-     * @param array  $criteria query criteria
+     * @param array $criteria query criteria
+     * @param array $hints
      * @param object $document The document to load data into. If not given, a new document will be created.
      *
      * @return object|null the loaded and managed document instance or null if no document was found
      */
-    public function load(array $criteria, $document = null)
+    public function load(array $criteria, array $hints = [], $document = null)
     {
         $query = $this->prepareQuery($criteria);
+        if ($hints[Hints::HINT_REFRESH] ?? false) {
+            $params = $query->getParams();
+            unset($params['_source']);
+            $query->setParams($params);
+        }
+
         $resultSet = $this->collection->search($query);
 
         if (! count($resultSet)) {
@@ -103,8 +110,10 @@ class DocumentPersister
     public function exists(array $criteria): bool
     {
         $query = $this->prepareQuery($criteria);
+        $query->setSize(0);
+        $query->setParam('terminate_after', 1);
 
-        return $this->collection->count($query) > 0;
+        return $this->collection->search($query)->count() > 0;
     }
 
     /**
@@ -122,7 +131,7 @@ class DocumentPersister
         $postIdGenerator = $idGenerator->isPostInsertGenerator();
 
         $id = $postIdGenerator ? null : $class->getSingleIdentifier($document);
-        $body = $this->prepareInsertData($class, $document);
+        $body = $this->prepareUpdateData($document);
 
         $response = $this->collection->create($id, $body);
         $data = $response->getData();
@@ -153,15 +162,14 @@ class DocumentPersister
      * Updates a managed document.
      *
      * @param object $document
-     * @param array  $changeSet
      */
-    public function update($document, array $changeSet): void
+    public function update($document): void
     {
         $class = $this->dm->getClassMetadata(get_class($document));
-        $body = $this->prepareUpdateData($class, $changeSet);
+        $data = $this->prepareUpdateData($document);
         $id = $class->getSingleIdentifier($document);
 
-        $this->collection->update((string) $id, $body);
+        $this->collection->update((string) $id, $data['body'], $data['script']);
     }
 
     /**
@@ -195,45 +203,44 @@ class DocumentPersister
         return Query::create($bool);
     }
 
-    private function prepareInsertData(DocumentMetadata $class, $document): array
+    /**
+     * INTERNAL:
+     * Prepares data for an update operation.
+     *
+     * @param object $document
+     *
+     * @return array
+     *
+     * @internal
+     * @throws \Fazland\ODM\Elastica\Exception\ConversionFailedException
+     */
+    public function prepareUpdateData($document): array
     {
-        $fields = [];
-        foreach ($class->attributesMetadata as $field) {
-            if (! $field instanceof FieldMetadata) {
-                continue;
-            }
-
-            if ($field->identifier || $field->indexName || $field->typeName) {
-                continue;
-            }
-
-            $fields[$field->name] = [null, $field->getValue($document)];
-        }
-
-        return $this->prepareUpdateData($class, $fields);
-    }
-
-    private function prepareUpdateData(DocumentMetadata $class, array $fields): array
-    {
+        $script = [];
         $body = [];
+
+        $changeSet = $this->dm->getUnitOfWork()->getDocumentChangeSet($document);
+        $class = $this->dm->getClassMetadata(get_class($document));
         $typeManager = $this->dm->getTypeManager();
 
-        foreach ($fields as $name => $value) {
+        foreach ($changeSet as $name => $value) {
             $field = $class->attributesMetadata[$name];
-
-            $fieldType = $typeManager->getType($field->type);
+            $type = $typeManager->getType($field->type);
 
             if ($field->multiple) {
-                $fieldValue = array_map(function ($item) use ($fieldType, $field) {
-                    return $fieldType->toDatabase($item, $field->options);
+                $body[$field->fieldName] = array_map(function ($item) use ($type, $field) {
+                    return $type->toDatabase($item, $field->options);
                 }, (array) $value[1]);
+            } else if (null !== $value[1]) {
+                $body[$field->fieldName] = $type->toDatabase($value[1], $field->options);
             } else {
-                $fieldValue = $fieldType->toDatabase($value[1], $field->options);
+                $script[] = 'ctx._source.remove(\''.str_replace('\'', '\\\'', $field->fieldName).'\')';
             }
-
-            $body[$field->fieldName] = $fieldValue;
         }
 
-        return $body;
+        return [
+            'body' => $body,
+            'script' => implode('; ', $script),
+        ];
     }
 }

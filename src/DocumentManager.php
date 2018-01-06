@@ -9,6 +9,7 @@ use Fazland\ODM\Elastica\Collection\DatabaseInterface;
 use Fazland\ODM\Elastica\Hydrator\HydratorInterface;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
 use Fazland\ODM\Elastica\Metadata\MetadataFactory;
+use Fazland\ODM\Elastica\Persister\Hints;
 use Fazland\ODM\Elastica\Repository\DocumentRepositoryInterface;
 use Fazland\ODM\Elastica\Repository\RepositoryFactoryInterface;
 use Fazland\ODM\Elastica\Search\Search;
@@ -148,7 +149,7 @@ class DocumentManager implements DocumentManagerInterface
         $class = $this->getClassMetadata(get_class($object));
         $persister = $this->unitOfWork->getDocumentPersister($class->name);
 
-        $persister->load(['_id' => $class->getSingleIdentifier($object)], $object);
+        $persister->load(['_id' => $class->getSingleIdentifier($object)], [Hints::HINT_REFRESH => true], $object);
     }
 
     /**

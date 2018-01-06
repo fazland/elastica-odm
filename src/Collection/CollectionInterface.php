@@ -70,8 +70,9 @@ interface CollectionInterface
      *
      * @param string $id
      * @param array  $body
+     * @param string $script
      */
-    public function update(string $id, array $body): void;
+    public function update(string $id, array $body, string $script = ''): void;
 
     /**
      * Request the deletion of a document.

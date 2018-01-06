@@ -128,14 +128,15 @@ class Collection implements CollectionInterface
     /**
      * {@inheritdoc}
      */
-    public function update(string $id, array $body): void
+    public function update(string $id, array $body, string $script = ''): void
     {
         $endpoint = new Endpoints\Update();
         $endpoint->setID($id);
 
-        $endpoint->setBody([
+        $endpoint->setBody(array_filter([
             'doc' => $body,
-        ]);
+            'script' => $script,
+        ]));
 
         try {
             $response = $this->searchable->requestEndpoint($endpoint);
