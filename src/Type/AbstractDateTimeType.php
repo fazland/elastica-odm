@@ -146,9 +146,8 @@ abstract class AbstractDateTimeType extends AbstractType
                 case 'P':       // Difference to Greenwich time (GMT) with colon between hours and minutes
                     return 'ZZ';
 
-                case 'c':
-                case 'r':
-                    var_dump($match); die;
+                case 'c':       // ISO 8601 date
+                    return 'YYYY-MM-dd\'T\'HH:mm:ssZ';
 
                 case 'S':       // English ordinal suffix for the day of the month, 2 characters
                 case 'z':       // The day of the year (starting from 0)
@@ -160,7 +159,9 @@ abstract class AbstractDateTimeType extends AbstractType
                 case 'T':       // Timezone abbreviation
                 case 'Z':       // Timezone offset in seconds.
                 case 'U':       // UNIX timestamp.
+                case 'r':       // RFC 2822 formatted date
                     throw new \InvalidArgumentException('Cannot convert token "'.$token.'" for date format');
+
                 default:
                     if ('\\' === $token[0]) {
                         $token = substr($token, 1);
