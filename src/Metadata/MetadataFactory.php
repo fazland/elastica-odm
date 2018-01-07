@@ -2,12 +2,42 @@
 
 namespace Fazland\ODM\Elastica\Metadata;
 
+use Doctrine\Common\EventManager;
 use Kcs\Metadata\ClassMetadataInterface;
 use Kcs\Metadata\Exception\InvalidMetadataException;
 use Kcs\Metadata\Factory\AbstractMetadataFactory;
+use Kcs\Metadata\Loader\LoaderInterface;
 
 class MetadataFactory extends AbstractMetadataFactory
 {
+    /**
+     * @var EventManager
+     */
+    private $eventManager;
+
+    public function __construct(LoaderInterface $loader, $cache = null)
+    {
+        parent::__construct($loader, null, $cache);
+    }
+
+    /**
+     * Sets the event manager for this metadata factory.
+     *
+     * @param EventManager $eventManager
+     */
+    public function setEventManager(EventManager $eventManager): void
+    {
+        $this->eventManager = $eventManager;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function dispatchClassMetadataLoadedEvent(ClassMetadataInterface $classMetadata): void
+    {
+        // @todo
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -28,7 +58,7 @@ class MetadataFactory extends AbstractMetadataFactory
 
             if ($attributesMetadata->identifier) {
                 if (null !== $identifier) {
-                    throw new InvalidMetadataException('@DocumentId should be declare at most once per class.');
+                    throw new InvalidMetadataException('@DocumentId should be declared at most once per class.');
                 }
 
                 $identifier = $attributesMetadata;

@@ -60,6 +60,11 @@ final class Builder
      */
     private $addDefaultTypes = true;
 
+    /**
+     * @var Loader\LoaderInterface
+     */
+    private $metadataLoader = null;
+
     public static function create(): self
     {
         return new self();
@@ -141,6 +146,17 @@ final class Builder
         ;
     }
 
+    public function addMetadataLoader(Loader\LoaderInterface $loader)
+    {
+        if (null === $this->metadataLoader) {
+            $this->metadataLoader = $loader;
+        } elseif ($this->metadataLoader instanceof Loader\ChainLoader) {
+            $this->metadataLoader->addLoader($loader);
+        } else {
+            $this->metadataLoader = new Loader\ChainLoader([$this->metadataLoader, $loader]);
+        }
+    }
+
     public function build(): DocumentManager
     {
         if (null === $this->client) {
@@ -156,6 +172,10 @@ final class Builder
         }
 
         if (null === $this->metadataFactory) {
+            if (null === $this->metadataLoader) {
+                throw new \InvalidArgumentException('You must define at least one metadata loader');
+            }
+
             $processorFactory = new ProcessorFactory();
             $processorFactory->registerProcessor(Annotation\Document::class, Processor\DocumentProcessor::class);
             $processorFactory->registerProcessor(Annotation\DocumentId::class, Processor\DocumentIdProcessor::class);
@@ -163,7 +183,7 @@ final class Builder
             $processorFactory->registerProcessor(Annotation\TypeName::class, Processor\TypeNameProcessor::class);
             $processorFactory->registerProcessor(Annotation\Field::class, Processor\FieldProcessor::class);
 
-            $this->metadataFactory = new MetadataFactory(new Loader($processorFactory));
+            $this->metadataFactory = new MetadataFactory($this->metadataLoader);
         }
 
         if ($this->addDefaultTypes) {
