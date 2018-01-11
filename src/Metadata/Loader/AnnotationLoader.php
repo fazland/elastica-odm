@@ -66,7 +66,7 @@ class AnnotationLoader extends AnnotationProcessorLoader implements LoaderInterf
         $included_files = [];
         foreach ($iterator as $match) {
             $path = $match[0];
-            if ( ! preg_match('(^phar:)i', $path)) {
+            if (! preg_match('(^phar:)i', $path)) {
                 $path = realpath($path);
             }
 

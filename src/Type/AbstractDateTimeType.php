@@ -161,7 +161,6 @@ abstract class AbstractDateTimeType extends AbstractType
                 case 'U':       // UNIX timestamp.
                 case 'r':       // RFC 2822 formatted date
                     throw new \InvalidArgumentException('Cannot convert token "'.$token.'" for date format');
-
                 default:
                     if ('\\' === $token[0]) {
                         $token = substr($token, 1);

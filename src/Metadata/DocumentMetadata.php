@@ -68,6 +68,7 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
 
         $this->instantiator = new Instantiator();
         $this->document = false;
+        $this->eagerFieldNames = [];
     }
 
     public function addAttributeMetadata(MetadataInterface $metadata): void
@@ -92,6 +93,7 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
         $this->collectionName = $this->collectionName ?? $metadata->collectionName;
         $this->identifier = $this->identifier ?? $metadata->identifier;
         $this->idGeneratorType = $this->idGeneratorType ?? $metadata->idGeneratorType;
+        $this->eagerFieldNames = array_unique(array_merge($this->eagerFieldNames, $metadata->eagerFieldNames));
     }
 
     /**

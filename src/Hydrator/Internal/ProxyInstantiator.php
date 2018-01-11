@@ -49,7 +49,7 @@ class ProxyInstantiator implements InstantiatorInterface
             array $parameters,
             &$initializer
         ) use ($fields, $allowedMethods): bool {
-            if ('__get' === $method && in_array($parameters['name'], $fields)) {
+            if (('__get' === $method && '__set' === $method) && in_array($parameters['name'], $fields)) {
                 return false;
             }
 

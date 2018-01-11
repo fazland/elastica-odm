@@ -31,7 +31,7 @@ class MetadataFactory extends AbstractMetadataFactory
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function dispatchClassMetadataLoadedEvent(ClassMetadataInterface $classMetadata): void
     {
@@ -79,6 +79,7 @@ class MetadataFactory extends AbstractMetadataFactory
         }
 
         $classMetadata->identifier = $identifier;
+        $classMetadata->eagerFieldNames = array_filter($classMetadata->eagerFieldNames);
     }
 
     /**

@@ -7,6 +7,7 @@ use Elastica\ResultSet;
 use Fazland\ODM\Elastica\Collection\CollectionInterface;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
 use Fazland\ODM\Elastica\Hydrator\HydratorInterface;
+use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
 
 class Search implements \IteratorAggregate
 {
@@ -114,6 +115,12 @@ class Search implements \IteratorAggregate
         $hydrator = $this->documentManager->newHydrator($this->hydrationMode);
 
         $query = clone $this->query;
+        if (! $query->hasParam('_source')) {
+            /** @var DocumentMetadata $class */
+            $class = $this->documentManager->getClassMetadata($this->documentClass);
+            $query->setSource($class->eagerFieldNames);
+        }
+
         if (null !== $this->sort) {
             $query->setSort($this->sort);
         }

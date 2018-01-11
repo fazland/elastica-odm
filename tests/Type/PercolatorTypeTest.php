@@ -24,7 +24,6 @@ class PercolatorTypeTest extends TestCase
         $this->assertEquals(null, $type->toDatabase(null));
     }
 
-
     public function testToDatabaseShouldWork(): void
     {
         $type = $this->getType();
