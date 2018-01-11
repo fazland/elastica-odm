@@ -133,6 +133,7 @@ class Geohash
         $bit = 0;
         $charIndex = 0;
 
+        $this->geohash = '';
         while (strlen($this->geohash) < $length) {
             if ($isEven) {
                 $middle = ($longitudeInterval[0] + $longitudeInterval[1]) / 2;
