@@ -5,7 +5,6 @@ namespace Fazland\ODM\Elastica\Collection;
 use Elastica\Client;
 use Elastica\SearchableInterface;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
-use Psr\Cache\CacheItemPoolInterface;
 
 class Database implements DatabaseInterface
 {
@@ -13,11 +12,6 @@ class Database implements DatabaseInterface
      * @var Client
      */
     protected $elasticSearch;
-
-    /**
-     * @var CacheItemPoolInterface|null
-     */
-    private $resultCache;
 
     /**
      * @var CollectionInterface[]
@@ -33,21 +27,21 @@ class Database implements DatabaseInterface
     /**
      * {@inheritdoc}
      */
+    public function getConnection(): Client
+    {
+        return $this->elasticSearch;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getCollection(DocumentMetadata $class): CollectionInterface
     {
         if (isset($this->collectionList[$class->name])) {
             return $this->collectionList[$class->name];
         }
 
-        $collection = new Collection($class->name, $this->getSearchable($class));
-        $collection->setResultCache($this->resultCache);
-
-        return $this->collectionList[$class->name] = $collection;
-    }
-
-    public function setResultCache(?CacheItemPoolInterface $resultCache): void
-    {
-        $this->resultCache = $resultCache;
+        return $this->collectionList[$class->name] = new Collection($class->name, $this->getSearchable($class));
     }
 
     protected function getSearchable(DocumentMetadata $class): SearchableInterface

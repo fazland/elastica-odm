@@ -5,9 +5,11 @@ namespace Fazland\ODM\Elastica;
 use Doctrine\Common\EventManager;
 use Doctrine\Common\Persistence\ObjectManager;
 use Fazland\ODM\Elastica\Collection\CollectionInterface;
+use Fazland\ODM\Elastica\Collection\DatabaseInterface;
 use Fazland\ODM\Elastica\Hydrator\HydratorInterface;
 use Fazland\ODM\Elastica\Type\TypeManager;
 use ProxyManager\Factory\LazyLoadingGhostFactory;
+use Psr\Cache\CacheItemPoolInterface;
 
 interface DocumentManagerInterface extends ObjectManager
 {
@@ -18,6 +20,13 @@ interface DocumentManagerInterface extends ObjectManager
      * @return LazyLoadingGhostFactory
      */
     public function getProxyFactory(): LazyLoadingGhostFactory;
+
+    /**
+     * Returns the underlying database object.
+     *
+     * @return DatabaseInterface
+     */
+    public function getDatabase(): DatabaseInterface;
 
     /**
      * Gets the type manager used in this manager.
@@ -50,6 +59,13 @@ interface DocumentManagerInterface extends ObjectManager
      * @return CollectionInterface
      */
     public function getCollection(string $className): CollectionInterface;
+
+    /**
+     * Retrieve the result cache pool, if configured.
+     *
+     * @return null|CacheItemPoolInterface
+     */
+    public function getResultCache(): ?CacheItemPoolInterface;
 
     /**
      * Gets an hydrator for the given hydration mode.

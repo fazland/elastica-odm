@@ -14,6 +14,7 @@
         "php": "^7.1",
         "doctrine/annotations": "^1.6",
         "doctrine/common": "^2.8",
+        "kcs/class-finder": "^0.1",
         "kcs/metadata": "^2.1",
         "ocramius/proxy-manager": "^2.0",
         "psr/cache-implementation": "^1.0",

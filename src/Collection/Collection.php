@@ -7,10 +7,11 @@ use Elastica\Response;
 use Elastica\ResultSet;
 use Elastica\Scroll;
 use Elastica\SearchableInterface;
+use Elastica\Type;
+use Elastica\Type\Mapping;
 use Elasticsearch\Endpoints;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
 use Fazland\ODM\Elastica\Search\Search;
-use Psr\Cache\CacheItemPoolInterface;
 
 class Collection implements CollectionInterface
 {
@@ -20,14 +21,9 @@ class Collection implements CollectionInterface
     private $documentClass;
 
     /**
-     * @var SearchableInterface
+     * @var SearchableInterface|Type
      */
     private $searchable;
-
-    /**
-     * @var CacheItemPoolInterface|null
-     */
-    private $resultCache;
 
     /**
      * @var null|string
@@ -60,22 +56,6 @@ class Collection implements CollectionInterface
     public function search(Query $query): ResultSet
     {
         return $this->searchable->search($query);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getResultCache(): ?CacheItemPoolInterface
-    {
-        return $this->resultCache;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setResultCache(?CacheItemPoolInterface $resultCache): void
-    {
-        $this->resultCache = $resultCache;
     }
 
     /**
@@ -173,5 +153,17 @@ class Collection implements CollectionInterface
     public function getLastInsertedId(): ?string
     {
         return $this->_lastInsertId;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function updateMapping(Mapping $mapping): void
+    {
+        $response = $this->searchable->setMapping($mapping);
+
+        if (! $response->isOk()) {
+            throw new \RuntimeException('Response not OK');
+        }
     }
 }

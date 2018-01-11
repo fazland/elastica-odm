@@ -3,13 +3,19 @@
 namespace Fazland\ODM\Elastica\Metadata;
 
 use Doctrine\Common\EventManager;
+use Doctrine\Common\Persistence\Mapping\ClassMetadataFactory;
+use Fazland\ODM\Elastica\Metadata\Loader\LoaderInterface;
 use Kcs\Metadata\ClassMetadataInterface;
 use Kcs\Metadata\Exception\InvalidMetadataException;
 use Kcs\Metadata\Factory\AbstractMetadataFactory;
-use Kcs\Metadata\Loader\LoaderInterface;
 
-class MetadataFactory extends AbstractMetadataFactory
+class MetadataFactory extends AbstractMetadataFactory implements ClassMetadataFactory
 {
+    /**
+     * @var LoaderInterface
+     */
+    private $loader;
+
     /**
      * @var EventManager
      */
@@ -17,6 +23,8 @@ class MetadataFactory extends AbstractMetadataFactory
 
     public function __construct(LoaderInterface $loader, $cache = null)
     {
+        $this->loader = $loader;
+
         parent::__construct($loader, null, $cache);
     }
 
@@ -28,6 +36,31 @@ class MetadataFactory extends AbstractMetadataFactory
     public function setEventManager(EventManager $eventManager): void
     {
         $this->eventManager = $eventManager;
+    }
+
+    /**
+     * Gets all the metadata available in this factory.
+     *
+     * @return DocumentMetadata[]
+     */
+    public function getAllMetadata(): array
+    {
+        $metadatas = [];
+        foreach ($this->loader->getAllClassNames() as $className) {
+            $metadatas[] = $this->getMetadataFor($className);
+        }
+
+        return $metadatas;
+    }
+
+    public function setMetadataFor($className, $class)
+    {
+        // @todo
+    }
+
+    public function isTransient($className)
+    {
+        // @todo
     }
 
     /**

@@ -10,15 +10,16 @@ use Elastica\SearchableInterface;
 use Fazland\ODM\Elastica\Collection\Collection;
 use Fazland\ODM\Elastica\Collection\CollectionInterface;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
+use Fazland\ODM\Elastica\Tests\Fixtures\Document\Foo;
+use Fazland\ODM\Elastica\Tests\Traits\DocumentManagerTestTrait;
+use Fazland\ODM\Elastica\Tests\Traits\FixturesTestTrait;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Prophecy\ObjectProphecy;
 
 class CollectionTest extends TestCase
 {
-    /**
-     * @var DocumentManagerInterface|ObjectProphecy
-     */
-    private $documentManager;
+    use DocumentManagerTestTrait;
+    use FixturesTestTrait;
 
     /**
      * @var SearchableInterface|ObjectProphecy
@@ -92,5 +93,21 @@ class CollectionTest extends TestCase
         $this->searchable->count($this->query)->shouldBeCalled()->willReturn(10);
 
         $this->collection->count($this->query->reveal());
+    }
+
+    /**
+     * @group functional
+     */
+    public function testScroll()
+    {
+        $dm = $this->createDocumentManager();
+        $this->resetFixtures($dm);
+
+        $collection = $dm->getCollection(Foo::class);
+        $scroll = iterator_to_array($collection->scroll(new Query()), false);
+        $resultSet = $scroll[0];
+
+        $this->assertCount(2, $resultSet);
+        $this->assertArrayHasKey('stringField', $resultSet[0]->getSource());
     }
 }

@@ -6,9 +6,9 @@ use Elastica\Query;
 use Elastica\Response;
 use Elastica\ResultSet;
 use Elastica\Scroll;
+use Elastica\Type\Mapping;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
 use Fazland\ODM\Elastica\Search\Search;
-use Psr\Cache\CacheItemPoolInterface;
 
 interface CollectionInterface
 {
@@ -30,20 +30,6 @@ interface CollectionInterface
      * @return Scroll
      */
     public function scroll(Query $query, string $expiryTime = '1m'): Scroll;
-
-    /**
-     * Gets the configured result cache pool.
-     *
-     * @return null|CacheItemPoolInterface
-     */
-    public function getResultCache(): ?CacheItemPoolInterface;
-
-    /**
-     * Sets the result cache pool.
-     *
-     * @param null|CacheItemPoolInterface $resultCache
-     */
-    public function setResultCache(?CacheItemPoolInterface $resultCache): void;
 
     /**
      * Creates a search object.
@@ -100,4 +86,11 @@ interface CollectionInterface
      * @return string
      */
     public function getLastInsertedId(): ?string;
+
+    /**
+     * Updates the collection mapping.
+     *
+     * @param Mapping $mapping
+     */
+    public function updateMapping(Mapping $mapping): void;
 }

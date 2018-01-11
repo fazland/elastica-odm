@@ -1,5 +1,8 @@
 language: php
 
+env:
+  - ES_VERSION=5.6.5 ES_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
+
 cache:
   directories:
     - $HOME/.composer/cache
@@ -8,11 +11,18 @@ php:
   - 7.1
   - 7.2
 
+install:
+  - wget ${ES_DOWNLOAD_URL}
+  - tar -xzf elasticsearch-${ES_VERSION}.tar.gz
+  - ./elasticsearch-${ES_VERSION}/bin/elasticsearch &
+
 before_script:
     - composer self-update
     - composer install
 
-script: if [[ "$TRAVIS_PHP_VERSION" == "7.1" ]]; then vendor/bin/phpunit --coverage-clover=coverage.clover; else vendor/bin/phpunit; fi
+script:
+    - wget -q --waitretry=1 --retry-connrefused -T 10 -O - http://127.0.0.1:9200
+    - if [[ "$TRAVIS_PHP_VERSION" == "7.1" ]]; then vendor/bin/phpunit --coverage-clover=coverage.clover; else vendor/bin/phpunit; fi
 
 after_success:
     - if [ -f coverage.clover ]; then wget https://scrutinizer-ci.com/ocular.phar; fi

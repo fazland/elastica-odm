@@ -2,7 +2,9 @@
 
 namespace Fazland\ODM\Elastica\Metadata\Loader;
 
+use Fazland\ODM\Elastica\Annotation\Document;
 use Fazland\ODM\Elastica\Metadata\FieldMetadata;
+use Kcs\ClassFinder\Finder\RecursiveFinder;
 use Kcs\Metadata\ClassMetadataInterface;
 use Kcs\Metadata\Loader\AnnotationProcessorLoader;
 use Kcs\Metadata\Loader\Processor\ProcessorFactoryInterface;
@@ -12,16 +14,10 @@ class AnnotationLoader extends AnnotationProcessorLoader implements LoaderInterf
     /**
      * @var string
      */
-    private $namespace;
-
-    /**
-     * @var string
-     */
     private $prefixDir;
 
-    public function __construct(ProcessorFactoryInterface $processorFactory, string $namespace, string $prefixDir)
+    public function __construct(ProcessorFactoryInterface $processorFactory, string $prefixDir)
     {
-        $this->namespace = $namespace;
         $this->prefixDir = $prefixDir;
 
         parent::__construct($processorFactory);
@@ -54,32 +50,16 @@ class AnnotationLoader extends AnnotationProcessorLoader implements LoaderInterf
 
     public function getAllClassNames(): array
     {
-        $iterator = new \RegexIterator(
-            new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($this->prefixDir, \FilesystemIterator::SKIP_DOTS),
-                \RecursiveIteratorIterator::LEAVES_ONLY
-            ),
-            '/^.+\.php$/i',
-            \RecursiveRegexIterator::GET_MATCH
-        );
-
-        $included_files = [];
-        foreach ($iterator as $match) {
-            $path = $match[0];
-            if (! preg_match('(^phar:)i', $path)) {
-                $path = realpath($path);
-            }
-
-            require_once $path;
-            $included_files[] = $path;
-        }
+        $finder = new RecursiveFinder($this->prefixDir);
+        $finder->annotatedBy(Document::class);
 
         $classes = [];
-        foreach (get_declared_classes() as $className) {
-            $reflClass = new \ReflectionClass($className);
-            if (in_array($reflClass->getFileName(), $included_files)) {
-                $classes[] = $className;
+        foreach ($finder as $className => $reflection) {
+            if (! $reflection->isInstantiable()) {
+                continue;
             }
+
+            $classes[] = $className;
         }
 
         return $classes;

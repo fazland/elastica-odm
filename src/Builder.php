@@ -6,10 +6,8 @@ use Elastica\Client;
 use Fazland\ODM\Elastica\Collection\Database;
 use Fazland\ODM\Elastica\Metadata\Loader;
 use Fazland\ODM\Elastica\Metadata\MetadataFactory;
-use Fazland\ODM\Elastica\Metadata\Processor;
 use Fazland\ODM\Elastica\Type\TypeInterface;
 use Fazland\ODM\Elastica\Type\TypeManager;
-use Kcs\Metadata\Loader\Processor\ProcessorFactory;
 use ProxyManager\Factory\LazyLoadingGhostFactory;
 use Psr\Log\LoggerInterface;
 
@@ -146,7 +144,7 @@ final class Builder
         ;
     }
 
-    public function addMetadataLoader(Loader\LoaderInterface $loader)
+    public function addMetadataLoader(Loader\LoaderInterface $loader): self
     {
         if (null === $this->metadataLoader) {
             $this->metadataLoader = $loader;
@@ -155,6 +153,8 @@ final class Builder
         } else {
             $this->metadataLoader = new Loader\ChainLoader([$this->metadataLoader, $loader]);
         }
+
+        return $this;
     }
 
     public function build(): DocumentManager
@@ -175,13 +175,6 @@ final class Builder
             if (null === $this->metadataLoader) {
                 throw new \InvalidArgumentException('You must define at least one metadata loader');
             }
-
-            $processorFactory = new ProcessorFactory();
-            $processorFactory->registerProcessor(Annotation\Document::class, Processor\DocumentProcessor::class);
-            $processorFactory->registerProcessor(Annotation\DocumentId::class, Processor\DocumentIdProcessor::class);
-            $processorFactory->registerProcessor(Annotation\IndexName::class, Processor\IndexNameProcessor::class);
-            $processorFactory->registerProcessor(Annotation\TypeName::class, Processor\TypeNameProcessor::class);
-            $processorFactory->registerProcessor(Annotation\Field::class, Processor\FieldProcessor::class);
 
             $this->metadataFactory = new MetadataFactory($this->metadataLoader);
         }

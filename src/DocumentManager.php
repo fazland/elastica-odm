@@ -15,6 +15,7 @@ use Kcs\Metadata\Factory\MetadataFactoryInterface;
 use ProxyManager\Factory\LazyLoadingGhostFactory;
 use ProxyManager\Proxy\LazyLoadingInterface;
 use ProxyManager\Proxy\ProxyInterface;
+use Psr\Cache\CacheItemPoolInterface;
 
 class DocumentManager implements DocumentManagerInterface
 {
@@ -53,6 +54,11 @@ class DocumentManager implements DocumentManagerInterface
      */
     private $repositoryFactory;
 
+    /**
+     * @var CacheItemPoolInterface|null
+     */
+    private $resultCache;
+
     public function __construct(DatabaseInterface $database, Configuration $configuration, EventManager $eventManager = null)
     {
         $this->database = $database;
@@ -63,6 +69,7 @@ class DocumentManager implements DocumentManagerInterface
         $this->typeManager = $configuration->getTypeManager();
         $this->unitOfWork = new UnitOfWork($this);
         $this->repositoryFactory = $configuration->getRepositoryFactory();
+        $this->resultCache = $configuration->getResultCache();
 
         $this->clear();
     }
@@ -211,6 +218,14 @@ class DocumentManager implements DocumentManagerInterface
     /**
      * {@inheritdoc}
      */
+    public function getDatabase(): DatabaseInterface
+    {
+        return $this->database;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getEventManager(): EventManager
     {
         return $this->eventManager;
@@ -240,6 +255,14 @@ class DocumentManager implements DocumentManagerInterface
         $class = $this->getClassMetadata($className);
 
         return $this->database->getCollection($class);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getResultCache(): ?CacheItemPoolInterface
+    {
+        return $this->resultCache;
     }
 
     /**

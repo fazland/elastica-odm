@@ -4,7 +4,6 @@ namespace Fazland\ODM\Elastica\Search;
 
 use Elastica\Query;
 use Elastica\ResultSet;
-use Fazland\ODM\Elastica\Collection\CollectionInterface;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
 use Fazland\ODM\Elastica\Hydrator\HydratorInterface;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
@@ -111,10 +110,9 @@ class Search implements \IteratorAggregate
      */
     public function getIterator(): \Iterator
     {
-        $collection = $this->documentManager->getCollection($this->documentClass);
         $hydrator = $this->documentManager->newHydrator($this->hydrationMode);
-
         $query = clone $this->query;
+
         if (! $query->hasParam('_source')) {
             /** @var DocumentMetadata $class */
             $class = $this->documentManager->getClassMetadata($this->documentClass);
@@ -133,14 +131,9 @@ class Search implements \IteratorAggregate
             $query->setFrom($this->offset);
         }
 
-        if ($this->isScroll()) {
-            $scroll = $collection->scroll($query);
-
-            foreach ($scroll as $resultSet) {
-                yield from $hydrator->hydrateAll($resultSet, $this->documentClass);
-            }
-        } else {
-            yield from $hydrator->hydrateAll($this->executeSearch($query, $collection), $this->documentClass);
+        $generator = null !== $this->cacheProfile ? $this->_doExecuteCached($query) : $this->_doExecute($query);
+        foreach ($generator as $resultSet) {
+            yield from $hydrator->hydrateAll($resultSet, $this->documentClass);
         }
     }
 
@@ -301,37 +294,55 @@ class Search implements \IteratorAggregate
         return $this->cacheProfile;
     }
 
-    private function executeSearch(Query $query, CollectionInterface $collection): ResultSet
+    /**
+     * Executes the search action, yield all the result sets.
+     *
+     * @param Query $query
+     *
+     * @return \Generator|ResultSet[]
+     */
+    private function _doExecute(Query $query)
     {
-        if (null !== $this->cacheProfile) {
-            return $this->executeCachedSearch($query, $collection);
-        }
+        $collection = $this->documentManager->getCollection($this->documentClass);
 
-        return $collection->search($query);
+        if ($this->isScroll()) {
+            $scroll = $collection->scroll($query);
+
+            foreach ($scroll as $resultSet) {
+                yield $resultSet;
+            }
+        } else {
+            yield $collection->search($query);
+        }
     }
 
-    private function executeCachedSearch(Query $query, CollectionInterface $collection): ResultSet
+    /**
+     * Executes a cached query.
+     *
+     * @param Query $query
+     *
+     * @return \Generator|ResultSet[]
+     */
+    private function _doExecuteCached(Query $query)
     {
-        $resultCache = $collection->getResultCache();
-
-        if (null !== $resultCache) {
+        if (null !== $resultCache = $this->documentManager->getResultCache()) {
             $item = $resultCache->getItem($this->cacheProfile->getCacheKey());
 
             if ($item->isHit()) {
-                return $item->get();
+                yield from $item->get();
+
+                return;
             }
         }
 
-        $search = clone $this;
-        $search->useResultCache(null, 0);
-        $resultSet = $search->executeSearch($query, $collection);
+        $resultSets = iterator_to_array($this->_doExecute($query));
 
         if (isset($item)) {
-            $item->set($resultSet);
+            $item->set($resultSets);
             $item->expiresAfter($this->cacheProfile->getTtl());
             $resultCache->save($item);
         }
 
-        return $resultSet;
+        yield from $resultSets;
     }
 }
