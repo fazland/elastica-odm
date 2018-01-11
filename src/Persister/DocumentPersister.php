@@ -192,7 +192,10 @@ class DocumentPersister
             $bool->addFilter(new Query\Term([$key => ['value' => $value]]));
         }
 
-        return Query::create($bool);
+        $query = Query::create($bool);
+        $query->setSource($this->class->eagerFieldNames);
+
+        return $query;
     }
 
     private function prepareInsertData(DocumentMetadata $class, $document): array

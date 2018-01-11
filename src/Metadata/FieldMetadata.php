@@ -42,6 +42,11 @@ class FieldMetadata extends PropertyMetadata
     public $options = [];
 
     /**
+     * @var bool
+     */
+    public $lazy = false;
+
+    /**
      * @var DocumentMetadata
      */
     public $documentMetadata;

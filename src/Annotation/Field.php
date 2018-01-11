@@ -30,4 +30,11 @@ final class Field
      * @var array
      */
     public $options = [];
+
+    /**
+     * Whether to load this field in lazy mode.
+     *
+     * @var bool
+     */
+    public $lazy = false;
 }

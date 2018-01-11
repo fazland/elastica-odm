@@ -49,6 +49,13 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
     public $customRepositoryClassName;
 
     /**
+     * An array containing all the non-lazy field names.
+     *
+     * @var string[]
+     */
+    public $eagerFieldNames;
+
+    /**
      * The instantiator used to build new object instances.
      *
      * @var Instantiator
@@ -61,6 +68,15 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
 
         $this->instantiator = new Instantiator();
         $this->document = false;
+    }
+
+    public function addAttributeMetadata(MetadataInterface $metadata): void
+    {
+        parent::addAttributeMetadata($metadata);
+
+        if ($metadata instanceof FieldMetadata && ! $metadata->lazy) {
+            $this->eagerFieldNames[] = $metadata->fieldName;
+        }
     }
 
     /**
