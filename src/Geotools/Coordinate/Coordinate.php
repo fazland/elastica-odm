@@ -185,7 +185,7 @@ class Coordinate implements CoordinateInterface, \JsonSerializable
      */
     public function jsonSerialize()
     {
-        return [$this->latitude, $this->longitude];
+        return [$this->longitude, $this->latitude];
     }
 
     /**
