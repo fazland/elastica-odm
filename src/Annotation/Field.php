@@ -25,6 +25,13 @@ final class Field
     public $type = 'raw';
 
     /**
+     * Whether this field should be a collection or not.
+     *
+     * @var bool
+     */
+    public $multiple = false;
+
+    /**
      * Field options.
      *
      * @var array

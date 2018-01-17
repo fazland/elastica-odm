@@ -322,7 +322,7 @@ final class UnitOfWork
     /**
      * Retrieve the computed changeset for a given document.
      *
-     * @param object$document
+     * @param object $document
      *
      * @return array
      */
@@ -439,7 +439,14 @@ final class UnitOfWork
             }
 
             $fieldType = $typeManager->getType($field->type);
-            $value = $fieldType->toPHP($value, $field->options);
+
+            if ($field->multiple) {
+                $value = array_map(function ($item) use ($fieldType) {
+                    return $fieldType->toPHP($item);
+                }, (array) $value);
+            } else {
+                $value = $fieldType->toPHP($value, $field->options);
+            }
 
             $field->setValue($result, $value);
         }

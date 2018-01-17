@@ -37,6 +37,11 @@ class FieldMetadata extends PropertyMetadata
     public $type;
 
     /**
+     * @var bool
+     */
+    public $multiple = false;
+
+    /**
      * @var array
      */
     public $options = [];

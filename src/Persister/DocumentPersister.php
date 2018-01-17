@@ -221,8 +221,17 @@ class DocumentPersister
         foreach ($fields as $name => $value) {
             $field = $class->attributesMetadata[$name];
 
-            $type = $typeManager->getType($field->type);
-            $body[$field->fieldName] = $type->toDatabase($value[1]);
+            $fieldType = $typeManager->getType($field->type);
+
+            if ($field->multiple) {
+                $fieldValue = array_map(function ($item) use ($fieldType, $field) {
+                    return $fieldType->toDatabase($item, $field->options);
+                }, (array) $value[1]);
+            } else {
+                $fieldValue = $fieldType->toDatabase($value[1], $field->options);
+            }
+
+            $body[$field->fieldName] = $fieldValue;
         }
 
         return $body;
