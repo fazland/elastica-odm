@@ -20,6 +20,7 @@ class FieldProcessor implements ProcessorInterface
         $metadata->field = true;
         $metadata->fieldName = $subject->name ?? $metadata->name;
         $metadata->type = $subject->type;
+        $metadata->multiple = $subject->multiple;
         $metadata->options = $subject->options;
         $metadata->lazy = $subject->lazy;
     }
