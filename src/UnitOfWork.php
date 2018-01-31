@@ -441,8 +441,8 @@ final class UnitOfWork
             $fieldType = $typeManager->getType($field->type);
 
             if ($field->multiple) {
-                $value = array_map(function ($item) use ($fieldType) {
-                    return $fieldType->toPHP($item);
+                $value = array_map(function ($item) use ($fieldType, $field) {
+                    return $fieldType->toPHP($item, $field->options);
                 }, (array) $value);
             } else {
                 $value = $fieldType->toPHP($value, $field->options);
