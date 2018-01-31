@@ -104,6 +104,18 @@ class Search implements \IteratorAggregate
     }
 
     /**
+     * Get the total hits of the current query.
+     *
+     * @return int
+     */
+    public function count(): int
+    {
+        $collection = $this->documentManager->getCollection($this->documentClass);
+
+        return $collection->count($this->query);
+    }
+
+    /**
      * Iterate over the query results.
      *
      * @return \Iterator
