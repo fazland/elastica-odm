@@ -40,9 +40,8 @@ class ObjectHydrator implements HydratorInterface
 
         $eagerFields = $class->eagerFieldNames;
         sort($eagerFields);
-        sort($source);
 
-        if (null !== $source && $source !== $eagerFields) {
+        if (null !== $source && sort($source) !== $eagerFields) {
             $fields = false === $source ? [] : $source;
             $instantiator = new ProxyInstantiator($fields, $this->manager);
         } else {
