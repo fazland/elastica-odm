@@ -4,6 +4,7 @@ namespace Fazland\ODM\Elastica\Tests\Hydrator;
 
 use Doctrine\Common\EventManager;
 use Elastica\Document;
+use Elastica\Exception\InvalidException;
 use Elastica\Query;
 use Elastica\Response;
 use Elastica\Result;
@@ -94,6 +95,7 @@ class ObjectHydratorTest extends TestCase
     public function testHydrateAllShouldWork(): void
     {
         $query = $this->prophesize(Query::class);
+        $query->getParam('_source')->willThrow(InvalidException::class);
 
         $result1 = $this->prophesize(Result::class);
         $result2 = $this->prophesize(Result::class);
