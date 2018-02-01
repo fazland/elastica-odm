@@ -75,7 +75,7 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
     {
         parent::addAttributeMetadata($metadata);
 
-        if ($metadata instanceof FieldMetadata && ! $metadata->lazy) {
+        if ($metadata instanceof FieldMetadata && ! $metadata->lazy && null !== $metadata->fieldName) {
             $this->eagerFieldNames[] = $metadata->fieldName;
         }
     }
