@@ -3,10 +3,12 @@
 namespace Fazland\ODM\Elastica\Tests\Collection;
 
 use Elastica\Query;
+use Elastica\Response;
 use Elastica\ResultSet;
 use Elastica\Scroll as ElasticaScroll;
 use Elastica\Search as ElasticaSearch;
-use Elastica\SearchableInterface;
+use Elastica\Type;
+use Elasticsearch\Endpoints;
 use Fazland\ODM\Elastica\Collection\Collection;
 use Fazland\ODM\Elastica\Collection\CollectionInterface;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
@@ -22,7 +24,7 @@ class CollectionTest extends TestCase
     use FixturesTestTrait;
 
     /**
-     * @var SearchableInterface|ObjectProphecy
+     * @var Type|ObjectProphecy
      */
     private $searchable;
 
@@ -46,7 +48,7 @@ class CollectionTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->searchable = $this->prophesize(SearchableInterface::class);
+        $this->searchable = $this->prophesize(Type::class);
         $this->query = $this->prophesize(Query::class);
         $this->documentClass = \stdClass::class;
 
@@ -54,6 +56,12 @@ class CollectionTest extends TestCase
             $this->documentClass,
             $this->searchable->reveal()
         );
+    }
+
+    public static function setUpBeforeClass()
+    {
+        $dm = self::createDocumentManager();
+        self::resetFixtures($dm);
     }
 
     public function testScrollShouldSetDefaultSortingIfNotSet(): void
@@ -68,6 +76,21 @@ class CollectionTest extends TestCase
 
         $search->scroll($expiryTime)->willReturn($this->prophesize(ElasticaScroll::class));
         $this->collection->scroll($this->query->reveal(), $expiryTime);
+    }
+
+    /**
+     * @group functional
+     */
+    public function testScroll()
+    {
+        $dm = self::createDocumentManager();
+
+        $collection = $dm->getCollection(Foo::class);
+        $scroll = iterator_to_array($collection->scroll(new Query()), false);
+        $resultSet = $scroll[0];
+
+        $this->assertCount(2, $resultSet);
+        $this->assertArrayHasKey('stringField', $resultSet[0]->getSource());
     }
 
     public function testSearchShouldExecuteTheQuery(): void
@@ -91,23 +114,99 @@ class CollectionTest extends TestCase
     public function testCountShouldUseSearchableInterfaceCount(): void
     {
         $this->searchable->count($this->query)->shouldBeCalled()->willReturn(10);
-
         $this->collection->count($this->query->reveal());
+    }
+
+    public function testRefreshShouldCallRefreshEndpoint(): void
+    {
+        $this->searchable->requestEndpoint(new Endpoints\Indices\Refresh())->shouldBeCalled();
+        $this->collection->refresh();
+    }
+
+    public function testCreateShouldFireIndexRequest(): void
+    {
+        $endpoint = new Endpoints\Index();
+        $endpoint->setParams(['op_type' => 'create']);
+        $endpoint->setID('test_id');
+        $endpoint->setBody(['field' => 'value']);
+
+        $this->searchable->requestEndpoint($endpoint)
+            ->willReturn(new Response(['_id' => 'test_id'], 200))
+            ->shouldBeCalled();
+
+        $this->collection->create('test_id', ['field' => 'value']);
+    }
+
+    public function testCreateShouldSetLastInsertId(): void
+    {
+        $endpoint = new Endpoints\Index();
+        $endpoint->setBody(['field' => 'value']);
+
+        $this->searchable->requestEndpoint($endpoint)
+            ->willReturn(new Response(['_id' => 'foo_id'], 200))
+            ->shouldBeCalled();
+
+        $this->collection->create(null, ['field' => 'value']);
+        $this->assertEquals('foo_id', $this->collection->getLastInsertedId());
+    }
+
+    /**
+     * @expectedException \Fazland\ODM\Elastica\Exception\RuntimeException
+     */
+    public function testCreateShouldThrowIfResponseIsNotOk(): void
+    {
+        $endpoint = new Endpoints\Index();
+        $endpoint->setBody(['field' => 'value']);
+
+        $this->searchable->requestEndpoint($endpoint)
+            ->willReturn(new Response(['_id' => 'foo_id'], 409))
+            ->shouldBeCalled();
+
+        $this->collection->create(null, ['field' => 'value']);
     }
 
     /**
      * @group functional
      */
-    public function testScroll()
+    public function testCreate()
     {
-        $dm = $this->createDocumentManager();
-        $this->resetFixtures($dm);
+        $dm = self::createDocumentManager();
 
         $collection = $dm->getCollection(Foo::class);
-        $scroll = iterator_to_array($collection->scroll(new Query()), false);
-        $resultSet = $scroll[0];
+        $response = $collection->create('test_index_create', ['stringField' => 'value']);
 
-        $this->assertCount(2, $resultSet);
-        $this->assertArrayHasKey('stringField', $resultSet[0]->getSource());
+        $this->assertTrue($response->isOk());
+        $this->assertEquals('test_index_create', $collection->getLastInsertedId());
+    }
+
+    /**
+     * @group functional
+     * @expectedException \Fazland\ODM\Elastica\Exception\RuntimeException
+     */
+    public function testCreateShouldThrowOnDuplicates()
+    {
+        $dm = self::createDocumentManager();
+
+        $collection = $dm->getCollection(Foo::class);
+        $response = $collection->create('test_index_create_duplicate', ['stringField' => 'value']);
+        $collection->refresh();
+
+        $this->assertTrue($response->isOk());
+
+        $collection->create('test_index_create_duplicate', ['stringField' => 'value']);
+    }
+
+    /**
+     * @group functional
+     */
+    public function testCreateWithAutoGeneratedId()
+    {
+        $dm = self::createDocumentManager();
+
+        $collection = $dm->getCollection(Foo::class);
+        $response = $collection->create(null, ['stringField' => 'value']);
+
+        $this->assertTrue($response->isOk());
+        $this->assertNotNull($collection->getLastInsertedId());
     }
 }

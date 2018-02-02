@@ -2,6 +2,7 @@
 
 namespace Fazland\ODM\Elastica\Collection;
 
+use Elastica\Exception\ResponseException;
 use Elastica\Query;
 use Elastica\Response;
 use Elastica\ResultSet;
@@ -11,6 +12,7 @@ use Elastica\Type;
 use Elastica\Type\Mapping;
 use Elasticsearch\Endpoints;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
+use Fazland\ODM\Elastica\Exception\RuntimeException;
 use Fazland\ODM\Elastica\Search\Search;
 
 class Collection implements CollectionInterface
@@ -83,7 +85,12 @@ class Collection implements CollectionInterface
     public function refresh(): void
     {
         $endpoint = new Endpoints\Indices\Refresh();
-        $this->searchable->requestEndpoint($endpoint);
+
+        try {
+            $this->searchable->requestEndpoint($endpoint);
+        } catch (ResponseException $exception) {
+            throw new RuntimeException($exception->getMessage(), 0, $exception);
+        }
     }
 
     /**
@@ -93,15 +100,20 @@ class Collection implements CollectionInterface
     {
         $endpoint = new Endpoints\Index();
         if (! empty($id)) {
+            $endpoint->setParams(['op_type' => 'create']);
             $endpoint->setID($id);
         }
 
         $endpoint->setBody($body);
-        $response = $this->searchable->requestEndpoint($endpoint);
+        try {
+            $response = $this->searchable->requestEndpoint($endpoint);
+        } catch (ResponseException $exception) {
+            $response = $exception->getResponse();
+        }
 
         $data = $response->getData();
         if (! $response->isOk()) {
-            throw new \RuntimeException('Response not OK');
+            throw new RuntimeException('Response not OK: '.$response->getErrorMessage());
         }
 
         if (isset($data['_id'])) {
@@ -125,10 +137,14 @@ class Collection implements CollectionInterface
             'doc' => $body,
         ]);
 
-        $response = $this->searchable->requestEndpoint($endpoint);
+        try {
+            $response = $this->searchable->requestEndpoint($endpoint);
+        } catch (ResponseException $exception) {
+            $response = $exception->getResponse();
+        }
 
         if (! $response->isOk()) {
-            throw new \RuntimeException('Response not OK');
+            throw new RuntimeException('Response not OK: '.$response->getErrorMessage());
         }
     }
 
@@ -140,10 +156,14 @@ class Collection implements CollectionInterface
         $endpoint = new Endpoints\Delete();
         $endpoint->setID($id);
 
-        $response = $this->searchable->requestEndpoint($endpoint);
+        try {
+            $response = $this->searchable->requestEndpoint($endpoint);
+        } catch (ResponseException $exception) {
+            $response = $exception->getResponse();
+        }
 
         if (! $response->isOk()) {
-            throw new \RuntimeException('Response not OK');
+            throw new \RuntimeException('Response not OK: '.$response->getErrorMessage());
         }
     }
 
@@ -160,10 +180,14 @@ class Collection implements CollectionInterface
      */
     public function updateMapping(Mapping $mapping): void
     {
-        $response = $this->searchable->setMapping($mapping);
+        try {
+            $response = $this->searchable->setMapping($mapping);
+        } catch (ResponseException $exception) {
+            $response = $exception->getResponse();
+        }
 
         if (! $response->isOk()) {
-            throw new \RuntimeException('Response not OK');
+            throw new \RuntimeException('Response not OK: '.$response->getErrorMessage());
         }
     }
 
