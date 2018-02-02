@@ -210,6 +210,14 @@ class Collection implements CollectionInterface
             $index = $index->getIndex();
         }
 
-        $index->delete();
+        try {
+            $index->delete();
+        } catch (ResponseException $exception) {
+            $response = $exception->getResponse();
+
+            if ($response->getStatus() !== 404) {
+                throw $exception;
+            }
+        }
     }
 }
