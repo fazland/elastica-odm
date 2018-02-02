@@ -44,7 +44,7 @@ class UpdateSchemaCommand extends Command
 
         foreach ($schema->getMapping() as $className => $mapping) {
             $collection = $this->documentManager->getCollection($className);
-            $collection->updateMapping($mapping);
+            $collection->updateMapping($mapping->getMapping());
         }
 
         $io->success('All done.');
