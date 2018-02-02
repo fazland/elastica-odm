@@ -9,7 +9,7 @@ class Schema
     public function addCollection(Collection $collection)
     {
         $metadata = $collection->getDocumentMetadata();
-        $this->collectionMapping[$metadata->collectionName] = $collection;
+        $this->collectionMapping[$metadata->getName()] = $collection;
     }
 
     public function getMapping(): array
