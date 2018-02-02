@@ -136,6 +136,7 @@ final class Builder
             ->addType(new Type\DateTimeType())
             ->addType(new Type\FloatType())
             ->addType(new Type\GeoPointType())
+            ->addType(new Type\GeoShapeType())
             ->addType(new Type\IntegerType())
             ->addType(new Type\IpType())
             ->addType(new Type\PercolatorType())

@@ -4,7 +4,7 @@ namespace Fazland\ODM\Elastica\Geotools\Coordinate;
 
 use Elastica\ArrayableInterface;
 
-interface CoordinateInterface extends ArrayableInterface
+interface CoordinateInterface extends ArrayableInterface, \JsonSerializable
 {
     /**
      * Normalizes a latitude to the (-90, 90) range.

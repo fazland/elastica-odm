@@ -2,7 +2,7 @@
 
 namespace Fazland\ODM\Elastica\Geotools\Coordinate;
 
-class Coordinate implements CoordinateInterface, \JsonSerializable
+class Coordinate implements CoordinateInterface
 {
     /**
      * The latitude of the coordinate.
@@ -35,6 +35,18 @@ class Coordinate implements CoordinateInterface, \JsonSerializable
         } else {
             throw new \InvalidArgumentException('It should be a string or an array');
         }
+    }
+
+    /**
+     * Creates a new coordinate object.
+     *
+     * @param $coordinates
+     *
+     * @return self
+     */
+    public static function create($coordinates): self
+    {
+        return new self($coordinates);
     }
 
     /**
