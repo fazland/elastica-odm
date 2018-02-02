@@ -18,7 +18,7 @@ abstract class Geoshape implements GeoshapeInterface
                 return new Circle(new Coordinate($shape['coordinates']), $shape['radius']);
 
             case 'linestring':
-                return new Linestring(array_map(Coordinate::class.'::create', $shape['coordinates']));
+                return new Linestring(...array_map(Coordinate::class.'::create', $shape['coordinates']));
 
             default:
                 throw new \InvalidArgumentException('Unknown geoshape type "'.($type ?? 'null').'"');
