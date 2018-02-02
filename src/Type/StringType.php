@@ -49,7 +49,11 @@ final class StringType extends AbstractType
      */
     public function getMappingDeclaration(array $options = []): array
     {
-        // TODO: keyword/text
-        return ['type' => 'text'];
+        $type = ($options['analyzed'] ?? true) ? 'text' : 'keyword';
+
+        return array_filter([
+            'type' => $type,
+            'analyzer' => $options['analyzer'] ?? null,
+        ]);
     }
 }

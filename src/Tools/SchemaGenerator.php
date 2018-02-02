@@ -7,7 +7,7 @@ use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
 use Fazland\ODM\Elastica\Tools\Schema\Collection;
 use Fazland\ODM\Elastica\Tools\Schema\Schema;
 
-class SchemaGenerator
+final class SchemaGenerator
 {
     /**
      * @var DocumentManagerInterface

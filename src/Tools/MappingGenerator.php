@@ -7,7 +7,7 @@ use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
 use Fazland\ODM\Elastica\Metadata\FieldMetadata;
 use Fazland\ODM\Elastica\Type\TypeManager;
 
-class MappingGenerator
+final class MappingGenerator
 {
     /**
      * @var TypeManager
