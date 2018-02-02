@@ -93,4 +93,9 @@ interface CollectionInterface
      * @param Mapping $mapping
      */
     public function updateMapping(Mapping $mapping): void;
+
+    /**
+     * Drops the entire collection.
+     */
+    public function drop(): void;
 }

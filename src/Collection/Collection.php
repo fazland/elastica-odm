@@ -166,4 +166,17 @@ class Collection implements CollectionInterface
             throw new \RuntimeException('Response not OK');
         }
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function drop(): void
+    {
+        $index = $this->searchable;
+        if ($index instanceof Type) {
+            $index = $index->getIndex();
+        }
+
+        $index->delete();
+    }
 }
