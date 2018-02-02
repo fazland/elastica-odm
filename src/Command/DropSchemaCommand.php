@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace App\Elastica\Command;
+namespace Fazland\ODM\Elastica\Command;
 
 use Fazland\ODM\Elastica\DocumentManagerInterface;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
