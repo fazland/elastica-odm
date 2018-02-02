@@ -7,6 +7,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Fazland\ODM\Elastica\Collection\CollectionInterface;
 use Fazland\ODM\Elastica\Collection\DatabaseInterface;
 use Fazland\ODM\Elastica\Hydrator\HydratorInterface;
+use Fazland\ODM\Elastica\Search\Search;
 use Fazland\ODM\Elastica\Type\TypeManager;
 use ProxyManager\Factory\LazyLoadingGhostFactory;
 use Psr\Cache\CacheItemPoolInterface;
@@ -75,4 +76,13 @@ interface DocumentManagerInterface extends ObjectManager
      * @return HydratorInterface
      */
     public function newHydrator(int $hydrationMode): HydratorInterface;
+
+    /**
+     * Creates a search object for the given class.
+     *
+     * @param string $className
+     *
+     * @return Search
+     */
+    public function createSearch(string $className): Search;
 }

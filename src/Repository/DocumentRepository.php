@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\Criteria;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
 use Fazland\ODM\Elastica\Persister\DocumentPersister;
+use Fazland\ODM\Elastica\Search\Search;
 use Fazland\ODM\Elastica\UnitOfWork;
 
 class DocumentRepository implements DocumentRepositoryInterface
@@ -84,6 +85,14 @@ class DocumentRepository implements DocumentRepositoryInterface
     public function matching(Criteria $criteria)
     {
         // TODO: Implement matching() method.
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createSearch(): Search
+    {
+        return $this->dm->createSearch($this->documentClass);
     }
 
     /**

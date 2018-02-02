@@ -3,6 +3,7 @@
 namespace Fazland\ODM\Elastica;
 
 use Doctrine\Common\EventManager;
+use Elastica\Query;
 use Fazland\ODM\Elastica\Collection\CollectionInterface;
 use Fazland\ODM\Elastica\Collection\DatabaseInterface;
 use Fazland\ODM\Elastica\Hydrator\HydratorInterface;
@@ -10,6 +11,7 @@ use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
 use Fazland\ODM\Elastica\Metadata\MetadataFactory;
 use Fazland\ODM\Elastica\Repository\DocumentRepositoryInterface;
 use Fazland\ODM\Elastica\Repository\RepositoryFactoryInterface;
+use Fazland\ODM\Elastica\Search\Search;
 use Fazland\ODM\Elastica\Type\TypeManager;
 use Kcs\Metadata\Factory\MetadataFactoryInterface;
 use ProxyManager\Factory\LazyLoadingGhostFactory;
@@ -276,5 +278,15 @@ class DocumentManager implements DocumentManagerInterface
         }
 
         throw new \InvalidArgumentException('Invalid hydration mode '.$hydrationMode);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createSearch(string $className): Search
+    {
+        $collection = $this->getCollection($className);
+
+        return $collection->createSearch($this, Query::create(''));
     }
 }

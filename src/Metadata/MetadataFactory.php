@@ -58,9 +58,14 @@ class MetadataFactory extends AbstractMetadataFactory implements ClassMetadataFa
         // @todo
     }
 
-    public function isTransient($className)
+    /**
+     * {@inheritdoc}
+     */
+    public function isTransient($className): bool
     {
-        // @todo
+        $class = $this->getMetadataFor($className);
+
+        return $class instanceof DocumentMetadata && $class->document;
     }
 
     /**
