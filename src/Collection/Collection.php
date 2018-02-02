@@ -180,6 +180,15 @@ class Collection implements CollectionInterface
      */
     public function updateMapping(Mapping $mapping): void
     {
+        $index = $this->searchable;
+        if ($index instanceof Type) {
+            $index = $index->getIndex();
+        }
+
+        if (! $index->exists()) {
+            $index->create();
+        }
+
         try {
             $response = $this->searchable->setMapping($mapping);
         } catch (ResponseException $exception) {
