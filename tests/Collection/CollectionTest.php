@@ -89,7 +89,7 @@ class CollectionTest extends TestCase
         $scroll = iterator_to_array($collection->scroll(new Query()), false);
         $resultSet = $scroll[0];
 
-        $this->assertCount(2, $resultSet);
+        $this->assertCount(3, $resultSet);
         $this->assertArrayHasKey('stringField', $resultSet[0]->getSource());
     }
 

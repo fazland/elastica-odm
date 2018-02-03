@@ -1001,6 +1001,10 @@ final class UnitOfWork
             $classes[$metadata->getName()] = $metadata;
         }
 
-        return $calculator->getOrder($classes);
+        $order = $calculator->getOrder(array_keys($classes));
+
+        return array_map(function (array $element) {
+            return $element[0]->getClassName();
+        }, $order);
     }
 }

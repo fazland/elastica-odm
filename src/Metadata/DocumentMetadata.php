@@ -178,7 +178,7 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
      */
     public function getAssociationNames(): array
     {
-        // TODO: Implement getAssociationNames() method.
+        return [];
     }
 
     /**

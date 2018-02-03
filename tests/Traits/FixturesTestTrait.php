@@ -34,12 +34,23 @@ trait FixturesTestTrait
                     'stringField' => 'foobar',
                 ])
         );
+
         $connection->requestEndpoint(
             (new Index())
                 ->setType($fooType->getName())
                 ->setIndex($fooIndex->getName())
                 ->setBody([
                     'stringField' => 'barbaz',
+                ])
+        );
+
+        $connection->requestEndpoint(
+            (new Index())
+                ->setType($fooType->getName())
+                ->setIndex($fooIndex->getName())
+                ->setID('foo_test_document')
+                ->setBody([
+                    'stringField' => 'bazbaz',
                 ])
         );
 
