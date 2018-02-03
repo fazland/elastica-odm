@@ -216,7 +216,7 @@ class Collection implements CollectionInterface
         } catch (ResponseException $exception) {
             $response = $exception->getResponse();
 
-            if ($response->getStatus() !== 404) {
+            if (404 !== $response->getStatus()) {
                 throw $exception;
             }
         }

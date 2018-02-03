@@ -11,11 +11,11 @@ use Fazland\ODM\Elastica\Exception\InvalidIdentifierException;
 use Fazland\ODM\Elastica\Id\AssignedIdGenerator;
 use Fazland\ODM\Elastica\Id\GeneratorInterface;
 use Fazland\ODM\Elastica\Id\IdentityGenerator;
+use Fazland\ODM\Elastica\Internal\CommitOrderCalculator;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
 use Fazland\ODM\Elastica\Metadata\FieldMetadata;
 use Fazland\ODM\Elastica\Persister\DocumentPersister;
 use ProxyManager\Proxy\LazyLoadingInterface;
-use ProxyManager\Proxy\ProxyInterface;
 
 final class UnitOfWork
 {
@@ -105,14 +105,6 @@ final class UnitOfWork
     private $documentUpdates = [];
 
     /**
-     * Map of document persisters with pending refresh.
-     * Keys are object hash.
-     *
-     * @var array
-     */
-    private $refresh = [];
-
-    /**
      * Map of read-only document.
      * Keys are the object hash.
      *
@@ -152,7 +144,6 @@ final class UnitOfWork
             $this->documentUpdates =
             $this->documentChangeSets =
             $this->readOnlyObjects =
-            $this->refresh =
             $this->originalDocumentData = [];
         } else {
             throw new \Exception('Not implemented yet.');
@@ -281,13 +272,17 @@ final class UnitOfWork
             return;
         }
 
+        $classOrder = $this->getCommitOrder();
+
         $this->dispatchOnFlush();
 
-        $this->executeInserts();
-        $this->executeUpdates();
-        $this->executeDeletions();
+        foreach ($classOrder as $className) {
+            $this->executeInserts($className);
+            $this->executeUpdates($className);
+            $this->executeDeletions($className);
 
-        $this->refreshIndices();
+            $this->getDocumentPersister($className)->refreshCollection();
+        }
 
         $this->dispatchPostFlush();
         $this->postCommitCleanup();
@@ -504,11 +499,7 @@ final class UnitOfWork
 
         $actualData = [];
         foreach ($class->attributesMetadata as $field) {
-            if (! $field instanceof FieldMetadata) {
-                continue;
-            }
-
-            if ($field->identifier || $field->indexName || $field->typeName) {
+            if (! $field instanceof FieldMetadata || ! $field->isStored()) {
                 continue;
             }
 
@@ -882,11 +873,15 @@ final class UnitOfWork
         // @todo
     }
 
-    private function executeInserts()
+    private function executeInserts(string $className)
     {
         foreach ($this->documentInsertions as $oid => $document) {
             /** @var DocumentMetadata $class */
             $class = $this->manager->getClassMetadata(get_class($document));
+            if ($className !== $class->name) {
+                continue;
+            }
+
             $persister = $this->getDocumentPersister($class->name);
 
             $postInsertId = $persister->insert($document);
@@ -902,14 +897,18 @@ final class UnitOfWork
             }
 
             $this->lifecycleEventManager->postPersist($class, $document);
-            $this->refresh[spl_object_hash($persister)] = $persister;
         }
     }
 
-    private function executeUpdates()
+    private function executeUpdates(string $className)
     {
         foreach ($this->documentUpdates as $oid => $document) {
+            /** @var DocumentMetadata $class */
             $class = $this->manager->getClassMetadata(get_class($document));
+            if ($className !== $class->name) {
+                continue;
+            }
+
             $this->lifecycleEventManager->preUpdate($class, $document);
 
             $persister = $this->getDocumentPersister(get_class($document));
@@ -919,17 +918,19 @@ final class UnitOfWork
 
             unset($this->documentUpdates[$oid], $this->documentChangeSets[$oid]);
             $this->lifecycleEventManager->postUpdate($class, $document);
-            $this->refresh[spl_object_hash($persister)] = $persister;
         }
     }
 
-    private function executeDeletions()
+    private function executeDeletions(string $className)
     {
         foreach ($this->documentDeletions as $oid => $document) {
             /** @var DocumentMetadata $class */
             $class = $this->manager->getClassMetadata(get_class($document));
-            $persister = $this->getDocumentPersister($class->name);
+            if ($className !== $class->name) {
+                continue;
+            }
 
+            $persister = $this->getDocumentPersister($class->name);
             $persister->delete($document);
 
             unset($this->documentDeletions[$oid], $this->originalDocumentData[$oid], $this->documentStates[$oid]);
@@ -939,7 +940,6 @@ final class UnitOfWork
             }
 
             $this->lifecycleEventManager->postRemove($class, $document);
-            $this->refresh[spl_object_hash($persister)] = $persister;
         }
     }
 
@@ -959,16 +959,6 @@ final class UnitOfWork
         }
     }
 
-    private function refreshIndices()
-    {
-        /** @var DocumentPersister $persister */
-        foreach ($this->refresh as $persister) {
-            $persister->refreshCollection();
-        }
-
-        $this->refresh = [];
-    }
-
     /**
      * Creates a new instance of given class and inject object manager if needed.
      *
@@ -986,5 +976,31 @@ final class UnitOfWork
         }
 
         return $document;
+    }
+
+    /**
+     * Calculates the commit order, based on associations
+     * on document metadata.
+     *
+     * @return array
+     */
+    private function getCommitOrder(): array
+    {
+        static $calculator = null;
+        if (null === $calculator) {
+            $calculator = new CommitOrderCalculator();
+        }
+
+        $objects = array_merge($this->documentInsertions, $this->documentUpdates, $this->documentDeletions);
+
+        $classes = [];
+        foreach ($objects as $object) {
+            $metadata = $this->manager->getClassMetadata(get_class($object));
+
+            $calculator->addClass($metadata);
+            $classes[$metadata->getName()] = $metadata;
+        }
+
+        return $calculator->getOrder($classes);
     }
 }

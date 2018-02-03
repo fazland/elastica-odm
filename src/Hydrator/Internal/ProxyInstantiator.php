@@ -65,11 +65,7 @@ class ProxyInstantiator implements InstantiatorInterface
 
         $skippedProperties = [];
         foreach ($class->attributesMetadata as $field) {
-            if (! $field instanceof FieldMetadata) {
-                continue;
-            }
-
-            if (! $field->identifier && ! $field->typeName && ! $field->indexName) {
+            if (! $field instanceof FieldMetadata || $field->isStored()) {
                 continue;
             }
 

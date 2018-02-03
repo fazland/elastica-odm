@@ -88,4 +88,13 @@ class FieldMetadata extends PropertyMetadata
         $reflection = $this->getReflection();
         $reflection->setValue($object, $value);
     }
+
+    public function isStored(): bool
+    {
+        return ! (
+            $this->identifier ||
+            $this->indexName ||
+            $this->typeName
+        );
+    }
 }

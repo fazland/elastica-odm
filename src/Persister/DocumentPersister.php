@@ -5,6 +5,7 @@ namespace Fazland\ODM\Elastica\Persister;
 use Elastica\Query;
 use Fazland\ODM\Elastica\Collection\CollectionInterface;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
+use Fazland\ODM\Elastica\Exception\ConversionFailedException;
 use Fazland\ODM\Elastica\Hydrator\HydratorInterface;
 use Fazland\ODM\Elastica\Id\PostInsertId;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
@@ -46,8 +47,8 @@ class DocumentPersister
     /**
      * Finds a document by a set of criteria.
      *
-     * @param array $criteria query criteria
-     * @param array $hints
+     * @param array  $criteria query criteria
+     * @param array  $hints
      * @param object $document The document to load data into. If not given, a new document will be created.
      *
      * @return object|null the loaded and managed document instance or null if no document was found
@@ -62,7 +63,6 @@ class DocumentPersister
         }
 
         $resultSet = $this->collection->search($query);
-
         if (! count($resultSet)) {
             return null;
         }
@@ -212,7 +212,8 @@ class DocumentPersister
      * @return array
      *
      * @internal
-     * @throws \Fazland\ODM\Elastica\Exception\ConversionFailedException
+     *
+     * @throws ConversionFailedException
      */
     public function prepareUpdateData($document): array
     {
@@ -231,7 +232,7 @@ class DocumentPersister
                 $body[$field->fieldName] = array_map(function ($item) use ($type, $field) {
                     return $type->toDatabase($item, $field->options);
                 }, (array) $value[1]);
-            } else if (null !== $value[1]) {
+            } elseif (null !== $value[1]) {
                 $body[$field->fieldName] = $type->toDatabase($value[1], $field->options);
             } else {
                 $script[] = 'ctx._source.remove(\''.str_replace('\'', '\\\'', $field->fieldName).'\')';
