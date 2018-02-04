@@ -30,7 +30,7 @@ final class GeoShapeType extends AbstractType
         }
 
         if (! $value instanceof Geoshape) {
-            throw new ConversionFailedException($value, CoordinateInterface::class);
+            throw new ConversionFailedException($value, Geoshape::class);
         }
 
         return $value->toArray();

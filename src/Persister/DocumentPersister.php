@@ -131,7 +131,7 @@ class DocumentPersister
         $postIdGenerator = $idGenerator->isPostInsertGenerator();
 
         $id = $postIdGenerator ? null : $class->getSingleIdentifier($document);
-        $body = $this->prepareUpdateData($document);
+        $body = $this->prepareUpdateData($document)['body'];
 
         $response = $this->collection->create($id, $body);
         $data = $response->getData();

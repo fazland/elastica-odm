@@ -49,6 +49,7 @@ class DocumentManagerTest extends TestCase
     {
         $document = new Foo();
         $document->id = 'test_persist_and_flush';
+        $document->stringField = 'footest_string';
 
         $this->dm->persist($document);
         $this->dm->flush();
@@ -56,6 +57,12 @@ class DocumentManagerTest extends TestCase
         $result = $this->dm->find(Foo::class, 'test_persist_and_flush');
         $this->assertInstanceOf(Foo::class, $result);
         $this->assertEquals(spl_object_hash($document), spl_object_hash($result));
+
+        $this->dm->clear();
+
+        $result = $this->dm->find(Foo::class, 'test_persist_and_flush');
+        $this->assertInstanceOf(Foo::class, $result);
+        $this->assertEquals('footest_string', $document->stringField);
     }
 
     public function testUpdateAndFlush()
