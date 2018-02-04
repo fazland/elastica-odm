@@ -14,7 +14,7 @@ class Foo
     /**
      * @var string
      *
-     * @DocumentId()
+     * @DocumentId(strategy="none")
      */
     public $id;
 
