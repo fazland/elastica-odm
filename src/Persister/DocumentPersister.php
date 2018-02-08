@@ -225,7 +225,7 @@ class DocumentPersister
         $typeManager = $this->dm->getTypeManager();
 
         foreach ($changeSet as $name => $value) {
-            $field = $class->attributesMetadata[$name];
+            $field = $class->getField($name);
             $type = $typeManager->getType($field->type);
 
             if ($field->multiple) {

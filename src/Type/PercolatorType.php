@@ -12,17 +12,17 @@ final class PercolatorType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function toPHP($value, array $options = []): ?array
+    public function toPHP($value, array $options = []): ?Query
     {
-        if (empty($value)) {
+        if (null === $value) {
             return null;
         }
 
-        if (! is_array($value)) {
+        if (! is_array($value) && ! $value instanceof Query) {
             throw new ConversionFailedException($value, 'array');
         }
 
-        return $value;
+        return Query::create($value);
     }
 
     /**

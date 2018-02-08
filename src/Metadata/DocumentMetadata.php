@@ -186,7 +186,7 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
      */
     public function getTypeOfField($fieldName): string
     {
-        return $this->attributesMetadata[$fieldName]->type;
+        return $this->getField($fieldName)->type;
     }
 
     /**

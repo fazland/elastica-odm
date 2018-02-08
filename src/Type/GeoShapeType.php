@@ -3,7 +3,6 @@
 namespace Fazland\ODM\Elastica\Type;
 
 use Fazland\ODM\Elastica\Exception\ConversionFailedException;
-use Fazland\ODM\Elastica\Geotools\Coordinate\CoordinateInterface;
 use Fazland\ODM\Elastica\Geotools\Shape\Geoshape;
 
 final class GeoShapeType extends AbstractType
