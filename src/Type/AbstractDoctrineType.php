@@ -21,7 +21,7 @@ abstract class AbstractDoctrineType extends AbstractType
      */
     public function toPHP($value, array $options = [])
     {
-        if (empty($value)) {
+        if (null === $value) {
             return null;
         }
 
@@ -31,7 +31,7 @@ abstract class AbstractDoctrineType extends AbstractType
 
         $om = $this->registry->getManagerForClass($options['class']);
 
-        return $om->find($options['class'], $value);
+        return $om->find($options['class'], $value['identifier']);
     }
 
     /**
@@ -39,7 +39,7 @@ abstract class AbstractDoctrineType extends AbstractType
      */
     public function toDatabase($value, array $options = [])
     {
-        if (empty($value)) {
+        if (null === $value) {
             return null;
         }
 
@@ -56,7 +56,7 @@ abstract class AbstractDoctrineType extends AbstractType
             $id = $class->getIdentifierValues($value);
         }
 
-        return $id;
+        return ['identifier' => $id];
     }
 
     /**
@@ -72,6 +72,11 @@ abstract class AbstractDoctrineType extends AbstractType
      */
     public function getMappingDeclaration(array $options = []): array
     {
-        return ['type' => 'object'];
+        return [
+            'type' => 'object',
+            'properties' => [
+                'identifier' => [ 'type' => 'keyword' ],
+            ],
+        ];
     }
 }

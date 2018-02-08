@@ -11,8 +11,6 @@ use Prophecy\Prophecy\ObjectProphecy;
 
 class AbstractDoctrineTypeTest extends TestCase implements TypeTestInterface
 {
-    use EmptyValuesTrait;
-
     /**
      * @var ManagerRegistry|ObjectProphecy
      */
@@ -40,11 +38,17 @@ class AbstractDoctrineTypeTest extends TestCase implements TypeTestInterface
         $type->toPHP($value);
     }
 
+    public function testToPhpWithEmptyValueShouldReturnNull(): void
+    {
+        $type = $this->getType();
+        $this->assertNull($type->toPHP(null));
+    }
+
     public function testToPhpValueShouldFindTheDesiredDocument(): void
     {
         $type = $this->getType();
 
-        $value = 'identifier';
+        $value = ['identifier' => 'identifier'];
 
         $fqcn = 'Fully\\Qualified\\Class\\Name';
 
@@ -52,7 +56,7 @@ class AbstractDoctrineTypeTest extends TestCase implements TypeTestInterface
         $manager = $this->prophesize(ObjectManager::class);
         $this->managerRegistry->getManagerForClass($fqcn)->willReturn($manager);
 
-        $manager->find($fqcn, $value)->shouldBeCalled();
+        $manager->find($fqcn, 'identifier')->shouldBeCalled();
 
         $type->toPHP($value, ['class' => $fqcn]);
     }

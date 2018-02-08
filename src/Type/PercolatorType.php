@@ -22,7 +22,7 @@ final class PercolatorType extends AbstractType
             throw new ConversionFailedException($value, 'array');
         }
 
-        return Query::create($value);
+        return Query::create(['query' => $value]);
     }
 
     /**

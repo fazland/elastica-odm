@@ -10,12 +10,18 @@ use PHPUnit\Framework\TestCase;
 
 class PercolatorTypeTest extends TestCase
 {
-    use EmptyValuesTrait;
+    public function testToPhpWithEmptyValueShouldReturnNull(): void
+    {
+        $type = $this->getType();
+        $this->assertNull($type->toPHP(null));
+    }
 
     public function testToPhpShouldWork(): void
     {
         $type = $this->getType();
-        $this->assertEquals(['match' => ['field' => 'value']], $type->toPHP(['match' => ['field' => 'value']]));
+
+        $query = Query::create(['query' => ['match' => ['field' => 'value']]]);
+        $this->assertEquals($query, $type->toPHP(['match' => ['field' => 'value']]));
     }
 
     public function testToDatabaseWithNullValueShouldReturnNull(): void
