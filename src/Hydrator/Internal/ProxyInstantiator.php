@@ -40,7 +40,7 @@ class ProxyInstantiator implements InstantiatorInterface
         $class = $this->manager->getClassMetadata($className);
 
         $allowedMethods = array_map(function (string $field) {
-            return 'get'.$field;
+            return strtolower('get'.$field);
         }, $fields);
 
         $initializer = function (
@@ -65,7 +65,11 @@ class ProxyInstantiator implements InstantiatorInterface
 
         $skippedProperties = [];
         foreach ($class->attributesMetadata as $field) {
-            if (! $field instanceof FieldMetadata || $field->isStored()) {
+            if (! $field instanceof FieldMetadata) {
+                continue;
+            }
+
+            if (! in_array($field->getName(), $fields) && $field->isStored()) {
                 continue;
             }
 
