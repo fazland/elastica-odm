@@ -33,7 +33,13 @@ final class MappingGenerator
             }
 
             $type = $this->typeManager->getType($field->type);
-            $properties[$field->fieldName] = $type->getMappingDeclaration($field->options);
+
+            $mapping = $type->getMappingDeclaration($field->options);
+            if (isset($field->options['index'])) {
+                $mapping['index'] = $field->options['index'];
+            }
+
+            $properties[$field->fieldName] = $mapping;
         }
 
         return Mapping::create($properties);
