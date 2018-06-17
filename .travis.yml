@@ -1,15 +1,32 @@
 language: php
 
-env:
-  - ES_VERSION=5.6.5 ES_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
-
 cache:
   directories:
     - $HOME/.composer/cache
 
-php:
-  - 7.1
-  - 7.2
+matrix:
+  fast_finish: true
+  include:
+    - php: 7.1
+      env:
+        - ES_VERSION=5.6.5
+        - ES_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
+        - ELASTICA_VERSION=^5.0
+    - php: 7.2
+      env:
+        - ES_VERSION=5.6.5
+        - ES_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
+        - ELASTICA_VERSION=^5.0
+    - php: 7.1
+      env:
+        - ES_VERSION=6.3.0
+        - ES_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
+        - ELASTICA_VERSION=^6.0
+    - php: 7.2
+      env:
+        - ES_VERSION=6.3.0
+        - ES_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
+        - ELASTICA_VERSION=^6.0
 
 install:
   - wget ${ES_DOWNLOAD_URL}
@@ -18,6 +35,7 @@ install:
 
 before_script:
     - composer self-update
+    - composer require ruflin/elastica ${ELASTICA_VERSION}
     - composer install
 
 script:
