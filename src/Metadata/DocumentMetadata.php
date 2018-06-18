@@ -56,6 +56,13 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
     public $eagerFieldNames;
 
     /**
+     * Gets index params used which will be used to create the index.
+     *
+     * @var array
+     */
+    public $indexParams;
+
+    /**
      * The instantiator used to build new object instances.
      *
      * @var Instantiator
@@ -69,6 +76,7 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
         $this->instantiator = new Instantiator();
         $this->document = false;
         $this->eagerFieldNames = [];
+        $this->indexParams = [];
     }
 
     public function addAttributeMetadata(MetadataInterface $metadata): void

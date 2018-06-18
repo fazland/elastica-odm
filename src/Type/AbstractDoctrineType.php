@@ -75,7 +75,7 @@ abstract class AbstractDoctrineType extends AbstractType
         return [
             'type' => 'object',
             'properties' => [
-                'identifier' => [ 'type' => 'keyword' ],
+                'identifier' => ['type' => 'keyword'],
             ],
         ];
     }
