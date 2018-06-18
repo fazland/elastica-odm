@@ -27,13 +27,13 @@ class IndexProcessorTest extends TestCase
      */
     private $documentMetadata;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->processor = new IndexProcessor();
         $this->documentMetadata = new DocumentMetadata(new \ReflectionClass(Foo::class));
     }
 
-    public function testAnalyzersAreProcessedCorrectly()
+    public function testAnalyzersAreProcessedCorrectly(): void
     {
         $index = new Index();
 
@@ -58,7 +58,7 @@ class IndexProcessorTest extends TestCase
         ], $this->documentMetadata->indexParams);
     }
 
-    public function testFiltersAreProcessedCorrectly()
+    public function testFiltersAreProcessedCorrectly(): void
     {
         $index = new Index();
 
@@ -87,7 +87,7 @@ class IndexProcessorTest extends TestCase
         ], $this->documentMetadata->indexParams);
     }
 
-    public function testTokenizersAreProcessedCorrectly()
+    public function testTokenizersAreProcessedCorrectly(): void
     {
         $index = new Index();
 
@@ -119,7 +119,7 @@ class IndexProcessorTest extends TestCase
     /**
      * @group functional
      */
-    public function testFunctional()
+    public function testIndexIsCreatedWithCorrectIndexParams(): void
     {
         $dm = static::createDocumentManager();
         $collection = $dm->getCollection(Foo::class);

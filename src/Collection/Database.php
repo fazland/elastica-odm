@@ -42,7 +42,7 @@ class Database implements DatabaseInterface
         }
 
         $collection = new Collection($class->name, $this->getSearchable($class));
-        $collection->setIndexParams($class->indexParams);
+        $collection->setIndexParams($class->indexParams ?? []);
 
         return $this->collectionList[$class->name] = $collection;
     }

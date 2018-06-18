@@ -41,6 +41,7 @@ class Collection implements CollectionInterface
     {
         $this->documentClass = $documentClass;
         $this->searchable = $searchable;
+        $this->indexParams = [];
     }
 
     /**
@@ -48,7 +49,7 @@ class Collection implements CollectionInterface
      *
      * @param array $indexParams
      */
-    public function setIndexParams(?array $indexParams): void
+    public function setIndexParams(array $indexParams = []): void
     {
         $this->indexParams = $indexParams;
     }
@@ -202,7 +203,7 @@ class Collection implements CollectionInterface
         }
 
         if (! $index->exists()) {
-            $index->create($this->indexParams ?? []);
+            $index->create($this->indexParams);
         }
 
         try {

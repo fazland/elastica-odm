@@ -41,8 +41,7 @@ class IndexProcessor implements ProcessorInterface
             ]);
         }
 
-        $analysis = array_filter($analysis);
-        $metadata->indexParams['settings']['analysis'] = $analysis;
+        $metadata->indexParams['settings']['analysis'] = array_filter($analysis);
         $metadata->indexParams['settings'] = array_filter($metadata->indexParams['settings']);
         $metadata->indexParams = array_filter($metadata->indexParams);
     }

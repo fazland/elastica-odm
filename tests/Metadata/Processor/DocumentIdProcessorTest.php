@@ -22,13 +22,16 @@ class DocumentIdProcessorTest extends TestCase
      */
     private $documentMetadata;
 
-    protected function setUp()
+    /**
+     * {@inheritdoc}
+     */
+    protected function setUp(): void
     {
         $this->processor = new DocumentIdProcessor();
         $this->documentMetadata = new DocumentMetadata(new \ReflectionClass(Foo::class));
     }
 
-    public function testProcessStrategyAuto()
+    public function testProcessStrategyAuto(): void
     {
         $metadata = new FieldMetadata($this->documentMetadata, Foo::class);
 
@@ -41,7 +44,7 @@ class DocumentIdProcessorTest extends TestCase
         $this->assertEquals(DocumentMetadata::GENERATOR_TYPE_AUTO, $this->documentMetadata->idGeneratorType);
     }
 
-    public function testProcessStrategyNone()
+    public function testProcessStrategyNone(): void
     {
         $metadata = new FieldMetadata($this->documentMetadata, Foo::class);
 
