@@ -32,10 +32,25 @@ class Collection implements CollectionInterface
      */
     private $_lastInsertId;
 
+    /**
+     * @var array
+     */
+    private $indexParams;
+
     public function __construct(string $documentClass, SearchableInterface $searchable)
     {
         $this->documentClass = $documentClass;
         $this->searchable = $searchable;
+    }
+
+    /**
+     * Sets the index params used when the index is created.
+     *
+     * @param array $indexParams
+     */
+    public function setIndexParams(?array $indexParams): void
+    {
+        $this->indexParams = $indexParams;
     }
 
     /**
@@ -187,7 +202,7 @@ class Collection implements CollectionInterface
         }
 
         if (! $index->exists()) {
-            $index->create();
+            $index->create($this->indexParams ?? []);
         }
 
         try {

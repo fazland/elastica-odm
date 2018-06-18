@@ -17,6 +17,7 @@ trait DocumentManagerTestTrait
         $processorFactory = new ProcessorFactory();
         $processorFactory->registerProcessor(Annotation\Document::class, Processor\DocumentProcessor::class);
         $processorFactory->registerProcessor(Annotation\DocumentId::class, Processor\DocumentIdProcessor::class);
+        $processorFactory->registerProcessor(Annotation\Index::class, Processor\IndexProcessor::class);
         $processorFactory->registerProcessor(Annotation\IndexName::class, Processor\IndexNameProcessor::class);
         $processorFactory->registerProcessor(Annotation\TypeName::class, Processor\TypeNameProcessor::class);
         $processorFactory->registerProcessor(Annotation\Field::class, Processor\FieldProcessor::class);

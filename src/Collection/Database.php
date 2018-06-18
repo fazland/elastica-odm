@@ -41,7 +41,10 @@ class Database implements DatabaseInterface
             return $this->collectionList[$class->name];
         }
 
-        return $this->collectionList[$class->name] = new Collection($class->name, $this->getSearchable($class));
+        $collection = new Collection($class->name, $this->getSearchable($class));
+        $collection->setIndexParams($class->indexParams);
+
+        return $this->collectionList[$class->name] = $collection;
     }
 
     protected function getSearchable(DocumentMetadata $class): SearchableInterface
