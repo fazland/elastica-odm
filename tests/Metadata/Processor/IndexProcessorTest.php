@@ -41,7 +41,7 @@ class IndexProcessorTest extends TestCase
         $analyzer->name = 'foo_name';
         $analyzer->tokenizer = 'foo_tokenizer';
 
-        $index->analyzers = [ $analyzer ];
+        $index->analyzers = [$analyzer];
 
         $this->processor->process($this->documentMetadata, $index);
 
@@ -69,7 +69,7 @@ class IndexProcessorTest extends TestCase
             'stopwords' => '_english_',
         ];
 
-        $index->filters = [ $filter ];
+        $index->filters = [$filter];
 
         $this->processor->process($this->documentMetadata, $index);
 
@@ -98,7 +98,7 @@ class IndexProcessorTest extends TestCase
             'min_gram' => 3,
         ];
 
-        $index->tokenizers = [ $tokenizer ];
+        $index->tokenizers = [$tokenizer];
 
         $this->processor->process($this->documentMetadata, $index);
 
@@ -142,7 +142,7 @@ class IndexProcessorTest extends TestCase
                 'english_stop' => [
                     'type' => 'stop',
                     'stopwords' => '_english_',
-                ]
+                ],
             ],
             'analyzer' => [
                 'foo_analyzer' => [

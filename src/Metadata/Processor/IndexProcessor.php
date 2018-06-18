@@ -24,12 +24,12 @@ class IndexProcessor implements ProcessorInterface
         ];
 
         foreach ($subject->filters ?? [] as $filter) {
-            $setting = [ 'type' => $filter->type ];
+            $setting = ['type' => $filter->type];
             $analysis['filter'][$filter->name] = array_merge($setting, $filter->options);
         }
 
         foreach ($subject->tokenizers ?? [] as $tokenizer) {
-            $setting = [ 'type' => $tokenizer->type ];
+            $setting = ['type' => $tokenizer->type];
             $analysis['tokenizer'][$tokenizer->name] = array_merge($setting, $tokenizer->options);
         }
 
