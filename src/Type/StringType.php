@@ -54,6 +54,7 @@ final class StringType extends AbstractType
         return array_filter([
             'type' => $type,
             'analyzer' => $options['analyzer'] ?? null,
+            'search_analyzer' => $options['search_analyzer'] ?? null,
         ]);
     }
 }
