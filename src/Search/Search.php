@@ -84,6 +84,16 @@ class Search implements \IteratorAggregate
     }
 
     /**
+     * Gets the current document manager.
+     *
+     * @return DocumentManagerInterface
+     */
+    public function getDocumentManager(): DocumentManagerInterface
+    {
+        return $this->documentManager;
+    }
+
+    /**
      * Gets the document class to retrieve.
      *
      * @return string
