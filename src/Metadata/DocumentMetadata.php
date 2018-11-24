@@ -79,6 +79,11 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
         $this->indexParams = [];
     }
 
+    public function __wakeup()
+    {
+        $this->instantiator = new Instantiator();
+    }
+
     public function addAttributeMetadata(MetadataInterface $metadata): void
     {
         parent::addAttributeMetadata($metadata);
