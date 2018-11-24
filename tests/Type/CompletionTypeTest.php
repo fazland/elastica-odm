@@ -40,7 +40,6 @@ class CompletionTypeTest extends TestCase
         $value->input = ['The Beatles', 'Beatles'];
         $this->assertEquals([
             'input' => ['The Beatles', 'Beatles'],
-            'weight' => null,
         ], $type->toDatabase($value));
     }
 

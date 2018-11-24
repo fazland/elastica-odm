@@ -16,11 +16,11 @@ final class Completion implements ArrayableInterface
      */
     public $weight;
 
-    public function toArray()
+    public function toArray(): ?array
     {
-        return [
+        return array_filter([
             'input' => $this->input,
             'weight' => $this->weight,
-        ];
+        ]) ?: null;
     }
 }
