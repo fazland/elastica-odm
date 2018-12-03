@@ -2,7 +2,10 @@
 
 namespace Fazland\ODM\Elastica\Collection;
 
+use Elastica\Bulk;
+use Elastica\Document;
 use Elastica\Exception\ResponseException;
+use Elastica\Index;
 use Elastica\Query;
 use Elastica\Response;
 use Elastica\ResultSet;
@@ -146,13 +149,23 @@ class Collection implements CollectionInterface
      */
     public function update(string $id, array $body, string $script = ''): void
     {
+        $body = array_filter([
+            'doc' => $body,
+            'script' => $script,
+        ]);
+
+        if (\count($body) > 1) {
+            foreach ($body['doc'] as $idx => $value) {
+                $script .= 'ctx._source['.\json_encode($idx).'] = '.\json_encode($value).';';
+            }
+
+            $body = ['script' => $script];
+        }
+
         $endpoint = new Endpoints\Update();
         $endpoint->setID($id);
 
-        $endpoint->setBody(array_filter([
-            'doc' => $body,
-            'script' => $script,
-        ]));
+        $endpoint->setBody($body);
 
         try {
             $response = $this->searchable->requestEndpoint($endpoint);

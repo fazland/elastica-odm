@@ -12,6 +12,7 @@
     ],
     "require": {
         "php": "^7.1",
+        "ext-json": "*",
         "doctrine/annotations": "^1.6",
         "doctrine/common": "^2.8",
         "kcs/class-finder": "^0.1",
