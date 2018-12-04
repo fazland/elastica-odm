@@ -393,6 +393,7 @@ final class UnitOfWork
      */
     public function createDocument(Document $document, &$result, ?array $fields = null)
     {
+        /** @var DocumentMetadata $class */
         $class = $this->manager->getClassMetadata(get_class($result));
         $typeManager = $this->manager->getTypeManager();
         $documentData = $document->getData();
@@ -430,7 +431,7 @@ final class UnitOfWork
                 continue;
             }
 
-            if (null !== $fields && ! in_array($field->getName(), $fields)) {
+            if (null !== $fields && ! \in_array($field->getName(), $fields, true)) {
                 continue;
             }
 
@@ -445,6 +446,16 @@ final class UnitOfWork
             }
 
             $field->setValue($result, $value);
+        }
+
+        unset($value);
+
+        foreach ($fields ?? $class->getFieldNames() as $fieldName) {
+            if (\array_key_exists($fieldName, $documentData)) {
+                continue;
+            }
+
+            $documentData[$fieldName] = null;
         }
 
         $this->originalDocumentData[spl_object_hash($result)] = $documentData;
