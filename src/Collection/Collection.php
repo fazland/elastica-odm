@@ -155,11 +155,18 @@ class Collection implements CollectionInterface
         ]);
 
         if (\count($body) > 1) {
+            $tmp = [$script];
+            $params = [];
+
+            $i = 0;
             foreach ($body['doc'] as $idx => $value) {
-                $script .= 'ctx._source['.\json_encode($idx).'] = '.\json_encode($value).';';
+                $paramName = 'p_'.$idx.'_'.++$i;
+                $tmp[] = 'ctx._source'.$idx.' = params.'.$paramName;
+                $params[$paramName] = $value;
             }
 
-            $body = ['script' => $script];
+            $script = \implode('; ', $tmp).';';
+            $body = ['script' => $script, 'params' => $params];
         }
 
         $endpoint = new Endpoints\Update();
