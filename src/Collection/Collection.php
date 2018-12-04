@@ -161,12 +161,15 @@ class Collection implements CollectionInterface
             $i = 0;
             foreach ($body['doc'] as $idx => $value) {
                 $paramName = 'p_'.$idx.'_'.++$i;
-                $tmp[] = 'ctx._source'.$idx.' = params.'.$paramName;
+                $tmp[] = 'ctx._source.'.$idx.' = params.'.$paramName;
                 $params[$paramName] = $value;
             }
 
             $script = \implode('; ', $tmp).';';
-            $body = ['script' => $script, 'params' => $params];
+            $body = ['script' => [
+                'source' => $script,
+                'params' => $params
+            ]];
         }
 
         $endpoint = new Endpoints\Update();
