@@ -16,8 +16,7 @@ Requirements
 - psr/log ^1.0
 - ruflin/elastica ^5.0|^6.0
 - symfony/console ^2.8|^3.0|^4.0
-I
-nstallation
+
 ------------
 The suggested installation method is via [composer](https://getcomposer.org/):
 
