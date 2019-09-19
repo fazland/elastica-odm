@@ -38,11 +38,12 @@ class DatabaseTest extends TestCase
 
         $this->client->getIndex($class->collectionName)
             ->shouldBeCalledTimes(1)
-            ->willReturn($this->prophesize(Index::class));
+            ->willReturn($this->prophesize(Index::class))
+        ;
 
         $collection = $this->database->getCollection($class);
         $collection2 = $this->database->getCollection($class);
 
-        $this->assertEquals($collection, $collection2);
+        self::assertEquals($collection, $collection2);
     }
 }

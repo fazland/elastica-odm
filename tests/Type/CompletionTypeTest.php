@@ -15,7 +15,7 @@ class CompletionTypeTest extends TestCase
         $value = new Completion();
         $value->input = ['The Beatles', 'Beatles'];
 
-        $this->assertEquals($value, $type->toPHP([
+        self::assertEquals($value, $type->toPHP([
             'input' => ['The Beatles', 'Beatles'],
         ]));
     }
@@ -24,13 +24,13 @@ class CompletionTypeTest extends TestCase
     {
         $type = $this->getType();
 
-        $this->assertEquals(null, $type->toPHP(null));
+        self::assertEquals(null, $type->toPHP(null));
     }
 
     public function testToDatabaseWithNullValueShouldReturnNull(): void
     {
         $type = $this->getType();
-        $this->assertEquals(null, $type->toDatabase(null));
+        self::assertEquals(null, $type->toDatabase(null));
     }
 
     public function testToDatabaseShouldWork(): void
@@ -38,7 +38,7 @@ class CompletionTypeTest extends TestCase
         $type = $this->getType();
         $value = new Completion();
         $value->input = ['The Beatles', 'Beatles'];
-        $this->assertEquals([
+        self::assertEquals([
             'input' => ['The Beatles', 'Beatles'],
         ], $type->toDatabase($value));
     }

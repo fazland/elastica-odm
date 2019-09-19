@@ -68,7 +68,7 @@ final class IntegerType extends AbstractType
             return null;
         }
 
-        if (! is_numeric($value)) {
+        if (! \is_numeric($value)) {
             throw new ConversionFailedException($value, self::NAME);
         }
 

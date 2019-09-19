@@ -33,7 +33,7 @@ class ObjectHydrator implements HydratorInterface
         $class = $this->manager->getClassMetadata($className);
         try {
             $source = $resultSet->getQuery()->getParam('_source');
-            sort($source);
+            \sort($source);
         } catch (InvalidException $ex) {
             $source = null;
         }

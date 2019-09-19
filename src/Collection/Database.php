@@ -49,7 +49,7 @@ class Database implements DatabaseInterface
 
     protected function getSearchable(DocumentMetadata $class): SearchableInterface
     {
-        list($indexName, $typeName) = explode('/', $class->collectionName, 2) + [null, null];
+        [$indexName, $typeName] = \explode('/', $class->collectionName, 2) + [null, null];
 
         $searchable = $this->elasticSearch->getIndex($indexName);
         if (null !== $typeName) {

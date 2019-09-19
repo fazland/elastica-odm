@@ -27,7 +27,7 @@ final class GeometryCollection extends Geoshape
     {
         return [
             'type' => 'geometrycollection',
-            'geometries' => $this->geometries->map(function (Geoshape $geoshape) {
+            'geometries' => $this->geometries->map(static function (Geoshape $geoshape) {
                 return $geoshape->toArray();
             })->toArray(),
         ];

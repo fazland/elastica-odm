@@ -20,7 +20,7 @@ final class GeoPointType extends AbstractType
             return null;
         }
 
-        if (is_array($value)) {
+        if (\is_array($value)) {
             if (isset($value['lat'], $value['lon'])) {
                 $lat = $value['lat'];
                 $lon = $value['lon'];
@@ -30,8 +30,8 @@ final class GeoPointType extends AbstractType
             }
 
             return new Coordinate([(float) $lat, (float) $lon]);
-        } elseif (is_string($value)) {
-            if (false === strpos($value, ',')) {
+        } elseif (\is_string($value)) {
+            if (false === \strpos($value, ',')) {
                 return (new Geohash($value))->getCoordinate();
             }
 

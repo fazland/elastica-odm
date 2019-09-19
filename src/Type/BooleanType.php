@@ -46,7 +46,7 @@ final class BooleanType extends AbstractType
             return null;
         }
 
-        if (! is_bool($value)) {
+        if (! \is_bool($value)) {
             throw new ConversionFailedException($value, 'bool');
         }
 

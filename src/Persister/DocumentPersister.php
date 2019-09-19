@@ -63,7 +63,7 @@ class DocumentPersister
         }
 
         $resultSet = $this->collection->search($query);
-        if (! count($resultSet)) {
+        if (! \count($resultSet)) {
             return null;
         }
 
@@ -76,7 +76,8 @@ class DocumentPersister
         }
 
         return $this->dm->newHydrator(HydratorInterface::HYDRATE_OBJECT)
-            ->hydrateOne($esDoc, $this->class->name);
+            ->hydrateOne($esDoc, $this->class->name)
+        ;
     }
 
     public function loadAll(array $criteria = [], array $orderBy = null, $limit = null, $offset = null): array
@@ -126,7 +127,7 @@ class DocumentPersister
     public function insert($document): ?PostInsertId
     {
         /** @var DocumentMetadata $class */
-        $class = $this->dm->getClassMetadata(get_class($document));
+        $class = $this->dm->getClassMetadata(\get_class($document));
         $idGenerator = $this->dm->getUnitOfWork()->getIdGenerator($class->idGeneratorType);
         $postIdGenerator = $idGenerator->isPostInsertGenerator();
 
@@ -165,7 +166,7 @@ class DocumentPersister
      */
     public function update($document): void
     {
-        $class = $this->dm->getClassMetadata(get_class($document));
+        $class = $this->dm->getClassMetadata(\get_class($document));
         $data = $this->prepareUpdateData($document);
         $id = $class->getSingleIdentifier($document);
 
@@ -179,7 +180,7 @@ class DocumentPersister
      */
     public function delete($document): void
     {
-        $class = $this->dm->getClassMetadata(get_class($document));
+        $class = $this->dm->getClassMetadata(\get_class($document));
         $id = $class->getSingleIdentifier($document);
 
         $this->collection->delete((string) $id);
@@ -221,7 +222,7 @@ class DocumentPersister
         $body = [];
 
         $changeSet = $this->dm->getUnitOfWork()->getDocumentChangeSet($document);
-        $class = $this->dm->getClassMetadata(get_class($document));
+        $class = $this->dm->getClassMetadata(\get_class($document));
         $typeManager = $this->dm->getTypeManager();
 
         foreach ($changeSet as $name => $value) {
@@ -229,19 +230,19 @@ class DocumentPersister
             $type = $typeManager->getType($field->type);
 
             if ($field->multiple) {
-                $body[$field->fieldName] = array_map(function ($item) use ($type, $field) {
+                $body[$field->fieldName] = \array_map(static function ($item) use ($type, $field) {
                     return $type->toDatabase($item, $field->options);
                 }, (array) $value[1]);
             } elseif (null !== $value[1]) {
                 $body[$field->fieldName] = $type->toDatabase($value[1], $field->options);
             } else {
-                $script[] = 'ctx._source.remove(\''.str_replace('\'', '\\\'', $field->fieldName).'\')';
+                $script[] = 'ctx._source.remove(\''.\str_replace('\'', '\\\'', $field->fieldName).'\')';
             }
         }
 
         return [
             'body' => $body,
-            'script' => implode('; ', $script),
+            'script' => \implode('; ', $script),
         ];
     }
 }

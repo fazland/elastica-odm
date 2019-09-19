@@ -22,14 +22,14 @@ class DocumentGraphTest extends TestCase
 
     public function testGetNodesReturnsEmptyArrayOnEmptyGraph()
     {
-        $this->assertEquals([], $this->graph->getNodes());
+        self::assertEquals([], $this->graph->getNodes());
     }
 
     public function testAddNode()
     {
         $this->graph->addNode(\stdClass::class);
 
-        $this->assertEquals([
+        self::assertEquals([
             \stdClass::class => new DocumentGraphNode(\stdClass::class),
         ], $this->graph->getNodes());
     }
@@ -49,7 +49,7 @@ class DocumentGraphTest extends TestCase
         $fooNode->addOutEdge($edge);
         $stdNode->addInEdge($edge);
 
-        $this->assertEquals([
+        self::assertEquals([
             Foo::class => $fooNode,
             \stdClass::class => $stdNode,
         ], $this->graph->getNodes());
@@ -70,9 +70,9 @@ class DocumentGraphTest extends TestCase
         $fooNode->addOutEdge($edge);
         $stdNode->addInEdge($edge);
 
-        $this->assertEquals([
+        self::assertEquals([
             [$stdNode, 2],
             [$fooNode, 1],
-        ], iterator_to_array($this->graph));
+        ], \iterator_to_array($this->graph));
     }
 }

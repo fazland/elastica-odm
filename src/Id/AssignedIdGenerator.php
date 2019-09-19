@@ -14,7 +14,7 @@ final class AssignedIdGenerator extends AbstractIdGenerator
     public function generate(DocumentManagerInterface $dm, $document)
     {
         /** @var DocumentMetadata $class */
-        $class = $dm->getClassMetadata(get_class($document));
+        $class = $dm->getClassMetadata(\get_class($document));
         $id = $class->getSingleIdentifier($document);
 
         if (null === $id) {

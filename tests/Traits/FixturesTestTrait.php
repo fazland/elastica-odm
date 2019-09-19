@@ -24,7 +24,8 @@ trait FixturesTestTrait
             'stringField' => ['type' => 'text'],
         ])
             ->setType($fooType)
-            ->send();
+            ->send()
+        ;
 
         $connection->requestEndpoint(
             (new Index())

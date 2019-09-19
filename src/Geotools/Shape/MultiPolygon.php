@@ -27,7 +27,7 @@ final class MultiPolygon extends Geoshape
     {
         return [
             'type' => 'multipolygon',
-            'coordinates' => $this->polygons->map(function (Polygon $polygon) {
+            'coordinates' => $this->polygons->map(static function (Polygon $polygon) {
                 return $polygon->toArray();
             })->toArray(),
         ];

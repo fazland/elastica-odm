@@ -97,8 +97,8 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function persist($object): void
     {
-        if (! is_object($object)) {
-            throw new \InvalidArgumentException('Expected object, '.gettype($object).' given.');
+        if (! \is_object($object)) {
+            throw new \InvalidArgumentException('Expected object, '.\gettype($object).' given.');
         }
 
         $this->unitOfWork->persist($object);
@@ -109,8 +109,8 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function remove($object): void
     {
-        if (! is_object($object)) {
-            throw new \InvalidArgumentException('Expected object, '.gettype($object).' given.');
+        if (! \is_object($object)) {
+            throw new \InvalidArgumentException('Expected object, '.\gettype($object).' given.');
         }
 
         $this->unitOfWork->remove($object);
@@ -121,8 +121,8 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function merge($object)
     {
-        if (! is_object($object)) {
-            throw new \InvalidArgumentException('Expected object, '.gettype($object).' given.');
+        if (! \is_object($object)) {
+            throw new \InvalidArgumentException('Expected object, '.\gettype($object).' given.');
         }
 
         return $this->unitOfWork->merge($object);
@@ -141,8 +141,8 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function detach($object): void
     {
-        if (! is_object($object)) {
-            throw new \InvalidArgumentException('Expected object, '.gettype($object).' given.');
+        if (! \is_object($object)) {
+            throw new \InvalidArgumentException('Expected object, '.\gettype($object).' given.');
         }
 
         $this->unitOfWork->detach($object);
@@ -153,7 +153,7 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function refresh($object): void
     {
-        $class = $this->getClassMetadata(get_class($object));
+        $class = $this->getClassMetadata(\get_class($object));
         $persister = $this->unitOfWork->getDocumentPersister($class->name);
 
         $persister->load(['_id' => $class->getSingleIdentifier($object)], [Hints::HINT_REFRESH => true], $object);
@@ -180,8 +180,8 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function getClassMetadata($className): DocumentMetadata
     {
-        if (is_subclass_of($className, ProxyInterface::class)) {
-            $className = get_parent_class($className);
+        if (\is_subclass_of($className, ProxyInterface::class)) {
+            $className = \get_parent_class($className);
         }
 
         return $this->metadataFactory->getMetadataFor($className);
@@ -210,8 +210,8 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function contains($object): bool
     {
-        if (! is_object($object)) {
-            throw new \InvalidArgumentException('Expected object, '.gettype($object).' given.');
+        if (! \is_object($object)) {
+            throw new \InvalidArgumentException('Expected object, '.\gettype($object).' given.');
         }
 
         return $this->unitOfWork->isInIdentityMap($object);

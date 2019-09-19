@@ -86,11 +86,11 @@ class CollectionTest extends TestCase
         $dm = self::createDocumentManager();
 
         $collection = $dm->getCollection(Foo::class);
-        $scroll = iterator_to_array($collection->scroll(new Query()), false);
+        $scroll = \iterator_to_array($collection->scroll(new Query()), false);
         $resultSet = $scroll[0];
 
-        $this->assertCount(3, $resultSet);
-        $this->assertArrayHasKey('stringField', $resultSet[0]->getSource());
+        self::assertCount(3, $resultSet);
+        self::assertArrayHasKey('stringField', $resultSet[0]->getSource());
     }
 
     public function testSearchShouldExecuteTheQuery(): void
@@ -108,7 +108,7 @@ class CollectionTest extends TestCase
         $documentManager = $this->prophesize(DocumentManagerInterface::class);
         $search = $this->collection->createSearch($documentManager->reveal(), $this->query->reveal());
 
-        $this->assertEquals($this->query->reveal(), $search->getQuery());
+        self::assertEquals($this->query->reveal(), $search->getQuery());
     }
 
     public function testCountShouldUseSearchableInterfaceCount(): void
@@ -132,7 +132,8 @@ class CollectionTest extends TestCase
 
         $this->searchable->requestEndpoint($endpoint)
             ->willReturn(new Response(['_id' => 'test_id'], 200))
-            ->shouldBeCalled();
+            ->shouldBeCalled()
+        ;
 
         $this->collection->create('test_id', ['field' => 'value']);
     }
@@ -144,10 +145,11 @@ class CollectionTest extends TestCase
 
         $this->searchable->requestEndpoint($endpoint)
             ->willReturn(new Response(['_id' => 'foo_id'], 200))
-            ->shouldBeCalled();
+            ->shouldBeCalled()
+        ;
 
         $this->collection->create(null, ['field' => 'value']);
-        $this->assertEquals('foo_id', $this->collection->getLastInsertedId());
+        self::assertEquals('foo_id', $this->collection->getLastInsertedId());
     }
 
     /**
@@ -160,7 +162,8 @@ class CollectionTest extends TestCase
 
         $this->searchable->requestEndpoint($endpoint)
             ->willReturn(new Response(['_id' => 'foo_id'], 409))
-            ->shouldBeCalled();
+            ->shouldBeCalled()
+        ;
 
         $this->collection->create(null, ['field' => 'value']);
     }
@@ -175,8 +178,8 @@ class CollectionTest extends TestCase
         $collection = $dm->getCollection(Foo::class);
         $response = $collection->create('test_index_create', ['stringField' => 'value']);
 
-        $this->assertTrue($response->isOk());
-        $this->assertEquals('test_index_create', $collection->getLastInsertedId());
+        self::assertTrue($response->isOk());
+        self::assertEquals('test_index_create', $collection->getLastInsertedId());
     }
 
     /**
@@ -191,7 +194,7 @@ class CollectionTest extends TestCase
         $response = $collection->create('test_index_create_duplicate', ['stringField' => 'value']);
         $collection->refresh();
 
-        $this->assertTrue($response->isOk());
+        self::assertTrue($response->isOk());
 
         $collection->create('test_index_create_duplicate', ['stringField' => 'value']);
     }
@@ -206,7 +209,7 @@ class CollectionTest extends TestCase
         $collection = $dm->getCollection(Foo::class);
         $response = $collection->create(null, ['stringField' => 'value']);
 
-        $this->assertTrue($response->isOk());
-        $this->assertNotNull($collection->getLastInsertedId());
+        self::assertTrue($response->isOk());
+        self::assertNotNull($collection->getLastInsertedId());
     }
 }

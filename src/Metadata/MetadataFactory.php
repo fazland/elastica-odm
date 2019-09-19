@@ -117,7 +117,7 @@ class MetadataFactory extends AbstractMetadataFactory implements ClassMetadataFa
         }
 
         $classMetadata->identifier = $identifier;
-        $classMetadata->eagerFieldNames = array_filter($classMetadata->eagerFieldNames);
+        $classMetadata->eagerFieldNames = \array_filter($classMetadata->eagerFieldNames);
     }
 
     /**

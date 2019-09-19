@@ -29,7 +29,7 @@ final class StringType extends AbstractType
             return null;
         }
 
-        if (! is_string($value)) {
+        if (! \is_string($value)) {
             throw new ConversionFailedException($value, 'string');
         }
 
@@ -51,7 +51,7 @@ final class StringType extends AbstractType
     {
         $type = ($options['analyzed'] ?? true) ? 'text' : 'keyword';
 
-        return array_filter([
+        return \array_filter([
             'type' => $type,
             'analyzer' => $options['analyzer'] ?? null,
             'search_analyzer' => $options['search_analyzer'] ?? null,

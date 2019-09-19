@@ -64,7 +64,7 @@ interface DocumentManagerInterface extends ObjectManager
     /**
      * Retrieve the result cache pool, if configured.
      *
-     * @return null|CacheItemPoolInterface
+     * @return CacheItemPoolInterface|null
      */
     public function getResultCache(): ?CacheItemPoolInterface;
 

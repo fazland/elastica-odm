@@ -11,7 +11,7 @@ final class IdentityGenerator extends AbstractIdGenerator
      */
     public function generate(DocumentManagerInterface $dm, $document)
     {
-        $collection = $dm->getCollection(get_class($document));
+        $collection = $dm->getCollection(\get_class($document));
 
         return $collection->getLastInsertedId();
     }

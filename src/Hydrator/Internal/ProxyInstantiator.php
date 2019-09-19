@@ -29,18 +29,18 @@ class ProxyInstantiator implements InstantiatorInterface
     /**
      * {@inheritdoc}
      */
-    public function instantiate($className)
+    public function instantiate($className): GhostObjectInterface
     {
         return $this->createProxy($className, $this->fields);
     }
 
-    private function createProxy(string $className, array $fields)
+    private function createProxy(string $className, array $fields): GhostObjectInterface
     {
         /** @var DocumentMetadata $class */
         $class = $this->manager->getClassMetadata($className);
 
-        $allowedMethods = array_map(function (string $field) {
-            return strtolower('get'.$field);
+        $allowedMethods = \array_map(static function (string $field) {
+            return \strtolower('get'.$field);
         }, $fields);
 
         $initializer = function (
@@ -49,11 +49,11 @@ class ProxyInstantiator implements InstantiatorInterface
             array $parameters,
             &$initializer
         ) use ($fields, $allowedMethods): bool {
-            if (('__get' === $method || '__set' === $method) && in_array($parameters['name'], $fields)) {
+            if (('__get' === $method || '__set' === $method) && \in_array($parameters['name'], $fields, true)) {
                 return false;
             }
 
-            if (in_array(strtolower($method), $allowedMethods)) {
+            if (\in_array(\strtolower($method), $allowedMethods, true)) {
                 return false;
             }
 
@@ -69,15 +69,15 @@ class ProxyInstantiator implements InstantiatorInterface
                 continue;
             }
 
-            if (! in_array($field->getName(), $fields) && $field->isStored()) {
+            if (! \in_array($field->getName(), $fields, true) && $field->isStored()) {
                 continue;
             }
 
-            $propRefl = $field->getReflection();
+            $reflectionProperty = $field->getReflection();
 
-            if ($propRefl->isPrivate()) {
+            if ($reflectionProperty->isPrivate()) {
                 $skippedProperties[] = "\0{$field->class}\0{$field->name}";
-            } elseif ($propRefl->isProtected()) {
+            } elseif ($reflectionProperty->isProtected()) {
                 $skippedProperties[] = "\0*\0{$field->name}";
             } else {
                 $skippedProperties[] = $field->name;

@@ -28,13 +28,13 @@ abstract class AbstractRepositoryFactory implements RepositoryFactoryInterface
     public function getRepository(DocumentManagerInterface $documentManager, string $documentName): DocumentRepositoryInterface
     {
         $metadata = $documentManager->getClassMetadata($documentName);
-        $hashKey = $metadata->getName().spl_object_hash($documentManager);
+        $hashKey = $metadata->getName().\spl_object_hash($documentManager);
 
         if (isset($this->repositoryList[$hashKey])) {
             return $this->repositoryList[$hashKey];
         }
 
-        $repository = $this->createRepository($documentManager, ltrim($documentName, '\\'));
+        $repository = $this->createRepository($documentManager, \ltrim($documentName, '\\'));
         $this->repositoryList[$hashKey] = $repository;
 
         return $repository;

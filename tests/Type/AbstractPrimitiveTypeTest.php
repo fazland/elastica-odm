@@ -15,7 +15,7 @@ abstract class AbstractPrimitiveTypeTest extends TestCase
     {
         $type = $this->getType();
 
-        $this->assertEquals(null, $type->toPHP(null));
+        self::assertEquals(null, $type->toPHP(null));
     }
 
     public function testToPhpShouldWork(): void
@@ -23,14 +23,14 @@ abstract class AbstractPrimitiveTypeTest extends TestCase
         $type = $this->getType();
 
         $value = $this->getValue();
-        $this->assertEquals($value, $type->toPHP($value));
+        self::assertEquals($value, $type->toPHP($value));
     }
 
     public function testToDatabaseWithNullValueShouldReturnNull(): void
     {
         $type = $this->getType();
 
-        $this->assertEquals(null, $type->toDatabase(null));
+        self::assertEquals(null, $type->toDatabase(null));
     }
 
     public function testToDatabaseShouldWork(): void
@@ -38,6 +38,6 @@ abstract class AbstractPrimitiveTypeTest extends TestCase
         $type = $this->getType();
 
         $value = $this->getValue();
-        $this->assertEquals($value, $type->toDatabase($value));
+        self::assertEquals($value, $type->toDatabase($value));
     }
 }

@@ -31,6 +31,6 @@ class RawTypeTest extends TestCase
     {
         $rawType = new RawType();
 
-        $this->assertEquals($value, $rawType->toPHP($value));
+        self::assertEquals($value, $rawType->toPHP($value));
     }
 }

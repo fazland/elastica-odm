@@ -45,7 +45,7 @@ class IndexProcessorTest extends TestCase
 
         $this->processor->process($this->documentMetadata, $index);
 
-        $this->assertEquals([
+        self::assertEquals([
             'settings' => [
                 'analysis' => [
                     'analyzer' => [
@@ -73,7 +73,7 @@ class IndexProcessorTest extends TestCase
 
         $this->processor->process($this->documentMetadata, $index);
 
-        $this->assertEquals([
+        self::assertEquals([
             'settings' => [
                 'analysis' => [
                     'filter' => [
@@ -102,7 +102,7 @@ class IndexProcessorTest extends TestCase
 
         $this->processor->process($this->documentMetadata, $index);
 
-        $this->assertEquals([
+        self::assertEquals([
             'settings' => [
                 'analysis' => [
                     'tokenizer' => [
@@ -132,8 +132,8 @@ class IndexProcessorTest extends TestCase
         $connection = $database->getConnection();
 
         $fooIndex = $connection->getIndex('foo_index');
-        $this->assertArrayHasKey('analysis', $fooIndex->getSettings()->get());
-        $this->assertEquals([
+        self::assertArrayHasKey('analysis', $fooIndex->getSettings()->get());
+        self::assertEquals([
             'filter' => [
                 'english_stemmer' => [
                     'type' => 'stemmer',

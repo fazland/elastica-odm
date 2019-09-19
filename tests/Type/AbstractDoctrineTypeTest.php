@@ -41,7 +41,7 @@ class AbstractDoctrineTypeTest extends TestCase implements TypeTestInterface
     public function testToPhpWithEmptyValueShouldReturnNull(): void
     {
         $type = $this->getType();
-        $this->assertNull($type->toPHP(null));
+        self::assertNull($type->toPHP(null));
     }
 
     public function testToPhpValueShouldFindTheDesiredDocument(): void

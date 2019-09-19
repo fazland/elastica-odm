@@ -131,7 +131,7 @@ final class UnitOfWork
      * Clears the unit of work.
      * If document class is given, only documents of that class will be detached.
      *
-     * @param null|string $documentClass
+     * @param string|null $documentClass
      */
     public function clear(?string $documentClass = null): void
     {
@@ -193,12 +193,12 @@ final class UnitOfWork
      */
     public function isInIdentityMap($object): bool
     {
-        $oid = spl_object_hash($object);
+        $oid = \spl_object_hash($object);
         if (! isset($this->objects[$oid])) {
             return false;
         }
 
-        $class = $this->manager->getClassMetadata(get_class($object));
+        $class = $this->manager->getClassMetadata(\get_class($object));
         $id = $class->getSingleIdentifier($object);
 
         if (empty($id)) {
@@ -218,7 +218,7 @@ final class UnitOfWork
      */
     public function getDocumentState($document, ?int $assume = null)
     {
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
 
         if (isset($this->documentStates[$oid])) {
             return $this->documentStates[$oid];
@@ -229,7 +229,7 @@ final class UnitOfWork
         }
 
         // State here can only be NEW or DETACHED, as MANAGED and REMOVED states are known.
-        $class = $this->manager->getClassMetadata(get_class($document));
+        $class = $this->manager->getClassMetadata(\get_class($document));
         $id = $class->getSingleIdentifier($document);
 
         if (empty($id)) {
@@ -302,7 +302,7 @@ final class UnitOfWork
                     continue;
                 }
 
-                $oid = spl_object_hash($document);
+                $oid = \spl_object_hash($document);
                 if (! isset($this->documentInsertions[$oid]) && ! isset($this->documentDeletions[$oid]) && isset($this->documentStates[$oid])) {
                     $this->computeChangeSet($class, $document);
                 }
@@ -324,7 +324,7 @@ final class UnitOfWork
      */
     public function &getDocumentChangeSet($document)
     {
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
         $data = [];
 
         if (! isset($this->documentChangeSets[$oid])) {
@@ -394,7 +394,7 @@ final class UnitOfWork
     public function createDocument(Document $document, &$result, ?array $fields = null)
     {
         /** @var DocumentMetadata $class */
-        $class = $this->manager->getClassMetadata(get_class($result));
+        $class = $this->manager->getClassMetadata(\get_class($result));
         $typeManager = $this->manager->getTypeManager();
         $documentData = $document->getData();
 
@@ -438,7 +438,7 @@ final class UnitOfWork
             $fieldType = $typeManager->getType($field->type);
 
             if ($field->multiple) {
-                $value = array_map(function ($item) use ($fieldType, $field) {
+                $value = \array_map(static function ($item) use ($fieldType, $field) {
                     return $fieldType->toPHP($item, $field->options);
                 }, (array) $value);
             } else {
@@ -458,7 +458,7 @@ final class UnitOfWork
             $documentData[$fieldName] = null;
         }
 
-        $this->originalDocumentData[spl_object_hash($result)] = $documentData;
+        $this->originalDocumentData[\spl_object_hash($result)] = $documentData;
         $this->addToIdentityMap($result);
     }
 
@@ -503,7 +503,7 @@ final class UnitOfWork
      */
     private function computeChangeSet(DocumentMetadata $class, $document): void
     {
-        $oid = spl_object_hash($document);
+        $oid = \spl_object_hash($document);
         if (isset($this->readOnlyObjects[$oid])) {
             return;
         }
@@ -535,7 +535,7 @@ final class UnitOfWork
             if (! $document instanceof LazyLoadingInterface || $document->isProxyInitialized()) {
                 foreach ($actualData as $propName => $actualValue) {
                     // skip field, its a partially omitted one!
-                    if (! array_key_exists($propName, $originalData)) {
+                    if (! \array_key_exists($propName, $originalData)) {
                         continue;
                     }
 
@@ -569,12 +569,12 @@ final class UnitOfWork
      */
     private function addToIdentityMap($object)
     {
-        $oid = spl_object_hash($object);
+        $oid = \spl_object_hash($object);
         if (isset($this->objects[$oid])) {
             return;
         }
 
-        $class = $this->manager->getClassMetadata(get_class($object));
+        $class = $this->manager->getClassMetadata(\get_class($object));
         $id = $class->getSingleIdentifier($object);
 
         if (empty($id)) {
@@ -595,7 +595,7 @@ final class UnitOfWork
      */
     private function removeFromIdentityMap($object)
     {
-        $class = $this->manager->getClassMetadata(get_class($object));
+        $class = $this->manager->getClassMetadata(\get_class($object));
         $id = $class->getSingleIdentifier($object);
 
         if (empty($id)) {
@@ -615,13 +615,13 @@ final class UnitOfWork
      */
     private function doPersist($object, array &$visited): void
     {
-        $oid = spl_object_hash($object);
+        $oid = \spl_object_hash($object);
         if (isset($visited[$oid])) {
             return;
         }
 
         $visited[$oid] = true;
-        $class = $this->manager->getClassMetadata(get_class($object));
+        $class = $this->manager->getClassMetadata(\get_class($object));
 
         $documentState = $this->getDocumentState($object, self::STATE_NEW);
         switch ($documentState) {
@@ -652,7 +652,7 @@ final class UnitOfWork
      */
     private function doRemove($object, array &$visited): void
     {
-        $oid = spl_object_hash($object);
+        $oid = \spl_object_hash($object);
         if (isset($visited[$oid])) {
             return;
         }
@@ -662,7 +662,7 @@ final class UnitOfWork
         // Cascade first to avoid problems with proxy initializing out of the identity map.
         $this->cascadeRemove($object, $visited);
 
-        $class = $this->manager->getClassMetadata(get_class($object));
+        $class = $this->manager->getClassMetadata(\get_class($object));
         $documentState = $this->getDocumentState($object);
 
         switch ($documentState) {
@@ -695,7 +695,7 @@ final class UnitOfWork
      */
     private function doMerge($object, array &$visited)
     {
-        $oid = spl_object_hash($object);
+        $oid = \spl_object_hash($object);
 
         if (isset($visited[$oid])) {
             return $visited[$oid];
@@ -704,7 +704,7 @@ final class UnitOfWork
         $visited[$oid] = $object;
 
         /** @var DocumentMetadata $class */
-        $class = $this->manager->getClassMetadata(get_class($object));
+        $class = $this->manager->getClassMetadata(\get_class($object));
         $managedCopy = $object;
 
         if (self::STATE_MANAGED !== $this->getDocumentState($object, self::STATE_DETACHED)) {
@@ -746,7 +746,7 @@ final class UnitOfWork
             }
         }
 
-        $visited[spl_object_hash($managedCopy)] = $managedCopy;
+        $visited[\spl_object_hash($managedCopy)] = $managedCopy;
         $this->cascadeMerge($object, $managedCopy, $visited);
 
         return $managedCopy;
@@ -762,7 +762,7 @@ final class UnitOfWork
      */
     private function doDetach($object, array &$visited)
     {
-        $oid = spl_object_hash($object);
+        $oid = \spl_object_hash($object);
         if (isset($visited[$oid])) {
             return;
         }
@@ -787,7 +787,7 @@ final class UnitOfWork
     private function persistNew(DocumentMetadata $class, $object)
     {
         $this->lifecycleEventManager->prePersist($class, $object);
-        $oid = spl_object_hash($object);
+        $oid = \spl_object_hash($object);
 
         if ($class->identifier) {
             $idGenerator = $this->getIdGenerator($class->idGeneratorType);
@@ -833,8 +833,8 @@ final class UnitOfWork
      */
     private function scheduleForInsert($object)
     {
-        $oid = spl_object_hash($object);
-        $class = $this->manager->getClassMetadata(get_class($object));
+        $oid = \spl_object_hash($object);
+        $class = $this->manager->getClassMetadata(\get_class($object));
 
         $this->documentInsertions[$oid] = $object;
 
@@ -852,7 +852,7 @@ final class UnitOfWork
      */
     private function scheduleForDeletion($object)
     {
-        $oid = spl_object_hash($object);
+        $oid = \spl_object_hash($object);
         if (isset($this->documentInsertions[$oid])) {
             if ($this->isInIdentityMap($object)) {
                 $this->removeFromIdentityMap($object);
@@ -888,7 +888,7 @@ final class UnitOfWork
     {
         foreach ($this->documentInsertions as $oid => $document) {
             /** @var DocumentMetadata $class */
-            $class = $this->manager->getClassMetadata(get_class($document));
+            $class = $this->manager->getClassMetadata(\get_class($document));
             if ($className !== $class->name) {
                 continue;
             }
@@ -899,7 +899,7 @@ final class UnitOfWork
 
             if (null !== $postInsertId) {
                 $id = $postInsertId->getId();
-                $oid = spl_object_hash($document);
+                $oid = \spl_object_hash($document);
 
                 $class->setIdentifierValue($document, $id);
                 $this->documentStates[$oid] = self::STATE_MANAGED;
@@ -915,14 +915,14 @@ final class UnitOfWork
     {
         foreach ($this->documentUpdates as $oid => $document) {
             /** @var DocumentMetadata $class */
-            $class = $this->manager->getClassMetadata(get_class($document));
+            $class = $this->manager->getClassMetadata(\get_class($document));
             if ($className !== $class->name) {
                 continue;
             }
 
             $this->lifecycleEventManager->preUpdate($class, $document);
 
-            $persister = $this->getDocumentPersister(get_class($document));
+            $persister = $this->getDocumentPersister(\get_class($document));
             if (! empty($this->documentChangeSets[$oid])) {
                 $persister->update($document);
             }
@@ -936,7 +936,7 @@ final class UnitOfWork
     {
         foreach ($this->documentDeletions as $oid => $document) {
             /** @var DocumentMetadata $class */
-            $class = $this->manager->getClassMetadata(get_class($document));
+            $class = $this->manager->getClassMetadata(\get_class($document));
             if ($className !== $class->name) {
                 continue;
             }
@@ -965,7 +965,7 @@ final class UnitOfWork
     private function computeScheduledInsertsChangeSets()
     {
         foreach ($this->documentInsertions as $document) {
-            $class = $this->manager->getClassMetadata(get_class($document));
+            $class = $this->manager->getClassMetadata(\get_class($document));
             $this->computeChangeSet($class, $document);
         }
     }
@@ -1002,19 +1002,19 @@ final class UnitOfWork
             $calculator = new CommitOrderCalculator();
         }
 
-        $objects = array_merge($this->documentInsertions, $this->documentUpdates, $this->documentDeletions);
+        $objects = \array_merge($this->documentInsertions, $this->documentUpdates, $this->documentDeletions);
 
         $classes = [];
         foreach ($objects as $object) {
-            $metadata = $this->manager->getClassMetadata(get_class($object));
+            $metadata = $this->manager->getClassMetadata(\get_class($object));
 
             $calculator->addClass($metadata);
             $classes[$metadata->getName()] = $metadata;
         }
 
-        $order = $calculator->getOrder(array_keys($classes));
+        $order = $calculator->getOrder(\array_keys($classes));
 
-        return array_map(function (array $element) {
+        return \array_map(static function (array $element) {
             return $element[0]->getClassName();
         }, $order);
     }

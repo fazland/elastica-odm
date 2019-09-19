@@ -21,7 +21,7 @@ class TestDocument
 
     public function __construct(string $field1, string $field2)
     {
-        $this->id = (string) mt_rand(0, 99999);
+        $this->id = (string) \mt_rand(0, 99999);
         $this->field1 = $field1;
         $this->field2 = $field2;
     }

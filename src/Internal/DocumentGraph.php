@@ -66,8 +66,8 @@ final class DocumentGraph implements \IteratorAggregate
      */
     public function getIterator(): \Generator
     {
-        $elements = iterator_to_array((function () {
-            $traverse = function (DocumentGraphNode $node, int $depth) use (&$traverse) {
+        $elements = \iterator_to_array((function () {
+            $traverse = static function (DocumentGraphNode $node, int $depth) use (&$traverse) {
                 yield [$node, $depth];
 
                 foreach ($node as $edge) {
@@ -80,7 +80,7 @@ final class DocumentGraph implements \IteratorAggregate
             }
         })(), false);
 
-        uasort($elements, function (array $a, array $b) {
+        \uasort($elements, static function (array $a, array $b) {
             return $b[1] <=> $a[1];
         });
 

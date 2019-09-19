@@ -81,6 +81,6 @@ final class DocumentGraphNode implements \Countable, \IteratorAggregate
      */
     public function count(): int
     {
-        return count($this->inEdges);
+        return \count($this->inEdges);
     }
 }

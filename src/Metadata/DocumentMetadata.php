@@ -90,7 +90,7 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
 
         if ($metadata instanceof FieldMetadata && ! $metadata->lazy && null !== $metadata->fieldName) {
             $this->eagerFieldNames[] = $metadata->fieldName;
-            sort($this->eagerFieldNames);
+            \sort($this->eagerFieldNames);
         }
     }
 
@@ -108,8 +108,8 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
         $this->identifier = $this->identifier ?? $metadata->identifier;
         $this->idGeneratorType = $this->idGeneratorType ?? $metadata->idGeneratorType;
 
-        $this->eagerFieldNames = array_unique(array_merge($this->eagerFieldNames, $metadata->eagerFieldNames));
-        sort($this->eagerFieldNames);
+        $this->eagerFieldNames = \array_unique(\array_merge($this->eagerFieldNames, $metadata->eagerFieldNames));
+        \sort($this->eagerFieldNames);
     }
 
     /**
@@ -175,7 +175,7 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
      */
     public function getFieldNames(): array
     {
-        return array_keys($this->attributesMetadata);
+        return \array_keys($this->attributesMetadata);
     }
 
     /**
@@ -257,7 +257,7 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
             return null;
         }
 
-        return reset($id);
+        return \reset($id);
     }
 
     public function setIdentifierValue($object, $value): void

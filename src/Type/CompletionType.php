@@ -18,7 +18,7 @@ final class CompletionType extends AbstractType
             return null;
         }
 
-        if (is_array($value) && isset($value['input'])) {
+        if (\is_array($value) && isset($value['input'])) {
             $completion = new Completion();
             $completion->input = $value['input'];
             $completion->weight = $value['weight'] ?? null;
@@ -26,7 +26,7 @@ final class CompletionType extends AbstractType
             return $completion;
         }
 
-        if (! is_string($value)) {
+        if (! \is_string($value)) {
             throw new ConversionFailedException($value, Completion::class);
         }
 
@@ -65,14 +65,14 @@ final class CompletionType extends AbstractType
      */
     public function getMappingDeclaration(array $options = []): array
     {
-        return array_filter([
+        return \array_filter([
             'type' => 'completion',
             'analyzer' => $options['analyzer'] ?? null,
             'search_analyzer' => $options['search_analyzer'] ?? null,
             'preserve_separators' => $options['preserve_separators'] ?? null,
             'preserve_position_increments' => $options['preserve_position_increments'] ?? null,
         ], function ($value) {
-            return $value !== null;
+            return null !== $value;
         });
     }
 }

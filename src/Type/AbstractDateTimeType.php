@@ -67,7 +67,7 @@ abstract class AbstractDateTimeType extends AbstractType
             return 'epoch_second';
         }
 
-        return preg_replace_callback('/(\\\\[a-z0-9]|.)/i', function ($match): string {
+        return \preg_replace_callback('/(\\\\[a-z0-9]|.)/i', function ($match): string {
             $token = $match[1];
             switch ($token) {
                 case 'd':       // Day of the month, 2 digits with leading zeros
@@ -163,10 +163,10 @@ abstract class AbstractDateTimeType extends AbstractType
                     throw new \InvalidArgumentException('Cannot convert token "'.$token.'" for date format');
                 default:
                     if ('\\' === $token[0]) {
-                        $token = substr($token, 1);
+                        $token = \substr($token, 1);
                     }
 
-                    if (preg_match('/[a-z0-9]/i', $token)) {
+                    if (\preg_match('/[a-z0-9]/i', $token)) {
                         return "'$token'";
                     }
 

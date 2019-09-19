@@ -27,6 +27,7 @@ trait DocumentManagerTestTrait
 
         return Builder::create()
             ->addMetadataLoader($loader)
-            ->build();
+            ->build()
+        ;
     }
 }

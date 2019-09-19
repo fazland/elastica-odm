@@ -18,7 +18,7 @@ final class Completion implements ArrayableInterface
 
     public function toArray(): ?array
     {
-        return array_filter([
+        return \array_filter([
             'input' => $this->input,
             'weight' => $this->weight,
         ]) ?: null;

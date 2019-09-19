@@ -29,7 +29,7 @@ final class FloatType extends AbstractType
             return null;
         }
 
-        if (! is_float($value)) {
+        if (! \is_float($value)) {
             throw new ConversionFailedException($value, 'float');
         }
 

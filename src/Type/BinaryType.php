@@ -15,7 +15,7 @@ final class BinaryType extends AbstractType
             return null;
         }
 
-        return base64_decode($value, true);
+        return \base64_decode($value, true);
     }
 
     /**
@@ -27,7 +27,7 @@ final class BinaryType extends AbstractType
             return null;
         }
 
-        return base64_encode($value);
+        return \base64_encode($value);
     }
 
     /**

@@ -2,8 +2,6 @@
 
 namespace Fazland\ODM\Elastica\Collection;
 
-use Elastica\Bulk;
-use Elastica\Document;
 use Elastica\Exception\ResponseException;
 use Elastica\Index;
 use Elastica\Query;
@@ -31,7 +29,7 @@ class Collection implements CollectionInterface
     private $searchable;
 
     /**
-     * @var null|string
+     * @var string|null
      */
     private $_lastInsertId;
 
@@ -149,7 +147,7 @@ class Collection implements CollectionInterface
      */
     public function update(string $id, array $body, string $script = ''): void
     {
-        $body = array_filter([
+        $body = \array_filter([
             'doc' => $body,
             'script' => $script,
         ]);
@@ -168,7 +166,7 @@ class Collection implements CollectionInterface
             $script = \implode('; ', $tmp).';';
             $body = ['script' => [
                 'source' => $script,
-                'params' => $params
+                'params' => $params,
             ]];
         }
 

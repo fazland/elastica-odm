@@ -110,7 +110,7 @@ class Search implements \IteratorAggregate
      */
     public function execute(): array
     {
-        return iterator_to_array($this->getIterator(), false);
+        return \iterator_to_array($this->getIterator(), false);
     }
 
     /**
@@ -195,7 +195,7 @@ class Search implements \IteratorAggregate
     {
         if (null !== $fieldName) {
             $sort = [];
-            $fields = is_array($fieldName) ? $fieldName : [$fieldName => $order];
+            $fields = \is_array($fieldName) ? $fieldName : [$fieldName => $order];
 
             foreach ($fields as $fieldName => $order) {
                 $sort[] = [$fieldName => $order];
@@ -309,7 +309,7 @@ class Search implements \IteratorAggregate
     /**
      * Gets the cache profile (if set).
      *
-     * @return null|SearchCacheProfile
+     * @return SearchCacheProfile|null
      */
     public function getCacheProfile()
     {
@@ -357,7 +357,7 @@ class Search implements \IteratorAggregate
             }
         }
 
-        $resultSets = iterator_to_array($this->_doExecute($query));
+        $resultSets = \iterator_to_array($this->_doExecute($query));
 
         if (isset($item)) {
             $item->set($resultSets);

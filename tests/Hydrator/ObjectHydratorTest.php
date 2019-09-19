@@ -89,7 +89,7 @@ class ObjectHydratorTest extends TestCase
         $resultSet = $this->prophesize(ResultSet::class);
         $resultSet->count()->willReturn(0);
 
-        $this->assertEmpty($this->hydrator->hydrateAll($resultSet->reveal(), TestDocument::class));
+        self::assertEmpty($this->hydrator->hydrateAll($resultSet->reveal(), TestDocument::class));
     }
 
     public function testHydrateAllShouldWork(): void
@@ -133,7 +133,7 @@ class ObjectHydratorTest extends TestCase
         /** @var TestDocument[] $documents */
         $documents = $this->hydrator->hydrateAll($resultSet, TestDocument::class);
 
-        $this->assertCount(2, $documents);
+        self::assertCount(2, $documents);
         $this->assertTestDocumentEquals($expectedDocument1Values, $documents[0]);
         $this->assertTestDocumentEquals($expectedDocument2Values, $documents[1]);
     }
@@ -164,8 +164,8 @@ class ObjectHydratorTest extends TestCase
 
     private function assertTestDocumentEquals(array $expectedValues, TestDocument $document)
     {
-        $this->assertEquals($expectedValues['id'], $document->getId());
-        $this->assertEquals($expectedValues['field1'], $document->getField1());
-        $this->assertEquals($expectedValues['field2'], $document->getField2());
+        self::assertEquals($expectedValues['id'], $document->getId());
+        self::assertEquals($expectedValues['field1'], $document->getField1());
+        self::assertEquals($expectedValues['field2'], $document->getField2());
     }
 }

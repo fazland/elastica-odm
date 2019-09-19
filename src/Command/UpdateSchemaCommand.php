@@ -46,12 +46,12 @@ class UpdateSchemaCommand extends Command
 
         $expression = $input->getOption('filter-expression');
         if (null !== $expression) {
-            if (false === preg_match($expression, '')) {
+            if (false === \preg_match($expression, '')) {
                 throw new \InvalidArgumentException('Filter expression is not a valid regex');
             }
 
             $filter = function ($value) use ($expression): bool {
-                return (bool) preg_match($expression, $value);
+                return (bool) \preg_match($expression, $value);
             };
         } else {
             $filter = function (): bool {

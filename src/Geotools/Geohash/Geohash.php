@@ -134,7 +134,7 @@ class Geohash
         $charIndex = 0;
 
         $this->geohash = '';
-        while (strlen($this->geohash) < $length) {
+        while (\strlen($this->geohash) < $length) {
             if ($isEven) {
                 $middle = ($longitudeInterval[0] + $longitudeInterval[1]) / 2;
                 if ($coordinate->getLongitude() > $middle) {
@@ -170,16 +170,16 @@ class Geohash
 
     private function decode($geohash): void
     {
-        if (! is_string($geohash)) {
+        if (! \is_string($geohash)) {
             throw new \InvalidArgumentException('The geo hash should be a string.');
         }
 
-        if (strlen($geohash) < self::MIN_LENGTH || strlen($geohash) > self::MAX_LENGTH) {
+        if (\strlen($geohash) < self::MIN_LENGTH || \strlen($geohash) > self::MAX_LENGTH) {
             throw new \InvalidArgumentException('The length of the geo hash should be between 1 and 12.');
         }
 
         $base32DecodeMap = [];
-        $base32CharsTotal = count($this->base32Chars);
+        $base32CharsTotal = \count($this->base32Chars);
         for ($i = 0; $i < $base32CharsTotal; ++$i) {
             $base32DecodeMap[$this->base32Chars[$i]] = $i;
         }
@@ -188,7 +188,7 @@ class Geohash
         $longitudeInterval = $this->longitudeInterval;
         $isEven = true;
 
-        $geohashLength = strlen($geohash);
+        $geohashLength = \strlen($geohash);
         for ($i = 0; $i < $geohashLength; ++$i) {
             if (! isset($base32DecodeMap[$geohash[$i]])) {
                 throw new \RuntimeException('This geo hash is invalid.');
@@ -196,7 +196,7 @@ class Geohash
 
             $currentChar = $base32DecodeMap[$geohash[$i]];
 
-            $bitsTotal = count($this->bits);
+            $bitsTotal = \count($this->bits);
             for ($j = 0; $j < $bitsTotal; ++$j) {
                 $mask = $this->bits[$j];
 

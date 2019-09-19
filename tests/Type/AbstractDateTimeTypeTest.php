@@ -17,7 +17,7 @@ abstract class AbstractDateTimeTypeTest extends TestCase implements TypeTestInte
         $expectedClass = $this->getExpectedClass();
         $dateTime = $expectedClass::createFromFormat(\DateTime::ISO8601, 'now');
 
-        $this->assertEquals($dateTime, $type->toPHP($dateTime));
+        self::assertEquals($dateTime, $type->toPHP($dateTime));
     }
 
     public function testToPhpWithStringValueShouldReturnItsDateTimeRepresentation(): void
@@ -29,7 +29,7 @@ abstract class AbstractDateTimeTypeTest extends TestCase implements TypeTestInte
 
         $expected = new $expectedClass($time);
 
-        $this->assertEquals($expected, $type->toPHP($time));
+        self::assertEquals($expected, $type->toPHP($time));
     }
 
     public function testDefaultMappingDeclarationShouldHaveIso8601AsFormat()
@@ -37,7 +37,7 @@ abstract class AbstractDateTimeTypeTest extends TestCase implements TypeTestInte
         $type = $this->getType();
         $mapping = $type->getMappingDeclaration();
 
-        $this->assertArrayHasKey('format', $mapping);
-        $this->assertEquals('YYYY-MM-dd\'T\'HH:mm:ssZ', $mapping['format']);
+        self::assertArrayHasKey('format', $mapping);
+        self::assertEquals('YYYY-MM-dd\'T\'HH:mm:ssZ', $mapping['format']);
     }
 }

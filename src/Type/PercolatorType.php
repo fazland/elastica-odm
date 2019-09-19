@@ -18,7 +18,7 @@ final class PercolatorType extends AbstractType
             return null;
         }
 
-        if (! is_array($value) && ! $value instanceof Query) {
+        if (! \is_array($value) && ! $value instanceof Query) {
             throw new ConversionFailedException($value, 'array');
         }
 
@@ -40,7 +40,7 @@ final class PercolatorType extends AbstractType
 
         if ($value instanceof Query\AbstractQuery) {
             return $value->toArray();
-        } elseif (is_array($value)) {
+        } elseif (\is_array($value)) {
             return $value;
         }
 

@@ -23,12 +23,12 @@ final class Polygon extends Geoshape
 
     public function __construct(array $outer, array ...$holes)
     {
-        $normalize = function (CoordinateInterface ...$coordinate) {
+        $normalize = static function (CoordinateInterface ...$coordinate) {
             return $coordinate;
         };
 
         $this->outer = new ArrayCollection($normalize(...$outer));
-        $this->holes = array_map(function (array $hole) use ($normalize) {
+        $this->holes = \array_map(static function (array $hole) use ($normalize) {
             return new ArrayCollection($normalize(...$hole));
         }, $holes);
     }

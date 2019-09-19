@@ -27,6 +27,6 @@ class TypeManagerTest extends TestCase
         $typeManager = new TypeManager();
         $typeManager->addType($type->reveal());
 
-        $this->assertEquals($typeManager->getType('type_name'), $type->reveal());
+        self::assertEquals($typeManager->getType('type_name'), $type->reveal());
     }
 }

@@ -28,7 +28,7 @@ final class Linestring extends Geoshape
     {
         return [
             'type' => 'linestring',
-            'coordinates' => $this->coordinates->map(function (CoordinateInterface $coordinate) {
+            'coordinates' => $this->coordinates->map(static function (CoordinateInterface $coordinate) {
                 return $coordinate->jsonSerialize();
             })->toArray(),
         ];

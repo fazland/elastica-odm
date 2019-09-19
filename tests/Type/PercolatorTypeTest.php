@@ -13,7 +13,7 @@ class PercolatorTypeTest extends TestCase
     public function testToPhpWithEmptyValueShouldReturnNull(): void
     {
         $type = $this->getType();
-        $this->assertNull($type->toPHP(null));
+        self::assertNull($type->toPHP(null));
     }
 
     public function testToPhpShouldWork(): void
@@ -21,13 +21,13 @@ class PercolatorTypeTest extends TestCase
         $type = $this->getType();
 
         $query = Query::create(['query' => ['match' => ['field' => 'value']]]);
-        $this->assertEquals($query, $type->toPHP(['match' => ['field' => 'value']]));
+        self::assertEquals($query, $type->toPHP(['match' => ['field' => 'value']]));
     }
 
     public function testToDatabaseWithNullValueShouldReturnNull(): void
     {
         $type = $this->getType();
-        $this->assertEquals(null, $type->toDatabase(null));
+        self::assertEquals(null, $type->toDatabase(null));
     }
 
     public function testToDatabaseShouldWork(): void
@@ -35,8 +35,8 @@ class PercolatorTypeTest extends TestCase
         $type = $this->getType();
         $value = new Match('field', 'value');
 
-        $this->assertEquals(['match' => ['field' => 'value']], $type->toDatabase($value));
-        $this->assertEquals(['match' => ['field' => 'value']], $type->toDatabase(Query::create($value)));
+        self::assertEquals(['match' => ['field' => 'value']], $type->toDatabase($value));
+        self::assertEquals(['match' => ['field' => 'value']], $type->toDatabase(Query::create($value)));
     }
 
     public function getType(): TypeInterface

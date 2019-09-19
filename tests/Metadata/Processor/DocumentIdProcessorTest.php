@@ -40,8 +40,8 @@ class DocumentIdProcessorTest extends TestCase
 
         $this->processor->process($metadata, $subject);
 
-        $this->assertTrue($metadata->identifier);
-        $this->assertEquals(DocumentMetadata::GENERATOR_TYPE_AUTO, $this->documentMetadata->idGeneratorType);
+        self::assertTrue($metadata->identifier);
+        self::assertEquals(DocumentMetadata::GENERATOR_TYPE_AUTO, $this->documentMetadata->idGeneratorType);
     }
 
     public function testProcessStrategyNone(): void
@@ -53,7 +53,7 @@ class DocumentIdProcessorTest extends TestCase
 
         $this->processor->process($metadata, $subject);
 
-        $this->assertTrue($metadata->identifier);
-        $this->assertEquals(DocumentMetadata::GENERATOR_TYPE_NONE, $this->documentMetadata->idGeneratorType);
+        self::assertTrue($metadata->identifier);
+        self::assertEquals(DocumentMetadata::GENERATOR_TYPE_NONE, $this->documentMetadata->idGeneratorType);
     }
 }

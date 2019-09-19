@@ -58,7 +58,7 @@ interface CollectionInterface
     /**
      * Request the index of a document.
      *
-     * @param null|string $id
+     * @param string|null $id
      * @param array       $body
      *
      * @return Response

@@ -170,7 +170,7 @@ final class Configuration
     /**
      * Gets the result cache implementation.
      *
-     * @return null|CacheItemPoolInterface
+     * @return CacheItemPoolInterface|null
      */
     public function getResultCache(): ?CacheItemPoolInterface
     {

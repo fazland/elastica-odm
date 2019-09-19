@@ -43,12 +43,12 @@ final class CommitOrderCalculator
      */
     public function getOrder(array $classNames): array
     {
-        $elements = array_filter(iterator_to_array($this->graph), function ($element) use ($classNames): bool {
-            list($node) = $element;
+        $elements = \array_filter(\iterator_to_array($this->graph), static function ($element) use ($classNames): bool {
+            [$node] = $element;
 
-            return in_array($node->getClassName(), $classNames);
+            return \in_array($node->getClassName(), $classNames, true);
         });
 
-        return array_reverse($elements, false);
+        return \array_reverse($elements, false);
     }
 }

@@ -18,16 +18,16 @@ abstract class Geoshape implements GeoshapeInterface
                 return new Circle(new Coordinate($shape['coordinates']), $shape['radius']);
 
             case 'linestring':
-                return new Linestring(...array_map(Coordinate::class.'::create', $shape['coordinates']));
+                return new Linestring(...\array_map(Coordinate::class.'::create', $shape['coordinates']));
 
             case 'polygon':
                 return self::createPolygon($shape['coordinates']);
 
             case 'multipolygon':
-                return new MultiPolygon(...array_map(__CLASS__.'::createPolygon', $shape['coordinates']));
+                return new MultiPolygon(...\array_map(__CLASS__.'::createPolygon', $shape['coordinates']));
 
             case 'geometrycollection':
-                return new GeometryCollection(...array_map(__CLASS__.'::fromArray', $shape['geometries']));
+                return new GeometryCollection(...\array_map(__CLASS__.'::fromArray', $shape['geometries']));
 
             default:
                 throw new \InvalidArgumentException('Unknown geoshape type "'.($type ?? 'null').'"');
@@ -51,10 +51,10 @@ abstract class Geoshape implements GeoshapeInterface
      */
     private static function createPolygon(array $coordinates): Polygon
     {
-        $polygon = array_shift($coordinates);
+        $polygon = \array_shift($coordinates);
 
-        return new Polygon(array_map(Coordinate::class.'::create', $polygon), ...array_map(function (array $poly) {
-            return array_map(Coordinate::class.'::create', $poly);
+        return new Polygon(\array_map(Coordinate::class.'::create', $polygon), ...\array_map(static function (array $poly) {
+            return \array_map(Coordinate::class.'::create', $poly);
         }, $coordinates));
     }
 }
