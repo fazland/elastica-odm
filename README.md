@@ -33,7 +33,7 @@ Test
 ----
 Run 
 ```sh
-$ vendor/bin/phpunit
+$ ./run-tests.sh
 ```
 
 Contributing
