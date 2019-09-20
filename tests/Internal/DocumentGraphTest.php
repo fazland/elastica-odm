@@ -15,17 +15,17 @@ class DocumentGraphTest extends TestCase
      */
     private $graph;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->graph = new DocumentGraph();
     }
 
-    public function testGetNodesReturnsEmptyArrayOnEmptyGraph()
+    public function testGetNodesReturnsEmptyArrayOnEmptyGraph(): void
     {
         self::assertEquals([], $this->graph->getNodes());
     }
 
-    public function testAddNode()
+    public function testAddNode(): void
     {
         $this->graph->addNode(\stdClass::class);
 
@@ -34,7 +34,7 @@ class DocumentGraphTest extends TestCase
         ], $this->graph->getNodes());
     }
 
-    public function testConnect()
+    public function testConnect(): void
     {
         $this->graph->addNode(Foo::class);
         $this->graph->addNode(\stdClass::class);
@@ -55,7 +55,7 @@ class DocumentGraphTest extends TestCase
         ], $this->graph->getNodes());
     }
 
-    public function testIterator()
+    public function testIterator(): void
     {
         $this->graph->addNode(Foo::class);
         $this->graph->addNode(\stdClass::class);

@@ -16,7 +16,7 @@ class AbstractDoctrineTypeTest extends TestCase implements TypeTestInterface
      */
     private $managerRegistry;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->managerRegistry = $this->prophesize(ManagerRegistry::class);
     }

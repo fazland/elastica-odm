@@ -5,6 +5,7 @@ namespace Fazland\ODM\Elastica\Id;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
 use Fazland\ODM\Elastica\Exception\InvalidIdentifierException;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
+use Fazland\ODM\Elastica\Util\ClassUtil;
 
 final class AssignedIdGenerator extends AbstractIdGenerator
 {
@@ -14,7 +15,7 @@ final class AssignedIdGenerator extends AbstractIdGenerator
     public function generate(DocumentManagerInterface $dm, $document)
     {
         /** @var DocumentMetadata $class */
-        $class = $dm->getClassMetadata(\get_class($document));
+        $class = $dm->getClassMetadata(ClassUtil::getClass($document));
         $id = $class->getSingleIdentifier($document);
 
         if (null === $id) {

@@ -56,6 +56,13 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
     public $eagerFieldNames;
 
     /**
+     * An array containing all the field names.
+     *
+     * @var string[]
+     */
+    public $fieldNames;
+
+    /**
      * Gets index params used which will be used to create the index.
      *
      * @var array
@@ -88,9 +95,14 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
     {
         parent::addAttributeMetadata($metadata);
 
-        if ($metadata instanceof FieldMetadata && ! $metadata->lazy && null !== $metadata->fieldName) {
-            $this->eagerFieldNames[] = $metadata->fieldName;
-            \sort($this->eagerFieldNames);
+        if ($metadata instanceof FieldMetadata && null !== $metadata->fieldName) {
+            $this->fieldNames[] = $metadata->fieldName;
+            \sort($this->fieldNames);
+
+            if (! $metadata->lazy) {
+                $this->eagerFieldNames[] = $metadata->fieldName;
+                \sort($this->eagerFieldNames);
+            }
         }
     }
 
@@ -175,7 +187,7 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
      */
     public function getFieldNames(): array
     {
-        return \array_keys($this->attributesMetadata);
+        return $this->fieldNames;
     }
 
     /**

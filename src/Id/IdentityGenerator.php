@@ -3,6 +3,7 @@
 namespace Fazland\ODM\Elastica\Id;
 
 use Fazland\ODM\Elastica\DocumentManagerInterface;
+use Fazland\ODM\Elastica\Util\ClassUtil;
 
 final class IdentityGenerator extends AbstractIdGenerator
 {
@@ -11,7 +12,7 @@ final class IdentityGenerator extends AbstractIdGenerator
      */
     public function generate(DocumentManagerInterface $dm, $document)
     {
-        $collection = $dm->getCollection(\get_class($document));
+        $collection = $dm->getCollection(ClassUtil::getClass($document));
 
         return $collection->getLastInsertedId();
     }

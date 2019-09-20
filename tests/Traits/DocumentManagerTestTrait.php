@@ -25,9 +25,12 @@ trait DocumentManagerTestTrait
         $loader = new AnnotationLoader($processorFactory, __DIR__.'/../Fixtures/Document');
         $loader->setReader(new AnnotationReader());
 
-        return Builder::create()
-            ->addMetadataLoader($loader)
-            ->build()
-        ;
+        $builder = Builder::create()->addMetadataLoader($loader);
+
+        if ($endpoint = \getenv('ES_ENDPOINT')) {
+            $builder->setConnectionUrl($endpoint);
+        }
+
+        return $builder->build();
     }
 }

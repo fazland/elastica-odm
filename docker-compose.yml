@@ -1,0 +1,17 @@
+version: '3.7'
+
+services:
+  php:
+    image: php:cli-buster
+    environment:
+      ES_ENDPOINT: 'http://elasticsearch:9200/'
+    depends_on:
+      - elasticsearch
+    working_dir: /opt/src
+    volumes:
+      - ./:/opt/src
+
+  elasticsearch:
+    image: elasticsearch:6.8.3
+    environment:
+      'discovery.type': single-node

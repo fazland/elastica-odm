@@ -15,6 +15,7 @@ use Fazland\ODM\Elastica\Internal\CommitOrderCalculator;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
 use Fazland\ODM\Elastica\Metadata\FieldMetadata;
 use Fazland\ODM\Elastica\Persister\DocumentPersister;
+use Fazland\ODM\Elastica\Util\ClassUtil;
 use ProxyManager\Proxy\LazyLoadingInterface;
 
 final class UnitOfWork
@@ -198,7 +199,7 @@ final class UnitOfWork
             return false;
         }
 
-        $class = $this->manager->getClassMetadata(\get_class($object));
+        $class = $this->manager->getClassMetadata(ClassUtil::getClass($object));
         $id = $class->getSingleIdentifier($object);
 
         if (empty($id)) {
@@ -229,7 +230,7 @@ final class UnitOfWork
         }
 
         // State here can only be NEW or DETACHED, as MANAGED and REMOVED states are known.
-        $class = $this->manager->getClassMetadata(\get_class($document));
+        $class = $this->manager->getClassMetadata(ClassUtil::getClass($document));
         $id = $class->getSingleIdentifier($document);
 
         if (empty($id)) {
@@ -394,7 +395,7 @@ final class UnitOfWork
     public function createDocument(Document $document, &$result, ?array $fields = null)
     {
         /** @var DocumentMetadata $class */
-        $class = $this->manager->getClassMetadata(\get_class($result));
+        $class = $this->manager->getClassMetadata(ClassUtil::getClass($result));
         $typeManager = $this->manager->getTypeManager();
         $documentData = $document->getData();
 
@@ -574,7 +575,7 @@ final class UnitOfWork
             return;
         }
 
-        $class = $this->manager->getClassMetadata(\get_class($object));
+        $class = $this->manager->getClassMetadata(ClassUtil::getClass($object));
         $id = $class->getSingleIdentifier($object);
 
         if (empty($id)) {
@@ -595,7 +596,7 @@ final class UnitOfWork
      */
     private function removeFromIdentityMap($object)
     {
-        $class = $this->manager->getClassMetadata(\get_class($object));
+        $class = $this->manager->getClassMetadata(ClassUtil::getClass($object));
         $id = $class->getSingleIdentifier($object);
 
         if (empty($id)) {
@@ -621,7 +622,7 @@ final class UnitOfWork
         }
 
         $visited[$oid] = true;
-        $class = $this->manager->getClassMetadata(\get_class($object));
+        $class = $this->manager->getClassMetadata(ClassUtil::getClass($object));
 
         $documentState = $this->getDocumentState($object, self::STATE_NEW);
         switch ($documentState) {
@@ -662,7 +663,7 @@ final class UnitOfWork
         // Cascade first to avoid problems with proxy initializing out of the identity map.
         $this->cascadeRemove($object, $visited);
 
-        $class = $this->manager->getClassMetadata(\get_class($object));
+        $class = $this->manager->getClassMetadata(ClassUtil::getClass($object));
         $documentState = $this->getDocumentState($object);
 
         switch ($documentState) {
@@ -704,7 +705,7 @@ final class UnitOfWork
         $visited[$oid] = $object;
 
         /** @var DocumentMetadata $class */
-        $class = $this->manager->getClassMetadata(\get_class($object));
+        $class = $this->manager->getClassMetadata(ClassUtil::getClass($object));
         $managedCopy = $object;
 
         if (self::STATE_MANAGED !== $this->getDocumentState($object, self::STATE_DETACHED)) {
@@ -834,7 +835,7 @@ final class UnitOfWork
     private function scheduleForInsert($object)
     {
         $oid = \spl_object_hash($object);
-        $class = $this->manager->getClassMetadata(\get_class($object));
+        $class = $this->manager->getClassMetadata(ClassUtil::getClass($object));
 
         $this->documentInsertions[$oid] = $object;
 
@@ -888,7 +889,7 @@ final class UnitOfWork
     {
         foreach ($this->documentInsertions as $oid => $document) {
             /** @var DocumentMetadata $class */
-            $class = $this->manager->getClassMetadata(\get_class($document));
+            $class = $this->manager->getClassMetadata(ClassUtil::getClass($document));
             if ($className !== $class->name) {
                 continue;
             }
@@ -915,14 +916,14 @@ final class UnitOfWork
     {
         foreach ($this->documentUpdates as $oid => $document) {
             /** @var DocumentMetadata $class */
-            $class = $this->manager->getClassMetadata(\get_class($document));
+            $class = $this->manager->getClassMetadata(ClassUtil::getClass($document));
             if ($className !== $class->name) {
                 continue;
             }
 
             $this->lifecycleEventManager->preUpdate($class, $document);
 
-            $persister = $this->getDocumentPersister(\get_class($document));
+            $persister = $this->getDocumentPersister(ClassUtil::getClass($document));
             if (! empty($this->documentChangeSets[$oid])) {
                 $persister->update($document);
             }
@@ -936,7 +937,7 @@ final class UnitOfWork
     {
         foreach ($this->documentDeletions as $oid => $document) {
             /** @var DocumentMetadata $class */
-            $class = $this->manager->getClassMetadata(\get_class($document));
+            $class = $this->manager->getClassMetadata(ClassUtil::getClass($document));
             if ($className !== $class->name) {
                 continue;
             }
@@ -965,7 +966,7 @@ final class UnitOfWork
     private function computeScheduledInsertsChangeSets()
     {
         foreach ($this->documentInsertions as $document) {
-            $class = $this->manager->getClassMetadata(\get_class($document));
+            $class = $this->manager->getClassMetadata(ClassUtil::getClass($document));
             $this->computeChangeSet($class, $document);
         }
     }
@@ -1006,7 +1007,7 @@ final class UnitOfWork
 
         $classes = [];
         foreach ($objects as $object) {
-            $metadata = $this->manager->getClassMetadata(\get_class($object));
+            $metadata = $this->manager->getClassMetadata(ClassUtil::getClass($object));
 
             $calculator->addClass($metadata);
             $classes[$metadata->getName()] = $metadata;

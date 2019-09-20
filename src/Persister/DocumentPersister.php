@@ -10,6 +10,7 @@ use Fazland\ODM\Elastica\Hydrator\HydratorInterface;
 use Fazland\ODM\Elastica\Id\PostInsertId;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
 use Fazland\ODM\Elastica\Metadata\FieldMetadata;
+use Fazland\ODM\Elastica\Util\ClassUtil;
 
 class DocumentPersister
 {
@@ -127,7 +128,7 @@ class DocumentPersister
     public function insert($document): ?PostInsertId
     {
         /** @var DocumentMetadata $class */
-        $class = $this->dm->getClassMetadata(\get_class($document));
+        $class = $this->dm->getClassMetadata(ClassUtil::getClass($document));
         $idGenerator = $this->dm->getUnitOfWork()->getIdGenerator($class->idGeneratorType);
         $postIdGenerator = $idGenerator->isPostInsertGenerator();
 
@@ -166,7 +167,7 @@ class DocumentPersister
      */
     public function update($document): void
     {
-        $class = $this->dm->getClassMetadata(\get_class($document));
+        $class = $this->dm->getClassMetadata(ClassUtil::getClass($document));
         $data = $this->prepareUpdateData($document);
         $id = $class->getSingleIdentifier($document);
 
@@ -180,7 +181,7 @@ class DocumentPersister
      */
     public function delete($document): void
     {
-        $class = $this->dm->getClassMetadata(\get_class($document));
+        $class = $this->dm->getClassMetadata(ClassUtil::getClass($document));
         $id = $class->getSingleIdentifier($document);
 
         $this->collection->delete((string) $id);
@@ -222,7 +223,7 @@ class DocumentPersister
         $body = [];
 
         $changeSet = $this->dm->getUnitOfWork()->getDocumentChangeSet($document);
-        $class = $this->dm->getClassMetadata(\get_class($document));
+        $class = $this->dm->getClassMetadata(ClassUtil::getClass($document));
         $typeManager = $this->dm->getTypeManager();
 
         foreach ($changeSet as $name => $value) {

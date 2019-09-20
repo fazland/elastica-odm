@@ -4,8 +4,10 @@ namespace Fazland\ODM\Elastica\Tests;
 
 use Fazland\ODM\Elastica\DocumentManager;
 use Fazland\ODM\Elastica\Tests\Fixtures\Document\Foo;
+use Fazland\ODM\Elastica\Tests\Fixtures\Document\FooWithLazyField;
 use Fazland\ODM\Elastica\Tests\Traits\DocumentManagerTestTrait;
 use Fazland\ODM\Elastica\Tests\Traits\FixturesTestTrait;
+use Fazland\ODM\Elastica\VarDumper\VarDumperTestTrait;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -15,6 +17,7 @@ class DocumentManagerTest extends TestCase
 {
     use DocumentManagerTestTrait;
     use FixturesTestTrait;
+    use VarDumperTestTrait;
 
     /**
      * @var DocumentManager
@@ -26,17 +29,17 @@ class DocumentManagerTest extends TestCase
         self::resetFixtures(self::createDocumentManager());
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
-        $this->dm = $this->createDocumentManager();
+        $this->dm = self::createDocumentManager();
     }
 
-    public function testFindShouldReturnNullIfNoDocumentIsFound()
+    public function testFindShouldReturnNullIfNoDocumentIsFound(): void
     {
         self::assertNull($this->dm->find(Foo::class, 'non-existent'));
     }
 
-    public function testFindShouldReturnAnObject()
+    public function testFindShouldReturnAnObject(): void
     {
         $result = $this->dm->find(Foo::class, 'foo_test_document');
         self::assertInstanceOf(Foo::class, $result);
@@ -45,7 +48,25 @@ class DocumentManagerTest extends TestCase
         self::assertEquals(\spl_object_hash($result), \spl_object_hash($result2));
     }
 
-    public function testPersistAndFlush()
+    public function testFindShouldLoadProxyWithoutLazyFields(): void
+    {
+        /** @var FooWithLazyField[] $result */
+        $result = $this->dm->getRepository(FooWithLazyField::class)
+            ->findBy(['stringField' => 'bazbaz']);
+
+        self::assertCount(1, $result);
+        $this->assertDumpEquals(<<<EOF
+Fazland\ODM\Elastica\Tests\Fixtures\Document\FooWithLazyField (proxy) {
+  +id: "foo_test_document"
+  +stringField: "bazbaz"
+}
+EOF
+        , $result[0]);
+
+        self::assertEquals('lazyBaz', $result[0]->lazyField);
+    }
+
+    public function testPersistAndFlush(): void
     {
         $document = new Foo();
         $document->id = 'test_persist_and_flush';
@@ -65,7 +86,7 @@ class DocumentManagerTest extends TestCase
         self::assertEquals('footest_string', $document->stringField);
     }
 
-    public function testUpdateAndFlush()
+    public function testUpdateAndFlush(): void
     {
         $document = $this->dm->find(Foo::class, 'foo_test_document');
         self::assertInstanceOf(Foo::class, $document);

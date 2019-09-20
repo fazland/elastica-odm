@@ -8,6 +8,7 @@ use Elastica\Exception\InvalidException;
 use Elastica\ResultSet;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
 use Fazland\ODM\Elastica\Hydrator\Internal\ProxyInstantiator;
+use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
 
 class ObjectHydrator implements HydratorInterface
 {
@@ -30,6 +31,7 @@ class ObjectHydrator implements HydratorInterface
             return [];
         }
 
+        /** @var DocumentMetadata $class */
         $class = $this->manager->getClassMetadata($className);
         try {
             $source = $resultSet->getQuery()->getParam('_source');
@@ -38,7 +40,7 @@ class ObjectHydrator implements HydratorInterface
             $source = null;
         }
 
-        if (null !== $source && $source !== $class->eagerFieldNames) {
+        if (null !== $source && $source !== $class->fieldNames) {
             $fields = false === $source ? [] : $source;
             $instantiator = new ProxyInstantiator($fields, $this->manager);
         } else {

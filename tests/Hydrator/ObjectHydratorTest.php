@@ -18,7 +18,9 @@ use Fazland\ODM\Elastica\Type\StringType;
 use Fazland\ODM\Elastica\Type\TypeManager;
 use Fazland\ODM\Elastica\UnitOfWork;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
+use ProxyManager\Factory\LazyLoadingGhostFactory;
 
 class ObjectHydratorTest extends TestCase
 {
@@ -138,6 +140,46 @@ class ObjectHydratorTest extends TestCase
         $this->assertTestDocumentEquals($expectedDocument2Values, $documents[1]);
     }
 
+    public function testHydrateAllWithLazyDocumentShouldWork(): void
+    {
+        $query = $this->prophesize(Query::class);
+        $query->getParam('_source')->willReturn([ 'id', 'field2' ]);
+
+        $result = $this->prophesize(Result::class);
+        $resultSet = new ResultSet($this->prophesize(Response::class)->reveal(), $query->reveal(), [ $result->reveal() ]);
+
+        $documentId = '12345';
+        $document = $this->prophesize(Document::class);
+        $document->getId()->willReturn($documentId);
+        $document->getData()->willReturn([
+            'id' => $documentId,
+            'field2' => 'field2',
+        ]);
+
+        $result->getDocument()->willReturn($document);
+
+        $class = $this->getTestLazyDocumentMetadata();
+        $this->documentManager->getClassMetadata(TestDocument::class)->willReturn($class);
+        $this->documentManager->getProxyFactory()->willReturn(new LazyLoadingGhostFactory());
+
+        /** @var TestDocument[] $documents */
+        $documents = $this->hydrator->hydrateAll($resultSet, TestDocument::class);
+
+        self::assertEquals('12345', $documents[0]->getId());
+        self::assertEquals('field2', $documents[0]->getField2());
+
+        $this->documentManager->refresh(Argument::any())->shouldNotHaveBeenCalled();
+        $this->documentManager->refresh($documents[0])
+                              ->shouldBeCalledOnce()
+                              ->will(function () use ($documents) {
+                                  (function () {
+                                      $this->field1 = 'test_field1';
+                                  })->bindTo($documents[0], TestDocument::class)();
+                              });
+
+        self::assertEquals('test_field1', $documents[0]->getField1());
+    }
+
     public function getTestDocumentMetadata(): DocumentMetadata
     {
         $class = new DocumentMetadata(new \ReflectionClass(TestDocument::class));
@@ -162,7 +204,32 @@ class ObjectHydratorTest extends TestCase
         return $class;
     }
 
-    private function assertTestDocumentEquals(array $expectedValues, TestDocument $document)
+    public function getTestLazyDocumentMetadata(): DocumentMetadata
+    {
+        $class = new DocumentMetadata(new \ReflectionClass(TestDocument::class));
+        $id = new FieldMetadata($class, 'id');
+        $id->identifier = true;
+        $id->type = 'string';
+        $id->fieldName = 'id';
+        $class->identifier = $id;
+
+        $field1 = new FieldMetadata($class, 'field1');
+        $field1->type = 'string';
+        $field1->fieldName = 'field1';
+        $field1->lazy = true;
+
+        $field2 = new FieldMetadata($class, 'field2');
+        $field2->type = 'string';
+        $field2->fieldName = 'field2';
+
+        $class->addAttributeMetadata($id);
+        $class->addAttributeMetadata($field1);
+        $class->addAttributeMetadata($field2);
+
+        return $class;
+    }
+
+    private function assertTestDocumentEquals(array $expectedValues, TestDocument $document): void
     {
         self::assertEquals($expectedValues['id'], $document->getId());
         self::assertEquals($expectedValues['field1'], $document->getField1());

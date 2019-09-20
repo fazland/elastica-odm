@@ -14,6 +14,7 @@ use Fazland\ODM\Elastica\Repository\DocumentRepositoryInterface;
 use Fazland\ODM\Elastica\Repository\RepositoryFactoryInterface;
 use Fazland\ODM\Elastica\Search\Search;
 use Fazland\ODM\Elastica\Type\TypeManager;
+use Fazland\ODM\Elastica\Util\ClassUtil;
 use Kcs\Metadata\Factory\MetadataFactoryInterface;
 use ProxyManager\Factory\LazyLoadingGhostFactory;
 use ProxyManager\Proxy\LazyLoadingInterface;
@@ -153,7 +154,7 @@ class DocumentManager implements DocumentManagerInterface
      */
     public function refresh($object): void
     {
-        $class = $this->getClassMetadata(\get_class($object));
+        $class = $this->getClassMetadata(ClassUtil::getClass($object));
         $persister = $this->unitOfWork->getDocumentPersister($class->name);
 
         $persister->load(['_id' => $class->getSingleIdentifier($object)], [Hints::HINT_REFRESH => true], $object);
