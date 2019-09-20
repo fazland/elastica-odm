@@ -132,6 +132,7 @@ final class Builder
         return $this
             ->addType(new Type\BinaryType())
             ->addType(new Type\BooleanType())
+            ->addType(new Type\CompletionType())
             ->addType(new Type\DateTimeImmutableType())
             ->addType(new Type\DateTimeType())
             ->addType(new Type\FloatType())
