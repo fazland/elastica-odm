@@ -50,7 +50,7 @@ abstract class AbstractDateTimeType extends AbstractType
     {
         return [
             'type' => 'date',
-            'format' => $this->toJoda($options['format'] ?? \DateTime::ATOM),
+            'format' => $this->toJoda($options['format'] ?? \DateTime::ISO8601),
         ];
     }
 
