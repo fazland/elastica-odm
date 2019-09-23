@@ -22,7 +22,7 @@ final class ClassUtil
     public static function getClass($object): string
     {
         if (! \is_object($object)) {
-            throw new \TypeError(\sprintf('Argument 1 passed to '.__METHOD__.' should be an object. %s passed', gettype($object)));
+            throw new \TypeError(\sprintf('Argument 1 passed to '.__METHOD__.' should be an object. %s passed', \gettype($object)));
         }
 
         $class = \get_class($object);

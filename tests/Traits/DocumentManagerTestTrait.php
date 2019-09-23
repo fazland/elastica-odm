@@ -3,11 +3,9 @@
 namespace Fazland\ODM\Elastica\Tests\Traits;
 
 use Doctrine\Common\Annotations\AnnotationReader;
-use Fazland\ODM\Elastica\Annotation;
 use Fazland\ODM\Elastica\Builder;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
 use Fazland\ODM\Elastica\Metadata\Loader\AnnotationLoader;
-use Fazland\ODM\Elastica\Metadata\Processor;
 use Kcs\Metadata\Loader\Processor\ProcessorFactory;
 
 trait DocumentManagerTestTrait

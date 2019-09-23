@@ -31,6 +31,7 @@ final class Setting
      * The setting value.
      *
      * @Required()
+     *
      * @var mixed
      */
     public $value;

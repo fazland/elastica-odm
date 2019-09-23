@@ -167,7 +167,7 @@ class IndexProcessorTest extends TestCase
 
         self::assertNull($fooIndex->getSettings()->get('refresh_interval'));
 
-        $collection->setDynamicSettings([ 'index.refresh_interval' => '1m' ]);
+        $collection->setDynamicSettings(['index.refresh_interval' => '1m']);
         $collection->updateMapping($mapping);
         self::assertEquals('1m', $fooIndex->getSettings()->get('refresh_interval'));
     }

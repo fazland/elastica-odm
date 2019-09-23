@@ -143,10 +143,10 @@ class ObjectHydratorTest extends TestCase
     public function testHydrateAllWithLazyDocumentShouldWork(): void
     {
         $query = $this->prophesize(Query::class);
-        $query->getParam('_source')->willReturn([ 'id', 'field2' ]);
+        $query->getParam('_source')->willReturn(['id', 'field2']);
 
         $result = $this->prophesize(Result::class);
-        $resultSet = new ResultSet($this->prophesize(Response::class)->reveal(), $query->reveal(), [ $result->reveal() ]);
+        $resultSet = new ResultSet($this->prophesize(Response::class)->reveal(), $query->reveal(), [$result->reveal()]);
 
         $documentId = '12345';
         $document = $this->prophesize(Document::class);

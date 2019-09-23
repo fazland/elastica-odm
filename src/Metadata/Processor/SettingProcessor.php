@@ -82,7 +82,7 @@ class SettingProcessor implements ProcessorInterface
         }
 
         if ('static' === $settingType) {
-            $metadata->staticSettings[ $subject->key ] = $subject->value;
+            $metadata->staticSettings[$subject->key] = $subject->value;
         } else {
             $metadata->dynamicSettings[$subject->key] = $subject->value;
         }

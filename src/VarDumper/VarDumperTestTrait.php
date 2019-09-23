@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Fazland\ODM\Elastica\VarDumper;
 
@@ -13,12 +13,12 @@ trait VarDumperTestTrait
 
     protected function getDump($data, $key = null, $filter = 0)
     {
-        $flags = getenv('DUMP_LIGHT_ARRAY') ? CliDumper::DUMP_LIGHT_ARRAY : 0;
-        $flags |= getenv('DUMP_STRING_LENGTH') ? CliDumper::DUMP_STRING_LENGTH : 0;
-        $flags |= getenv('DUMP_COMMA_SEPARATOR') ? CliDumper::DUMP_COMMA_SEPARATOR : 0;
+        $flags = \getenv('DUMP_LIGHT_ARRAY') ? CliDumper::DUMP_LIGHT_ARRAY : 0;
+        $flags |= \getenv('DUMP_STRING_LENGTH') ? CliDumper::DUMP_STRING_LENGTH : 0;
+        $flags |= \getenv('DUMP_COMMA_SEPARATOR') ? CliDumper::DUMP_COMMA_SEPARATOR : 0;
 
         $cloner = new VarCloner();
-        $cloner->addCasters([ ProxyInterface::class => ProxyCaster::class.'::castProxy' ]);
+        $cloner->addCasters([ProxyInterface::class => ProxyCaster::class.'::castProxy']);
         $cloner->setMaxItems(-1);
 
         $dumper = new CliDumper(null, null, $flags);
@@ -28,6 +28,6 @@ trait VarDumperTestTrait
             return null;
         }
 
-        return rtrim($dumper->dump($data, true));
+        return \rtrim($dumper->dump($data, true));
     }
 }

@@ -48,7 +48,7 @@ class IndexProcessor implements ProcessorInterface
         $analysis = \array_filter($analysis);
 
         if (! empty($analysis)) {
-            $metadata->dynamicSettings[ 'analysis' ] = $analysis;
+            $metadata->dynamicSettings['analysis'] = $analysis;
         }
     }
 }
