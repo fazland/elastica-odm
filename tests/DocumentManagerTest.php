@@ -24,7 +24,7 @@ class DocumentManagerTest extends TestCase
      */
     private $dm;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         self::resetFixtures(self::createDocumentManager());
     }

@@ -26,13 +26,10 @@ class AbstractDoctrineTypeTest extends TestCase implements TypeTestInterface
         return new TestDoctrineType($this->managerRegistry->reveal());
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testToPhpValueShouldThrowWhenMandatoryClassNameIsMissing(): void
     {
+        $this->expectException(\InvalidArgumentException::class);
         $type = $this->getType();
-
         $value = 'i_am_a_value';
 
         $type->toPHP($value);

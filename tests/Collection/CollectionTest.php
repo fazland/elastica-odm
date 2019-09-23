@@ -12,6 +12,7 @@ use Elasticsearch\Endpoints;
 use Fazland\ODM\Elastica\Collection\Collection;
 use Fazland\ODM\Elastica\Collection\CollectionInterface;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
+use Fazland\ODM\Elastica\Exception\RuntimeException;
 use Fazland\ODM\Elastica\Tests\Fixtures\Document\Foo;
 use Fazland\ODM\Elastica\Tests\Traits\DocumentManagerTestTrait;
 use Fazland\ODM\Elastica\Tests\Traits\FixturesTestTrait;
@@ -58,7 +59,7 @@ class CollectionTest extends TestCase
         );
     }
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         $dm = self::createDocumentManager();
         self::resetFixtures($dm);
@@ -152,11 +153,10 @@ class CollectionTest extends TestCase
         self::assertEquals('foo_id', $this->collection->getLastInsertedId());
     }
 
-    /**
-     * @expectedException \Fazland\ODM\Elastica\Exception\RuntimeException
-     */
     public function testCreateShouldThrowIfResponseIsNotOk(): void
     {
+        $this->expectException(RuntimeException::class);
+
         $endpoint = new Endpoints\Index();
         $endpoint->setBody(['field' => 'value']);
 
@@ -184,10 +184,11 @@ class CollectionTest extends TestCase
 
     /**
      * @group functional
-     * @expectedException \Fazland\ODM\Elastica\Exception\RuntimeException
      */
     public function testCreateShouldThrowOnDuplicates(): void
     {
+        $this->expectException(RuntimeException::class);
+
         $dm = self::createDocumentManager();
 
         $collection = $dm->getCollection(Foo::class);

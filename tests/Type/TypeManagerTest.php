@@ -2,6 +2,7 @@
 
 namespace Fazland\ODM\Elastica\Tests\Type;
 
+use Fazland\ODM\Elastica\Exception\NoSuchTypeException;
 use Fazland\ODM\Elastica\Type\TypeInterface;
 use Fazland\ODM\Elastica\Type\TypeManager;
 use PHPUnit\Framework\TestCase;
@@ -9,11 +10,10 @@ use Prophecy\Prophecy\ObjectProphecy;
 
 class TypeManagerTest extends TestCase
 {
-    /**
-     * @expectedException \Fazland\ODM\Elastica\Exception\NoSuchTypeException
-     */
     public function testGetTypeShouldThrowOnUnknownType(): void
     {
+        $this->expectException(NoSuchTypeException::class);
+
         $typeManager = new TypeManager();
         $typeManager->getType('unknown_type');
     }
