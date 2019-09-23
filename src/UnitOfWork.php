@@ -180,7 +180,7 @@ final class UnitOfWork
      *
      * @return object|null
      */
-    public function tryGetById($id, DocumentMetadata $class)
+    public function tryGetById($id, DocumentMetadata $class): ?object
     {
         return $this->identityMap[$class->name][(string) $id] ?? null;
     }
@@ -192,7 +192,7 @@ final class UnitOfWork
      *
      * @return bool
      */
-    public function isInIdentityMap($object): bool
+    public function isInIdentityMap(object $object): bool
     {
         $oid = \spl_object_hash($object);
         if (! isset($this->objects[$oid])) {
@@ -212,12 +212,12 @@ final class UnitOfWork
     /**
      * Gets the document state.
      *
-     * @param $document
+     * @param object $document
      * @param int|null $assume
      *
      * @return int
      */
-    public function getDocumentState($document, ?int $assume = null)
+    public function getDocumentState(object $document, ?int $assume = null): int
     {
         $oid = \spl_object_hash($document);
 
@@ -252,7 +252,7 @@ final class UnitOfWork
     /**
      * Commits all the operations pending in this unit of work.
      */
-    public function commit()
+    public function commit(): void
     {
         if ($this->evm->hasListeners(Events::preFlush)) {
             $this->evm->dispatchEvent(Events::preFlush, new PreFlushEventArgs($this->manager));
@@ -323,7 +323,7 @@ final class UnitOfWork
      *
      * @return array
      */
-    public function &getDocumentChangeSet($document)
+    public function &getDocumentChangeSet(object $document): array
     {
         $oid = \spl_object_hash($document);
         $data = [];
@@ -338,9 +338,9 @@ final class UnitOfWork
     /**
      * Detaches a document from the unit of work.
      *
-     * @param $object
+     * @param object $object
      */
-    public function detach($object): void
+    public function detach(object $object): void
     {
         $visited = [];
         $this->doDetach($object, $visited);
@@ -349,9 +349,9 @@ final class UnitOfWork
     /**
      * Persists a document as part of this unit of work.
      *
-     * @param $object
+     * @param object $object
      */
-    public function persist($object): void
+    public function persist(object $object): void
     {
         $visited = [];
         $this->doPersist($object, $visited);
@@ -360,9 +360,9 @@ final class UnitOfWork
     /**
      * Removes a document as part of this unit of work.
      *
-     * @param $object
+     * @param object $object
      */
-    public function remove($object): void
+    public function remove(object $object): void
     {
         $visited = [];
         $this->doRemove($object, $visited);
@@ -371,11 +371,11 @@ final class UnitOfWork
     /**
      * Merges the given document with the managed one.
      *
-     * @param $object
+     * @param object $object
      *
      * @return object the managed copy of the document
      */
-    public function merge($object)
+    public function merge(object $object): object
     {
         $visited = [];
 
@@ -392,7 +392,7 @@ final class UnitOfWork
      *
      * @throws InvalidIdentifierException
      */
-    public function createDocument(Document $document, &$result, ?array $fields = null)
+    public function createDocument(Document $document, &$result, ?array $fields = null): void
     {
         /** @var DocumentMetadata $class */
         $class = $this->manager->getClassMetadata(ClassUtil::getClass($result));
@@ -500,9 +500,9 @@ final class UnitOfWork
      * Computes the changes that happened to a single document.
      *
      * @param DocumentMetadata $class
-     * @param $document
+     * @param object $document
      */
-    private function computeChangeSet(DocumentMetadata $class, $document): void
+    private function computeChangeSet(DocumentMetadata $class, object $document): void
     {
         $oid = \spl_object_hash($document);
         if (isset($this->readOnlyObjects[$oid])) {
@@ -564,11 +564,11 @@ final class UnitOfWork
      * The identifier MUST be set before trying to add the document or
      * this method will throw an InvalidIdentifierException.
      *
-     * @param $object
+     * @param object $object
      *
      * @throws InvalidIdentifierException
      */
-    private function addToIdentityMap($object)
+    private function addToIdentityMap(object $object): void
     {
         $oid = \spl_object_hash($object);
         if (isset($this->objects[$oid])) {
@@ -590,11 +590,11 @@ final class UnitOfWork
     /**
      * Removes an object from identity map.
      *
-     * @param $object
+     * @param object $object
      *
      * @throws InvalidIdentifierException
      */
-    private function removeFromIdentityMap($object)
+    private function removeFromIdentityMap(object $object): void
     {
         $class = $this->manager->getClassMetadata(ClassUtil::getClass($object));
         $id = $class->getSingleIdentifier($object);
@@ -614,7 +614,7 @@ final class UnitOfWork
      *
      * @throws \InvalidArgumentException if document state is equal to NEW
      */
-    private function doPersist($object, array &$visited): void
+    private function doPersist(object $object, array &$visited): void
     {
         $oid = \spl_object_hash($object);
         if (isset($visited[$oid])) {
@@ -651,7 +651,7 @@ final class UnitOfWork
      *
      * @throws \InvalidArgumentException if document state is equal to NEW
      */
-    private function doRemove($object, array &$visited): void
+    private function doRemove(object $object, array &$visited): void
     {
         $oid = \spl_object_hash($object);
         if (isset($visited[$oid])) {
@@ -694,7 +694,7 @@ final class UnitOfWork
      *
      * @throws \InvalidArgumentException if document state is equal to NEW
      */
-    private function doMerge($object, array &$visited)
+    private function doMerge(object $object, array &$visited): object
     {
         $oid = \spl_object_hash($object);
 
@@ -756,12 +756,12 @@ final class UnitOfWork
     /**
      * Execute detach operation.
      *
-     * @param $object
+     * @param object $object
      * @param array $visited
      *
      * @throws InvalidIdentifierException
      */
-    private function doDetach($object, array &$visited)
+    private function doDetach($object, array &$visited): void
     {
         $oid = \spl_object_hash($object);
         if (isset($visited[$oid])) {
@@ -785,7 +785,7 @@ final class UnitOfWork
         $this->cascadeDetach($object, $visited);
     }
 
-    private function persistNew(DocumentMetadata $class, $object)
+    private function persistNew(DocumentMetadata $class, object $object): void
     {
         $this->lifecycleEventManager->prePersist($class, $object);
         $oid = \spl_object_hash($object);
@@ -832,7 +832,7 @@ final class UnitOfWork
      *
      * @throws InvalidIdentifierException
      */
-    private function scheduleForInsert($object)
+    private function scheduleForInsert(object $object): void
     {
         $oid = \spl_object_hash($object);
         $class = $this->manager->getClassMetadata(ClassUtil::getClass($object));
@@ -851,7 +851,7 @@ final class UnitOfWork
      *
      * @throws InvalidIdentifierException
      */
-    private function scheduleForDeletion($object)
+    private function scheduleForDeletion(object $object): void
     {
         $oid = \spl_object_hash($object);
         if (isset($this->documentInsertions[$oid])) {
@@ -885,7 +885,7 @@ final class UnitOfWork
         // @todo
     }
 
-    private function executeInserts(string $className)
+    private function executeInserts(string $className): void
     {
         foreach ($this->documentInsertions as $oid => $document) {
             /** @var DocumentMetadata $class */
@@ -912,7 +912,7 @@ final class UnitOfWork
         }
     }
 
-    private function executeUpdates(string $className)
+    private function executeUpdates(string $className): void
     {
         foreach ($this->documentUpdates as $oid => $document) {
             /** @var DocumentMetadata $class */
@@ -933,7 +933,7 @@ final class UnitOfWork
         }
     }
 
-    private function executeDeletions(string $className)
+    private function executeDeletions(string $className): void
     {
         foreach ($this->documentDeletions as $oid => $document) {
             /** @var DocumentMetadata $class */
@@ -955,7 +955,7 @@ final class UnitOfWork
         }
     }
 
-    private function postCommitCleanup()
+    private function postCommitCleanup(): void
     {
         $this->documentDeletions =
         $this->documentInsertions =
@@ -963,7 +963,7 @@ final class UnitOfWork
         $this->documentChangeSets = [];
     }
 
-    private function computeScheduledInsertsChangeSets()
+    private function computeScheduledInsertsChangeSets(): void
     {
         foreach ($this->documentInsertions as $document) {
             $class = $this->manager->getClassMetadata(ClassUtil::getClass($document));
@@ -978,7 +978,7 @@ final class UnitOfWork
      *
      * @return object
      */
-    private function newInstance(DocumentMetadata $class)
+    private function newInstance(DocumentMetadata $class): object
     {
         $document = $class->newInstance();
 
