@@ -9,6 +9,7 @@ use Fazland\ODM\Elastica\Tests\Traits\DocumentManagerTestTrait;
 use Fazland\ODM\Elastica\Tests\Traits\FixturesTestTrait;
 use Fazland\ODM\Elastica\VarDumper\VarDumperTestTrait;
 use PHPUnit\Framework\TestCase;
+use ProxyManager\Proxy\ProxyInterface;
 
 /**
  * @group functional
@@ -84,6 +85,57 @@ EOF
         $result = $this->dm->find(Foo::class, 'test_persist_and_flush');
         self::assertInstanceOf(Foo::class, $result);
         self::assertEquals('footest_string', $document->stringField);
+    }
+
+    public function testMergeAndFlush(): void
+    {
+        $document = new Foo();
+        $document->id = 'test_merge_and_flush';
+        $document->stringField = 'footest_string';
+
+        $this->dm->persist($document);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $document = new Foo();
+        $document->id = 'test_merge_and_flush';
+        $document->stringField = 'footest_merge_string';
+
+        /** @var Foo $result */
+        $result = $this->dm->merge($document);
+        $this->dm->flush();
+
+        self::assertEquals('test_merge_and_flush', $result->id);
+        $this->dm->clear();
+
+        $result = $this->dm->find(Foo::class, 'test_merge_and_flush');
+        self::assertEquals('test_merge_and_flush', $result->id);
+        self::assertEquals('footest_merge_string', $result->stringField);
+    }
+
+    public function testGetReferenceShouldReturnAReference(): void
+    {
+        /** @var Foo $document */
+        $document = $this->dm->getReference(Foo::class, 'foo_test_document');
+        self::assertInstanceOf(ProxyInterface::class, $document);
+        self::assertInstanceOf(Foo::class, $document);
+
+        self::assertEquals('foo_test_document', $document->id);
+        // Should load extra fields
+        self::assertEquals('bazbaz', $document->stringField);
+    }
+
+    public function testGetReferenceShouldReturnThePreviousDocument(): void
+    {
+        /** @var Foo $document */
+        $document = $this->dm->find(Foo::class, 'foo_test_document');
+        self::assertNotInstanceOf(ProxyInterface::class, $document);
+        self::assertInstanceOf(Foo::class, $document);
+
+        $reference = $this->dm->getReference(Foo::class, 'foo_test_document');
+        self::assertNotInstanceOf(ProxyInterface::class, $document);
+        self::assertInstanceOf(Foo::class, $document);
+        self::assertSame($document, $reference);
     }
 
     public function testUpdateAndFlush(): void

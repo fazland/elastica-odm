@@ -7,6 +7,7 @@ use Elastica\Query;
 use Fazland\ODM\Elastica\Collection\CollectionInterface;
 use Fazland\ODM\Elastica\Collection\DatabaseInterface;
 use Fazland\ODM\Elastica\Hydrator\HydratorInterface;
+use Fazland\ODM\Elastica\Hydrator\Internal\ProxyInstantiator;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
 use Fazland\ODM\Elastica\Metadata\MetadataFactory;
 use Fazland\ODM\Elastica\Persister\Hints;
@@ -91,6 +92,24 @@ class DocumentManager implements DocumentManagerInterface
         $persister = $this->getUnitOfWork()->getDocumentPersister($className);
 
         return $persister->load(['_id' => $id]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getReference($className, $id): object
+    {
+        $class = $this->getClassMetadata($className);
+        if ($document = $this->unitOfWork->tryGetById($id, $class)) {
+            return $document;
+        }
+
+        $instantiator = new ProxyInstantiator([ $class->identifier->name ], $this);
+
+        $document = $instantiator->instantiate($className);
+        $class->identifier->setValue($document, $id);
+
+        return $document;
     }
 
     /**

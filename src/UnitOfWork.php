@@ -392,7 +392,7 @@ final class UnitOfWork
      *
      * @throws InvalidIdentifierException
      */
-    public function createDocument(Document $document, &$result, ?array $fields = null): void
+    public function createDocument(Document $document, object $result, ?array $fields = null): void
     {
         /** @var DocumentMetadata $class */
         $class = $this->manager->getClassMetadata(ClassUtil::getClass($result));

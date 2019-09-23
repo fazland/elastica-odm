@@ -15,6 +15,17 @@ use Psr\Cache\CacheItemPoolInterface;
 interface DocumentManagerInterface extends ObjectManager
 {
     /**
+     * Gets a reference to the document identified by the given type and identifier
+     * without actually loading it, if the document is not yet loaded.
+     *
+     * @param string $className
+     * @param mixed $id
+     *
+     * @return object
+     */
+    public function getReference(string $className, $id): object;
+
+    /**
      * Returns the proxy factory used by this document manager.
      * See ocramius/proxy-manager for more info on how to use it.
      *
