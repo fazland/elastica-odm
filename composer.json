@@ -44,5 +44,10 @@
     },
     "archive": {
         "exclude": ["tests", "vendor", ".php_cs", ".gitignore", "phpunit.xml.dist", "README.md"]
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        }
     }
 }
