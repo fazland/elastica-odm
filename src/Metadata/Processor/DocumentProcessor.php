@@ -4,9 +4,13 @@ namespace Fazland\ODM\Elastica\Metadata\Processor;
 
 use Fazland\ODM\Elastica\Annotation\Document;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
+use Kcs\Metadata\Loader\Processor\Annotation\Processor;
 use Kcs\Metadata\Loader\Processor\ProcessorInterface;
 use Kcs\Metadata\MetadataInterface;
 
+/**
+ * @Processor(annotation=Document::class)
+ */
 class DocumentProcessor implements ProcessorInterface
 {
     /**

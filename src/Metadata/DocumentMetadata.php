@@ -63,11 +63,18 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
     public $fieldNames;
 
     /**
-     * Gets index params used which will be used to create the index.
+     * Gets the index dynamic settings.
      *
      * @var array
      */
-    public $indexParams;
+    public $dynamicSettings;
+
+    /**
+     * Gets the index static settings.
+     *
+     * @var array
+     */
+    public $staticSettings;
 
     /**
      * The instantiator used to build new object instances.
@@ -83,7 +90,8 @@ final class DocumentMetadata extends ClassMetadata implements ClassMetadataInter
         $this->instantiator = new Instantiator();
         $this->document = false;
         $this->eagerFieldNames = [];
-        $this->indexParams = [];
+        $this->dynamicSettings = [];
+        $this->staticSettings = [];
     }
 
     public function __wakeup()

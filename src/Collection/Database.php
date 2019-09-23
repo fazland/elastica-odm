@@ -42,7 +42,8 @@ class Database implements DatabaseInterface
         }
 
         $collection = new Collection($class->name, $this->getSearchable($class));
-        $collection->setIndexParams($class->indexParams ?? []);
+        $collection->setStaticSettings($class->staticSettings ?? []);
+        $collection->setDynamicSettings($class->dynamicSettings ?? []);
 
         return $this->collectionList[$class->name] = $collection;
     }

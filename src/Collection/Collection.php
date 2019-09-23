@@ -36,6 +36,18 @@ class Collection implements CollectionInterface
     /**
      * @var array
      */
+    private $dynamicSettings;
+
+    /**
+     * @var array
+     */
+    private $staticSettings;
+
+    /**
+     * @var array
+     *
+     * @deprecated
+     */
     private $indexParams;
 
     public function __construct(string $documentClass, SearchableInterface $searchable)
@@ -43,16 +55,40 @@ class Collection implements CollectionInterface
         $this->documentClass = $documentClass;
         $this->searchable = $searchable;
         $this->indexParams = [];
+        $this->dynamicSettings = [];
+        $this->staticSettings = [];
     }
 
     /**
      * Sets the index params used when the index is created.
      *
      * @param array $indexParams
+     *
+     * @deprecated Index params are deprecated and will be removed in 2.0. Please use setDynamicSettings/setStaticSettings instead.
      */
     public function setIndexParams(array $indexParams = []): void
     {
         $this->indexParams = $indexParams;
+    }
+
+    /**
+     * Sets the index dynamic settings.
+     *
+     * @param array $dynamicSettings
+     */
+    public function setDynamicSettings(array $dynamicSettings): void
+    {
+        $this->dynamicSettings = $dynamicSettings;
+    }
+
+    /**
+     * Sets the index static settings.
+     *
+     * @param array $staticSettings
+     */
+    public function setStaticSettings(array $staticSettings): void
+    {
+        $this->staticSettings = $staticSettings;
     }
 
     /**
@@ -224,7 +260,12 @@ class Collection implements CollectionInterface
         }
 
         if (! $index->exists()) {
-            $index->create($this->indexParams);
+            $indexParams = $this->indexParams ?? null;
+            $indexParams['settings'] = \array_merge($indexParams['settings'] ?? [], $this->staticSettings, $this->dynamicSettings);
+
+            $index->create($indexParams);
+        } else {
+            $index->setSettings($this->dynamicSettings);
         }
 
         try {

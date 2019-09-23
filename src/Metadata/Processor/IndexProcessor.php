@@ -4,9 +4,13 @@ namespace Fazland\ODM\Elastica\Metadata\Processor;
 
 use Fazland\ODM\Elastica\Annotation\Index;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
+use Kcs\Metadata\Loader\Processor\Annotation\Processor;
 use Kcs\Metadata\Loader\Processor\ProcessorInterface;
 use Kcs\Metadata\MetadataInterface;
 
+/**
+ * @Processor(annotation=Index::class)
+ */
 class IndexProcessor implements ProcessorInterface
 {
     /**
@@ -41,8 +45,10 @@ class IndexProcessor implements ProcessorInterface
             ]);
         }
 
-        $metadata->indexParams['settings']['analysis'] = \array_filter($analysis);
-        $metadata->indexParams['settings'] = \array_filter($metadata->indexParams['settings']);
-        $metadata->indexParams = \array_filter($metadata->indexParams);
+        $analysis = \array_filter($analysis);
+
+        if (! empty($analysis)) {
+            $metadata->dynamicSettings[ 'analysis' ] = $analysis;
+        }
     }
 }

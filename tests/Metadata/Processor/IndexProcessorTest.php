@@ -46,16 +46,14 @@ class IndexProcessorTest extends TestCase
         $this->processor->process($this->documentMetadata, $index);
 
         self::assertEquals([
-            'settings' => [
-                'analysis' => [
-                    'analyzer' => [
-                        'foo_name' => [
-                            'tokenizer' => 'foo_tokenizer',
-                        ],
+            'analysis' => [
+                'analyzer' => [
+                    'foo_name' => [
+                        'tokenizer' => 'foo_tokenizer',
                     ],
                 ],
             ],
-        ], $this->documentMetadata->indexParams);
+        ], $this->documentMetadata->dynamicSettings);
     }
 
     public function testFiltersAreProcessedCorrectly(): void
@@ -74,17 +72,15 @@ class IndexProcessorTest extends TestCase
         $this->processor->process($this->documentMetadata, $index);
 
         self::assertEquals([
-            'settings' => [
-                'analysis' => [
-                    'filter' => [
-                        'foo_name' => [
-                            'type' => 'stop',
-                            'stopwords' => '_english_',
-                        ],
+            'analysis' => [
+                'filter' => [
+                    'foo_name' => [
+                        'type' => 'stop',
+                        'stopwords' => '_english_',
                     ],
                 ],
             ],
-        ], $this->documentMetadata->indexParams);
+        ], $this->documentMetadata->dynamicSettings);
     }
 
     public function testTokenizersAreProcessedCorrectly(): void
@@ -103,17 +99,15 @@ class IndexProcessorTest extends TestCase
         $this->processor->process($this->documentMetadata, $index);
 
         self::assertEquals([
-            'settings' => [
-                'analysis' => [
-                    'tokenizer' => [
-                        'foo_name' => [
-                            'type' => 'ngram',
-                            'min_gram' => 3,
-                        ],
+            'analysis' => [
+                'tokenizer' => [
+                    'foo_name' => [
+                        'type' => 'ngram',
+                        'min_gram' => 3,
                     ],
                 ],
             ],
-        ], $this->documentMetadata->indexParams);
+        ], $this->documentMetadata->dynamicSettings);
     }
 
     /**
@@ -122,9 +116,10 @@ class IndexProcessorTest extends TestCase
     public function testIndexIsCreatedWithCorrectIndexParams(): void
     {
         $dm = static::createDocumentManager();
+
         $collection = $dm->getCollection(Foo::class);
         $collection->drop();
-        $collection->updateMapping(Mapping::create([
+        $collection->updateMapping($mapping = Mapping::create([
             'stringField' => ['type' => 'text'],
         ]));
 
@@ -169,5 +164,11 @@ class IndexProcessorTest extends TestCase
                 ],
             ],
         ], $fooIndex->getSettings()->get('analysis'));
+
+        self::assertNull($fooIndex->getSettings()->get('refresh_interval'));
+
+        $collection->setDynamicSettings([ 'index.refresh_interval' => '1m' ]);
+        $collection->updateMapping($mapping);
+        self::assertEquals('1m', $fooIndex->getSettings()->get('refresh_interval'));
     }
 }

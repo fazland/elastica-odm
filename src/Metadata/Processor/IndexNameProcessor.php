@@ -4,9 +4,13 @@ namespace Fazland\ODM\Elastica\Metadata\Processor;
 
 use Fazland\ODM\Elastica\Annotation\IndexName;
 use Fazland\ODM\Elastica\Metadata\FieldMetadata;
+use Kcs\Metadata\Loader\Processor\Annotation\Processor;
 use Kcs\Metadata\Loader\Processor\ProcessorInterface;
 use Kcs\Metadata\MetadataInterface;
 
+/**
+ * @Processor(annotation=IndexName::class)
+ */
 class IndexNameProcessor implements ProcessorInterface
 {
     /**

@@ -15,12 +15,7 @@ trait DocumentManagerTestTrait
     private static function createDocumentManager(): DocumentManagerInterface
     {
         $processorFactory = new ProcessorFactory();
-        $processorFactory->registerProcessor(Annotation\Document::class, Processor\DocumentProcessor::class);
-        $processorFactory->registerProcessor(Annotation\DocumentId::class, Processor\DocumentIdProcessor::class);
-        $processorFactory->registerProcessor(Annotation\Index::class, Processor\IndexProcessor::class);
-        $processorFactory->registerProcessor(Annotation\IndexName::class, Processor\IndexNameProcessor::class);
-        $processorFactory->registerProcessor(Annotation\TypeName::class, Processor\TypeNameProcessor::class);
-        $processorFactory->registerProcessor(Annotation\Field::class, Processor\FieldProcessor::class);
+        $processorFactory->registerProcessors(__DIR__.'/../../src/Metadata/Processor');
 
         $loader = new AnnotationLoader($processorFactory, __DIR__.'/../Fixtures/Document');
         $loader->setReader(new AnnotationReader());
