@@ -7,7 +7,7 @@ use Fazland\ODM\Elastica\Exception\ConversionFailedException;
 
 final class CompletionType extends AbstractType
 {
-    const NAME = 'completion';
+    public const NAME = 'completion';
 
     /**
      * {@inheritdoc}
@@ -71,7 +71,7 @@ final class CompletionType extends AbstractType
             'search_analyzer' => $options['search_analyzer'] ?? null,
             'preserve_separators' => $options['preserve_separators'] ?? null,
             'preserve_position_increments' => $options['preserve_position_increments'] ?? null,
-        ], function ($value) {
+        ], static function ($value) {
             return null !== $value;
         });
     }

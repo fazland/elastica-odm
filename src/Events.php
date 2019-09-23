@@ -10,7 +10,7 @@ final class Events
      *
      * @var string
      */
-    const preUpdate = 'preUpdate';
+    public const preUpdate = 'preUpdate';
 
     /**
      * The postUpdate event occurs after the collection update operations
@@ -19,7 +19,7 @@ final class Events
      *
      * @var string
      */
-    const postUpdate = 'postUpdate';
+    public const postUpdate = 'postUpdate';
 
     /**
      * The onClear event occurs when the DocumentManager#clear() operation is invoked,
@@ -27,7 +27,7 @@ final class Events
      *
      * @var string
      */
-    const onClear = 'onClear';
+    public const onClear = 'onClear';
 
     /**
      * The preFlush event occurs when the DocumentManager#flush() operation is invoked,
@@ -35,5 +35,5 @@ final class Events
      *
      * @var string
      */
-    const preFlush = 'preFlush';
+    public const preFlush = 'preFlush';
 }

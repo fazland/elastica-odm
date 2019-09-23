@@ -4,7 +4,7 @@ namespace Fazland\ODM\Elastica\Type;
 
 final class IpType extends AbstractType
 {
-    const NAME = 'ip';
+    public const NAME = 'ip';
 
     /**
      * {@inheritdoc}

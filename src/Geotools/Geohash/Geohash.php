@@ -12,14 +12,14 @@ class Geohash
      *
      * @var int
      */
-    const MIN_LENGTH = 1;
+    public const MIN_LENGTH = 1;
 
     /**
      * The maximum length of the geo hash.
      *
      * @var int
      */
-    const MAX_LENGTH = 12;
+    public const MAX_LENGTH = 12;
 
     /**
      * The geo hash.
@@ -156,7 +156,7 @@ class Geohash
             if ($bit < 4) {
                 ++$bit;
             } else {
-                $this->geohash = $this->geohash.$this->base32Chars[$charIndex];
+                $this->geohash .= $this->base32Chars[$charIndex];
                 $bit = 0;
                 $charIndex = 0;
             }
@@ -174,7 +174,8 @@ class Geohash
             throw new \InvalidArgumentException('The geo hash should be a string.');
         }
 
-        if (\strlen($geohash) < self::MIN_LENGTH || \strlen($geohash) > self::MAX_LENGTH) {
+        $length = \strlen($geohash);
+        if ($length < self::MIN_LENGTH || $length > self::MAX_LENGTH) {
             throw new \InvalidArgumentException('The length of the geo hash should be between 1 and 12.');
         }
 

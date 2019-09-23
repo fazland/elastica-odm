@@ -6,7 +6,7 @@ use Fazland\ODM\Elastica\Exception\ConversionFailedException;
 
 abstract class AbstractDateTimeType extends AbstractType
 {
-    const NAME = 'datetime';
+    public const NAME = 'datetime';
 
     /**
      * {@inheritdoc}
@@ -18,7 +18,7 @@ abstract class AbstractDateTimeType extends AbstractType
         }
 
         if ($value instanceof \DateTimeInterface) {
-            $value = $value->format(\DateTime::ISO8601);
+            $value = $value->format(\DateTime::ATOM);
         }
 
         $class = $this->getClass();
@@ -40,7 +40,7 @@ abstract class AbstractDateTimeType extends AbstractType
             throw new ConversionFailedException($value, $class);
         }
 
-        return $value->format($options['format'] ?? \DateTime::ISO8601);
+        return $value->format($options['format'] ?? \DateTime::ATOM);
     }
 
     /**
@@ -50,7 +50,7 @@ abstract class AbstractDateTimeType extends AbstractType
     {
         return [
             'type' => 'date',
-            'format' => $this->toJoda($options['format'] ?? \DateTime::ISO8601),
+            'format' => $this->toJoda($options['format'] ?? \DateTime::ATOM),
         ];
     }
 
@@ -67,7 +67,7 @@ abstract class AbstractDateTimeType extends AbstractType
             return 'epoch_second';
         }
 
-        return \preg_replace_callback('/(\\\\[a-z0-9]|.)/i', function ($match): string {
+        return \preg_replace_callback('/(\\\\[a-z0-9]|.)/i', static function ($match): string {
             $token = $match[1];
             switch ($token) {
                 case 'd':       // Day of the month, 2 digits with leading zeros

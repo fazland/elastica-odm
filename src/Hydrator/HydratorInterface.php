@@ -7,8 +7,8 @@ use Elastica\ResultSet;
 
 interface HydratorInterface
 {
-    const HYDRATE_OBJECT = 1;
-    const HYDRATE_ARRAY = 2;
+    public const HYDRATE_OBJECT = 1;
+    public const HYDRATE_ARRAY = 2;
 
     /**
      * Hydrates all the documents in the result set.

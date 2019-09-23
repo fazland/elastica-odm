@@ -4,7 +4,7 @@ namespace Fazland\ODM\Elastica\Type;
 
 final class DateTimeImmutableType extends AbstractDateTimeType
 {
-    const NAME = 'datetime_immutable';
+    public const NAME = 'datetime_immutable';
 
     /**
      * {@inheritdoc}

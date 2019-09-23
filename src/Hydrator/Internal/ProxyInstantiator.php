@@ -69,7 +69,7 @@ class ProxyInstantiator implements InstantiatorInterface
                 continue;
             }
 
-            if (! \in_array($field->getName(), $fields, true) && $field->isStored()) {
+            if ($field->isStored() && ! \in_array($field->getName(), $fields, true)) {
                 continue;
             }
 

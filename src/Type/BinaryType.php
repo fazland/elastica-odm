@@ -4,7 +4,7 @@ namespace Fazland\ODM\Elastica\Type;
 
 final class BinaryType extends AbstractType
 {
-    const NAME = 'binary';
+    public const NAME = 'binary';
 
     /**
      * {@inheritdoc}

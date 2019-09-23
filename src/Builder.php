@@ -61,7 +61,7 @@ final class Builder
     /**
      * @var Loader\LoaderInterface
      */
-    private $metadataLoader = null;
+    private $metadataLoader;
 
     public static function create(): self
     {

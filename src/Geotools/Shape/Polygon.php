@@ -38,7 +38,7 @@ final class Polygon extends Geoshape
      */
     public function toArray(): array
     {
-        $serialize = function (CoordinateInterface $coordinate) {
+        $serialize = static function (CoordinateInterface $coordinate) {
             return $coordinate->jsonSerialize();
         };
 

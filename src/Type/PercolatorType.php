@@ -7,7 +7,7 @@ use Fazland\ODM\Elastica\Exception\ConversionFailedException;
 
 final class PercolatorType extends AbstractType
 {
-    const NAME = 'percolator';
+    public const NAME = 'percolator';
 
     /**
      * {@inheritdoc}
@@ -40,7 +40,9 @@ final class PercolatorType extends AbstractType
 
         if ($value instanceof Query\AbstractQuery) {
             return $value->toArray();
-        } elseif (\is_array($value)) {
+        }
+
+        if (\is_array($value)) {
             return $value;
         }
 

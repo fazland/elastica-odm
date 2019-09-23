@@ -9,7 +9,7 @@ use Fazland\ODM\Elastica\Geotools\Geohash\Geohash;
 
 final class GeoPointType extends AbstractType
 {
-    const NAME = 'geo_point';
+    public const NAME = 'geo_point';
 
     /**
      * {@inheritdoc}
@@ -25,12 +25,13 @@ final class GeoPointType extends AbstractType
                 $lat = $value['lat'];
                 $lon = $value['lon'];
             } else {
-                $lat = $value[1];
-                $lon = $value[0];
+                [ $lon, $lat ] = $value;
             }
 
             return new Coordinate([(float) $lat, (float) $lon]);
-        } elseif (\is_string($value)) {
+        }
+
+        if (\is_string($value)) {
             if (false === \strpos($value, ',')) {
                 return (new Geohash($value))->getCoordinate();
             }

@@ -9,8 +9,8 @@ use Kcs\Metadata\MetadataInterface;
 
 final class DocumentMetadata extends ClassMetadata implements ClassMetadataInterface
 {
-    const GENERATOR_TYPE_NONE = 0;
-    const GENERATOR_TYPE_AUTO = 1;
+    public const GENERATOR_TYPE_NONE = 0;
+    public const GENERATOR_TYPE_AUTO = 1;
 
     /**
      * Whether this class is representing a document.

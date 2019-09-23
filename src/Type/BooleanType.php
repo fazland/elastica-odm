@@ -6,7 +6,7 @@ use Fazland\ODM\Elastica\Exception\ConversionFailedException;
 
 final class BooleanType extends AbstractType
 {
-    const NAME = 'boolean';
+    public const NAME = 'boolean';
 
     /**
      * {@inheritdoc}

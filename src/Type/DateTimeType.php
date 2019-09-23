@@ -4,7 +4,7 @@ namespace Fazland\ODM\Elastica\Type;
 
 final class DateTimeType extends AbstractDateTimeType
 {
-    const NAME = 'datetime';
+    public const NAME = 'datetime';
 
     /**
      * {@inheritdoc}

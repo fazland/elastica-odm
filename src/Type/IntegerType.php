@@ -6,7 +6,7 @@ use Fazland\ODM\Elastica\Exception\ConversionFailedException;
 
 final class IntegerType extends AbstractType
 {
-    const NAME = 'integer';
+    public const NAME = 'integer';
 
     /**
      * {@inheritdoc}

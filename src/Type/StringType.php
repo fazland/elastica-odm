@@ -6,7 +6,7 @@ use Fazland\ODM\Elastica\Exception\ConversionFailedException;
 
 final class StringType extends AbstractType
 {
-    const NAME = 'string';
+    public const NAME = 'string';
 
     /**
      * {@inheritdoc}

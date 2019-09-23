@@ -7,5 +7,5 @@ final class Hints
     /**
      * If set to true, indicates that a refresh operation is in progress.
      */
-    const HINT_REFRESH = 'elastica.refresh';
+    public const HINT_REFRESH = 'elastica.refresh';
 }

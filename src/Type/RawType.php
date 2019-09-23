@@ -5,7 +5,7 @@ namespace Fazland\ODM\Elastica\Type;
 // TODO: remove me!
 final class RawType extends AbstractType
 {
-    const NAME = 'raw';
+    public const NAME = 'raw';
 
     /**
      * {@inheritdoc}

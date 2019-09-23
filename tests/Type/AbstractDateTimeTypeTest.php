@@ -15,7 +15,7 @@ abstract class AbstractDateTimeTypeTest extends TestCase implements TypeTestInte
         $type = $this->getType();
 
         $expectedClass = $this->getExpectedClass();
-        $dateTime = $expectedClass::createFromFormat(\DateTime::ISO8601, 'now');
+        $dateTime = $expectedClass::createFromFormat(\DateTime::ATOM, 'now');
 
         self::assertEquals($dateTime, $type->toPHP($dateTime));
     }

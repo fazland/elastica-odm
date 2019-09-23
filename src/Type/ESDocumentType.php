@@ -13,7 +13,7 @@ final class ESDocumentType extends AbstractType implements ContainerAwareInterfa
 {
     use ContainerAwareTrait;
 
-    const NAME = 'es_document';
+    public const NAME = 'es_document';
 
     /**
      * {@inheritdoc}

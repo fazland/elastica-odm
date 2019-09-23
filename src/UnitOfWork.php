@@ -20,10 +20,10 @@ use ProxyManager\Proxy\LazyLoadingInterface;
 
 final class UnitOfWork
 {
-    const STATE_MANAGED = 1;
-    const STATE_NEW = 2;
-    const STATE_DETACHED = 3;
-    const STATE_REMOVED = 4;
+    public const STATE_MANAGED = 1;
+    public const STATE_NEW = 2;
+    public const STATE_DETACHED = 3;
+    public const STATE_REMOVED = 4;
 
     /**
      * Map documents by identifiers.

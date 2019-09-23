@@ -50,11 +50,11 @@ class UpdateSchemaCommand extends Command
                 throw new \InvalidArgumentException('Filter expression is not a valid regex');
             }
 
-            $filter = function ($value) use ($expression): bool {
+            $filter = static function ($value) use ($expression): bool {
                 return (bool) \preg_match($expression, $value);
             };
         } else {
-            $filter = function (): bool {
+            $filter = static function (): bool {
                 return true;
             };
         }

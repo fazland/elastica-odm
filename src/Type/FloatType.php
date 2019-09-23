@@ -6,7 +6,7 @@ use Fazland\ODM\Elastica\Exception\ConversionFailedException;
 
 final class FloatType extends AbstractType
 {
-    const NAME = 'float';
+    public const NAME = 'float';
 
     /**
      * {@inheritdoc}
