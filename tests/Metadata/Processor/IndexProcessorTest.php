@@ -53,7 +53,7 @@ class IndexProcessorTest extends TestCase
                     ],
                 ],
             ],
-        ], $this->documentMetadata->dynamicSettings);
+        ], $this->documentMetadata->staticSettings);
     }
 
     public function testFiltersAreProcessedCorrectly(): void
@@ -80,7 +80,7 @@ class IndexProcessorTest extends TestCase
                     ],
                 ],
             ],
-        ], $this->documentMetadata->dynamicSettings);
+        ], $this->documentMetadata->staticSettings);
     }
 
     public function testTokenizersAreProcessedCorrectly(): void
@@ -107,7 +107,7 @@ class IndexProcessorTest extends TestCase
                     ],
                 ],
             ],
-        ], $this->documentMetadata->dynamicSettings);
+        ], $this->documentMetadata->staticSettings);
     }
 
     /**
