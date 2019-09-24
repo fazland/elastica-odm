@@ -264,7 +264,7 @@ class Collection implements CollectionInterface
             $indexParams['settings'] = \array_merge($indexParams['settings'] ?? [], $this->staticSettings, $this->dynamicSettings);
 
             $index->create($indexParams);
-        } else {
+        } elseif (! empty($this->dynamicSettings)) {
             $index->setSettings($this->dynamicSettings);
         }
 
