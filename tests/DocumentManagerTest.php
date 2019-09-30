@@ -2,8 +2,12 @@
 
 namespace Fazland\ODM\Elastica\Tests;
 
+use Elastica\Index;
+use Elastica\Type;
 use Fazland\ODM\Elastica\DocumentManager;
+use Fazland\ODM\Elastica\Geotools\Coordinate\Coordinate;
 use Fazland\ODM\Elastica\Tests\Fixtures\Document\Foo;
+use Fazland\ODM\Elastica\Tests\Fixtures\Document\FooNoAutoCreate;
 use Fazland\ODM\Elastica\Tests\Fixtures\Document\FooWithLazyField;
 use Fazland\ODM\Elastica\Tests\Traits\DocumentManagerTestTrait;
 use Fazland\ODM\Elastica\Tests\Traits\FixturesTestTrait;
@@ -150,5 +154,26 @@ EOF
 
         $result = $this->dm->find(Foo::class, 'foo_test_document');
         self::assertEquals('test_string_field', $result->stringField);
+    }
+
+    public function testShouldCreateIndexIfNotAutocreating(): void
+    {
+        $document = new FooNoAutoCreate();
+        $document->id = 'test_persist_and_flush';
+        $document->stringField = 'footest_string';
+        $document->coordinates = Coordinate::create([ 42.150, 15.35 ]);
+
+        $this->dm->persist($document);
+        $this->dm->flush();
+
+        $type = new Type(new Index($this->dm->getDatabase()->getConnection(), 'foo_index_no_auto_create'), 'foo_type');
+        self::assertEquals([
+            'foo_type' => [
+                'properties' => [
+                    'stringField' => ['type' => 'text'],
+                    'coordinates' => ['type' => 'geo_point'],
+                ],
+            ],
+        ], $type->getMapping());
     }
 }

@@ -13,6 +13,14 @@ use Fazland\ODM\Elastica\Search\Search;
 interface CollectionInterface
 {
     /**
+     * Gets the name of the collection (could be index/type or just index name
+     * in case the ES version does not support types any more).
+     *
+     * @return string
+     */
+    public function getName(): string;
+
+    /**
      * Executes a search.
      *
      * @param Query $query

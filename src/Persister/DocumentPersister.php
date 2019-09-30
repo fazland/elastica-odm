@@ -6,10 +6,12 @@ use Elastica\Query;
 use Fazland\ODM\Elastica\Collection\CollectionInterface;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
 use Fazland\ODM\Elastica\Exception\ConversionFailedException;
+use Fazland\ODM\Elastica\Exception\IndexNotFoundException;
 use Fazland\ODM\Elastica\Hydrator\HydratorInterface;
 use Fazland\ODM\Elastica\Id\PostInsertId;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
 use Fazland\ODM\Elastica\Metadata\FieldMetadata;
+use Fazland\ODM\Elastica\Tools\SchemaGenerator;
 use Fazland\ODM\Elastica\Util\ClassUtil;
 
 class DocumentPersister
@@ -135,7 +137,20 @@ class DocumentPersister
         $id = $postIdGenerator ? null : $class->getSingleIdentifier($document);
         $body = $this->prepareUpdateData($document)['body'];
 
-        $response = $this->collection->create($id, $body);
+        try {
+            $response = $this->collection->create($id, $body);
+        } catch (IndexNotFoundException $e) {
+            $schemaGenerator = new SchemaGenerator($this->dm);
+            $schema = $schemaGenerator->generateSchema()->getMapping()[$this->class->name] ?? null;
+
+            if (null === $schema) {
+                throw $e;
+            }
+
+            $this->collection->updateMapping($schema->getMapping());
+            $response = $this->collection->create($id, $body);
+        }
+
         $data = $response->getData();
 
         foreach ($class->attributesMetadata as $field) {

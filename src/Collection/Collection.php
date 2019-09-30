@@ -13,6 +13,7 @@ use Elastica\Type;
 use Elastica\Type\Mapping;
 use Elasticsearch\Endpoints;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
+use Fazland\ODM\Elastica\Exception\IndexNotFoundException;
 use Fazland\ODM\Elastica\Exception\RuntimeException;
 use Fazland\ODM\Elastica\Search\Search;
 
@@ -71,10 +72,7 @@ class Collection implements CollectionInterface
     }
 
     /**
-     * Gets the name of the collection (could be index/type or just index name
-     * in case the ES version does not support types any more).
-     *
-     * @return string
+     * @inheritDoc
      */
     public function getName(): string
     {
@@ -188,6 +186,10 @@ class Collection implements CollectionInterface
 
         $data = $response->getData();
         if (! $response->isOk()) {
+            if (404 === $response->getStatus() && 'index_not_found_exception' === $response->getFullError()['type'] ?? null) {
+                throw new IndexNotFoundException('Index not found: '.$response->getErrorMessage());
+            }
+
             throw new RuntimeException('Response not OK: '.$response->getErrorMessage());
         }
 

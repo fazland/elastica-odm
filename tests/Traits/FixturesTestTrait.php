@@ -2,6 +2,7 @@
 
 namespace Fazland\ODM\Elastica\Tests\Traits;
 
+use Elastica\Cluster\Settings;
 use Elastica\Type\Mapping;
 use Elasticsearch\Endpoints\Index;
 use Elasticsearch\Endpoints\Indices\Create;
@@ -15,6 +16,12 @@ trait FixturesTestTrait
     {
         $database = $dm->getDatabase();
         $connection = $database->getConnection();
+        (new Settings($connection))->set([
+            'persistent' => [
+                'action.auto_create_index' => '-foo_index_no_auto_create,+*',
+            ],
+        ]);
+
         $connection->requestEndpoint((new Delete())->setIndex('*'));
         $connection->requestEndpoint((new Create())->setIndex('foo_index'));
         $connection->requestEndpoint((new Create())->setIndex('foo_lazy_index'));
