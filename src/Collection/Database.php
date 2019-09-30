@@ -5,7 +5,6 @@ namespace Fazland\ODM\Elastica\Collection;
 use Elastica\Client;
 use Elastica\SearchableInterface;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
-use Fazland\ODM\Elastica\Tools\SchemaGenerator;
 
 class Database implements DatabaseInterface
 {

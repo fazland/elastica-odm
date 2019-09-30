@@ -212,7 +212,7 @@ final class UnitOfWork
     /**
      * Gets the document state.
      *
-     * @param object $document
+     * @param object   $document
      * @param int|null $assume
      *
      * @return int
@@ -500,7 +500,7 @@ final class UnitOfWork
      * Computes the changes that happened to a single document.
      *
      * @param DocumentMetadata $class
-     * @param object $document
+     * @param object           $document
      */
     private function computeChangeSet(DocumentMetadata $class, object $document): void
     {
@@ -757,7 +757,7 @@ final class UnitOfWork
      * Execute detach operation.
      *
      * @param object $object
-     * @param array $visited
+     * @param array  $visited
      *
      * @throws InvalidIdentifierException
      */

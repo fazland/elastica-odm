@@ -72,7 +72,7 @@ class Collection implements CollectionInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getName(): string
     {

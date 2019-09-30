@@ -104,7 +104,7 @@ class DocumentManager implements DocumentManagerInterface
             return $document;
         }
 
-        $instantiator = new ProxyInstantiator([ $class->identifier->name ], $this);
+        $instantiator = new ProxyInstantiator([$class->identifier->name], $this);
 
         $document = $instantiator->instantiate($className);
         $class->identifier->setValue($document, $id);

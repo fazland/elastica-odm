@@ -161,7 +161,7 @@ EOF
         $document = new FooNoAutoCreate();
         $document->id = 'test_persist_and_flush';
         $document->stringField = 'footest_string';
-        $document->coordinates = Coordinate::create([ 42.150, 15.35 ]);
+        $document->coordinates = Coordinate::create([42.150, 15.35]);
 
         $this->dm->persist($document);
         $this->dm->flush();

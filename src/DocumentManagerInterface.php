@@ -19,7 +19,7 @@ interface DocumentManagerInterface extends ObjectManager
      * without actually loading it, if the document is not yet loaded.
      *
      * @param string $className
-     * @param mixed $id
+     * @param mixed  $id
      *
      * @return object
      */
