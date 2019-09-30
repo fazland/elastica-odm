@@ -50,6 +50,11 @@ class Collection implements CollectionInterface
      */
     private $indexParams;
 
+    /**
+     * @var string
+     */
+    private $name;
+
     public function __construct(string $documentClass, SearchableInterface $searchable)
     {
         $this->documentClass = $documentClass;
@@ -57,6 +62,23 @@ class Collection implements CollectionInterface
         $this->indexParams = [];
         $this->dynamicSettings = [];
         $this->staticSettings = [];
+
+        if ($searchable instanceof Type) {
+            $this->name = $searchable->getIndex()->getName().'/'.$searchable->getName();
+        } elseif ($searchable instanceof Index) {
+            $this->name = $searchable->getName();
+        }
+    }
+
+    /**
+     * Gets the name of the collection (could be index/type or just index name
+     * in case the ES version does not support types any more).
+     *
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
     }
 
     /**

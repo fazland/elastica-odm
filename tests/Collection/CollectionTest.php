@@ -2,6 +2,7 @@
 
 namespace Fazland\ODM\Elastica\Tests\Collection;
 
+use Elastica\Index;
 use Elastica\Query;
 use Elastica\Response;
 use Elastica\ResultSet;
@@ -50,6 +51,10 @@ class CollectionTest extends TestCase
     protected function setUp(): void
     {
         $this->searchable = $this->prophesize(Type::class);
+        $this->searchable->getName()->willReturn('foo_type');
+        $this->searchable->getIndex()->willReturn($index = $this->prophesize(Index::class));
+        $index->getName()->willReturn('foo_index');
+
         $this->query = $this->prophesize(Query::class);
         $this->documentClass = \stdClass::class;
 
@@ -166,6 +171,20 @@ class CollectionTest extends TestCase
         ;
 
         $this->collection->create(null, ['field' => 'value']);
+    }
+
+    public function testGetNameShouldReturnTheNameOfTheIndexAndType(): void
+    {
+        self::assertEquals('foo_index/foo_type', $this->collection->getName());
+    }
+
+    public function testGetNameShouldReturnTheNameOfTheIndexInCaseTypeDoesNotExists(): void
+    {
+        $index = $this->prophesize(Index::class);
+        $index->getName()->willReturn('foo_index');
+        $collection = new Collection($this->documentClass, $index->reveal());
+
+        self::assertEquals('foo_index', $collection->getName());
     }
 
     /**
