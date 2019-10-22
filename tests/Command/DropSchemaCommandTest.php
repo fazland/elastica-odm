@@ -24,15 +24,17 @@ class DropSchemaCommandTest extends TestCase
 Elastica ODM - drop schema
 ==========================
 
- ! [CAUTION] This operation will drop all the indices defined in your mapping.                                          
+ ! [CAUTION] This operation will drop all the indices defined in your mapping.
 
- [WARNING] foo_with_aliases_index/foo_type is an alias. Pass --with-aliases option to drop the alias too.               
+ [WARNING] foo_with_aliases_index/foo_type is an alias.
 
- [OK] All done.                                                                                                         
+           Pass --with-aliases option to drop the alias too.
+
+ [OK] All done.
 
 
 CMDLINE
-, $tester->getDisplay(true));
+, implode("\n", array_map('rtrim', explode("\n", $tester->getDisplay(true)))));
     }
 
     public function testShouldDropIndexesAndAliasesSuccessfully(): void
@@ -46,12 +48,12 @@ CMDLINE
 Elastica ODM - drop schema
 ==========================
 
- ! [CAUTION] This operation will drop all the indices defined in your mapping.                                          
+ ! [CAUTION] This operation will drop all the indices defined in your mapping.
 
- [OK] All done.                                                                                                         
+ [OK] All done.
 
 
 CMDLINE
-, $tester->getDisplay(true));
+, implode("\n", array_map('rtrim', explode("\n", $tester->getDisplay(true)))));
     }
 }

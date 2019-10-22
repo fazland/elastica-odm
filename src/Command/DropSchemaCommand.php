@@ -66,7 +66,10 @@ class DropSchemaCommand extends Command
                 if ($input->getOption('with-aliases')) {
                     $this->dropAlias(explode('/', $collection->getName())[0]);
                 } else {
-                    $io->warning($collection->getName().' is an alias. Pass --with-aliases option to drop the alias too.');
+                    $io->warning([
+                        $collection->getName().' is an alias.',
+                        'Pass --with-aliases option to drop the alias too.',
+                    ]);
                 }
             }
         }
