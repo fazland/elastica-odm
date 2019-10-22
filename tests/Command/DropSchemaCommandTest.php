@@ -16,6 +16,10 @@ class DropSchemaCommandTest extends TestCase
     public function testShouldDropIndexesSuccessfully(): void
     {
         self::resetFixtures($dm = self::createDocumentManager());
+        if (\version_compare($dm->getDatabase()->getConnection()->getVersion(), '6.0.0', '<')) {
+            self::markTestSkipped('Deletion of aliases is rejected only from ES 6.0');
+        }
+
         $tester = new CommandTester(new DropSchemaCommand($dm));
 
         $tester->execute([], ['interactive' => false]);
