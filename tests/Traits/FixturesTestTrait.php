@@ -4,10 +4,7 @@ namespace Fazland\ODM\Elastica\Tests\Traits;
 
 use Elastica\Cluster\Settings;
 use Elastica\Type\Mapping;
-use Elasticsearch\Endpoints\Index;
-use Elasticsearch\Endpoints\Indices\Create;
-use Elasticsearch\Endpoints\Indices\Delete;
-use Elasticsearch\Endpoints\Indices\Refresh;
+use Elasticsearch\Endpoints;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
 
 trait FixturesTestTrait
@@ -22,9 +19,10 @@ trait FixturesTestTrait
             ],
         ]);
 
-        $connection->requestEndpoint((new Delete())->setIndex('*'));
-        $connection->requestEndpoint((new Create())->setIndex('foo_index'));
-        $connection->requestEndpoint((new Create())->setIndex('foo_lazy_index'));
+        $connection->requestEndpoint((new Endpoints\Indices\Delete())->setIndex('*'));
+        $connection->requestEndpoint((new Endpoints\Indices\Create())->setIndex('foo_index'));
+        $connection->requestEndpoint((new Endpoints\Indices\Create())->setIndex('foo_lazy_index'));
+        $connection->requestEndpoint((new Endpoints\Indices\Create())->setIndex('foo_with_aliases_index_foo_alias'));
 
         $fooIndex = $connection->getIndex('foo_index');
         $fooType = $fooIndex->getType('foo_type');
@@ -36,7 +34,7 @@ trait FixturesTestTrait
         ;
 
         $connection->requestEndpoint(
-            (new Index())
+            (new Endpoints\Index())
                 ->setType($fooType->getName())
                 ->setIndex($fooIndex->getName())
                 ->setBody([
@@ -45,7 +43,7 @@ trait FixturesTestTrait
         );
 
         $connection->requestEndpoint(
-            (new Index())
+            (new Endpoints\Index())
                 ->setType($fooType->getName())
                 ->setIndex($fooIndex->getName())
                 ->setBody([
@@ -54,7 +52,7 @@ trait FixturesTestTrait
         );
 
         $connection->requestEndpoint(
-            (new Index())
+            (new Endpoints\Index())
                 ->setType($fooType->getName())
                 ->setIndex($fooIndex->getName())
                 ->setID('foo_test_document')
@@ -63,7 +61,7 @@ trait FixturesTestTrait
                 ])
         );
 
-        $connection->requestEndpoint((new Refresh())->setIndex($fooIndex->getName()));
+        $connection->requestEndpoint((new Endpoints\Indices\Refresh())->setIndex($fooIndex->getName()));
 
         $fooIndex = $connection->getIndex('foo_lazy_index');
         $fooType = $fooIndex->getType('foo_type');
@@ -75,7 +73,7 @@ trait FixturesTestTrait
         ;
 
         $connection->requestEndpoint(
-            (new Index())
+            (new Endpoints\Index())
                 ->setType($fooType->getName())
                 ->setIndex($fooIndex->getName())
                 ->setBody([
@@ -85,7 +83,7 @@ trait FixturesTestTrait
         );
 
         $connection->requestEndpoint(
-            (new Index())
+            (new Endpoints\Index())
                 ->setType($fooType->getName())
                 ->setIndex($fooIndex->getName())
                 ->setBody([
@@ -95,7 +93,7 @@ trait FixturesTestTrait
         );
 
         $connection->requestEndpoint(
-            (new Index())
+            (new Endpoints\Index())
                 ->setType($fooType->getName())
                 ->setIndex($fooIndex->getName())
                 ->setID('foo_test_document')
@@ -105,6 +103,22 @@ trait FixturesTestTrait
                 ])
         );
 
-        $connection->requestEndpoint((new Refresh())->setIndex($fooIndex->getName()));
+        $connection->requestEndpoint((new Endpoints\Indices\Refresh())->setIndex($fooIndex->getName()));
+
+        $fooIndex = $connection->getIndex('foo_with_aliases_index_foo_alias');
+        $fooType = $fooIndex->getType('foo_type');
+        Mapping::create([
+            'stringField' => ['type' => 'text'],
+        ])
+               ->setType($fooType)
+               ->send()
+        ;
+
+        $connection->requestEndpoint((new Endpoints\Indices\Refresh())->setIndex($fooIndex->getName()));
+        $connection->requestEndpoint(
+            (new Endpoints\Indices\Alias\Put())
+                ->setName('foo_with_aliases_index')
+                ->setIndex('foo_with_aliases_index_foo_alias')
+        );
     }
 }

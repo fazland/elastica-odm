@@ -2,10 +2,13 @@
 
 namespace Fazland\ODM\Elastica\Command;
 
+use Elastica\Exception\ResponseException;
+use Elasticsearch\Endpoints;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -26,9 +29,12 @@ class DropSchemaCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
-        $this->setName('drop-schema');
+        $this
+            ->setName('drop-schema')
+            ->addOption('with-aliases', null, InputOption::VALUE_NONE, 'Drop also aliases with corresponding name alongside of the aliased indexes')
+        ;
     }
 
     /**
@@ -49,9 +55,32 @@ class DropSchemaCommand extends Command
         /** @var DocumentMetadata $metadata */
         foreach ($factory->getAllMetadata() as $metadata) {
             $collection = $this->documentManager->getCollection($metadata->getName());
-            $collection->drop();
+            try {
+                $collection->drop();
+            } catch (ResponseException $e) {
+                $response = $e->getResponse();
+                if (400 !== $response->getStatus() || ! \preg_match('/The provided expression \[.+\] matches an alias/', $response->getErrorMessage())) {
+                    throw $e;
+                }
+
+                if ($input->getOption('with-aliases')) {
+                    $this->dropAlias(explode('/', $collection->getName())[0]);
+                } else {
+                    $io->warning($collection->getName().' is an alias. Pass --with-aliases option to drop the alias too.');
+                }
+            }
         }
 
         $io->success('All done.');
+    }
+
+    private function dropAlias(string $aliasName): void
+    {
+        $connection = $this->documentManager->getDatabase()->getConnection();
+        $response = $connection->requestEndpoint((new Endpoints\Indices\Alias\Get())->setName($aliasName));
+
+        foreach (\array_keys($response->getData()) as $indexName) {
+            $connection->requestEndpoint((new Endpoints\Indices\Delete())->setIndex($indexName));
+        }
     }
 }
