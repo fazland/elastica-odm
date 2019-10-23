@@ -38,7 +38,7 @@ Elastica ODM - drop schema
 
 
 CMDLINE
-, implode("\n", array_map('rtrim', explode("\n", $tester->getDisplay(true)))));
+, \implode("\n", \array_map('rtrim', \explode("\n", $tester->getDisplay(true)))));
     }
 
     public function testShouldDropIndexesAndAliasesSuccessfully(): void
@@ -58,6 +58,6 @@ Elastica ODM - drop schema
 
 
 CMDLINE
-, implode("\n", array_map('rtrim', explode("\n", $tester->getDisplay(true)))));
+, \implode("\n", \array_map('rtrim', \explode("\n", $tester->getDisplay(true)))));
     }
 }

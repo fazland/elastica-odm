@@ -2,9 +2,9 @@
 
 namespace Fazland\ODM\Elastica\Command;
 
-use Elastica\Exception\ResponseException;
 use Elasticsearch\Endpoints;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
+use Fazland\ODM\Elastica\Exception\CannotDropAnAliasException;
 use Fazland\ODM\Elastica\Metadata\DocumentMetadata;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -57,14 +57,9 @@ class DropSchemaCommand extends Command
             $collection = $this->documentManager->getCollection($metadata->getName());
             try {
                 $collection->drop();
-            } catch (ResponseException $e) {
-                $response = $e->getResponse();
-                if (400 !== $response->getStatus() || ! \preg_match('/The provided expression \[.+\] matches an alias/', $response->getErrorMessage())) {
-                    throw $e;
-                }
-
+            } catch (CannotDropAnAliasException $e) {
                 if ($input->getOption('with-aliases')) {
-                    $this->dropAlias(explode('/', $collection->getName())[0]);
+                    $this->dropAlias(\explode('/', $collection->getName())[0]);
                 } else {
                     $io->warning([
                         $collection->getName().' is an alias.',

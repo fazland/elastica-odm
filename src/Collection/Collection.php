@@ -13,6 +13,7 @@ use Elastica\Type;
 use Elastica\Type\Mapping;
 use Elasticsearch\Endpoints;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
+use Fazland\ODM\Elastica\Exception\CannotDropAnAliasException;
 use Fazland\ODM\Elastica\Exception\IndexNotFoundException;
 use Fazland\ODM\Elastica\Exception\RuntimeException;
 use Fazland\ODM\Elastica\Search\Search;
@@ -193,11 +194,7 @@ class Collection implements CollectionInterface
             throw new RuntimeException('Response not OK: '.$response->getErrorMessage());
         }
 
-        if (isset($data['_id'])) {
-            $this->_lastInsertId = $data['_id'];
-        } else {
-            $this->_lastInsertId = null;
-        }
+        $this->_lastInsertId = $data['_id'] ?? null;
 
         return $response;
     }
@@ -317,6 +314,10 @@ class Collection implements CollectionInterface
             $index->delete();
         } catch (ResponseException $exception) {
             $response = $exception->getResponse();
+
+            if (400 === $response->getStatus() && \preg_match('/The provided expression \[.+\] matches an alias/', $response->getErrorMessage())) {
+                throw new CannotDropAnAliasException($index->getName(), $exception);
+            }
 
             if (404 !== $response->getStatus()) {
                 throw $exception;
