@@ -27,7 +27,7 @@ class UpdateSchemaCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('update-schema');
         $this->addOption('filter-expression', null, InputOption::VALUE_REQUIRED, 'Filters the classes for schema updates via a regular expression');
@@ -36,7 +36,7 @@ class UpdateSchemaCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
         $io->title('Elastica ODM - update schema');
@@ -69,5 +69,7 @@ class UpdateSchemaCommand extends Command
         }
 
         $io->success('All done.');
+
+        return 0;
     }
 }

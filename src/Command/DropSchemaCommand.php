@@ -40,14 +40,14 @@ class DropSchemaCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
         $io->title('Elastica ODM - drop schema');
 
         $io->caution('This operation will drop all the indices defined in your mapping.');
         if (! $io->confirm('Are you sure you want to continue?')) {
-            return;
+            return 0;
         }
 
         $factory = $this->documentManager->getMetadataFactory();
@@ -70,6 +70,8 @@ class DropSchemaCommand extends Command
         }
 
         $io->success('All done.');
+
+        return 0;
     }
 
     private function dropAlias(string $aliasName): void
