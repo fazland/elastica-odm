@@ -123,7 +123,17 @@ class Collection implements CollectionInterface
             $query->setSort(['_doc']);
         }
 
-        return $this->searchable->createSearch($query)->scroll($expiryTime);
+        try {
+            return $this->searchable->createSearch($query)->scroll($expiryTime);
+        } catch (ResponseException $exception) {
+            $response = $exception->getResponse();
+        }
+
+        if (404 === $response->getStatus() && 'index_not_found_exception' === $response->getFullError()['type'] ?? null) {
+            throw new IndexNotFoundException('Index not found: '.$response->getErrorMessage());
+        }
+
+        throw new RuntimeException('Response not OK: '.$response->getErrorMessage());
     }
 
     /**
@@ -131,7 +141,17 @@ class Collection implements CollectionInterface
      */
     public function search(Query $query): ResultSet
     {
-        return $this->searchable->search($query);
+        try {
+            return $this->searchable->search($query);
+        } catch (ResponseException $exception) {
+            $response = $exception->getResponse();
+        }
+
+        if (404 === $response->getStatus() && 'index_not_found_exception' === $response->getFullError()['type'] ?? null) {
+            throw new IndexNotFoundException('Index not found: '.$response->getErrorMessage());
+        }
+
+        throw new RuntimeException('Response not OK: '.$response->getErrorMessage());
     }
 
     /**

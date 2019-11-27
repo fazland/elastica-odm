@@ -13,8 +13,10 @@ use Elasticsearch\Endpoints;
 use Fazland\ODM\Elastica\Collection\Collection;
 use Fazland\ODM\Elastica\Collection\CollectionInterface;
 use Fazland\ODM\Elastica\DocumentManagerInterface;
+use Fazland\ODM\Elastica\Exception\IndexNotFoundException;
 use Fazland\ODM\Elastica\Exception\RuntimeException;
 use Fazland\ODM\Elastica\Tests\Fixtures\Document\Foo;
+use Fazland\ODM\Elastica\Tests\Fixtures\Document\FooNoAutoCreate;
 use Fazland\ODM\Elastica\Tests\Traits\DocumentManagerTestTrait;
 use Fazland\ODM\Elastica\Tests\Traits\FixturesTestTrait;
 use PHPUnit\Framework\TestCase;
@@ -185,6 +187,18 @@ class CollectionTest extends TestCase
         $collection = new Collection($this->documentClass, $index->reveal());
 
         self::assertEquals('foo_index', $collection->getName());
+    }
+
+    /**
+     * @group functional
+     */
+    public function testSearchShouldThrowCorrectExceptionOnNonExistentIndex(): void
+    {
+        $this->expectException(IndexNotFoundException::class);
+        $dm = self::createDocumentManager();
+
+        $collection = $dm->getCollection(FooNoAutoCreate::class);
+        $collection->search(Query::create(null));
     }
 
     /**
