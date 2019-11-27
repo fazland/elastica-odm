@@ -176,4 +176,27 @@ EOF
             ],
         ], $type->getMapping());
     }
+
+    public function testShouldCreateIndexOnMergeIfNotAutocreating(): void
+    {
+        self::resetFixtures($this->dm);
+
+        $document = new FooNoAutoCreate();
+        $document->id = 'test_persist_and_flush';
+        $document->stringField = 'footest_string';
+        $document->coordinates = Coordinate::create([42.150, 15.35]);
+
+        $this->dm->merge($document);
+        $this->dm->flush();
+
+        $type = new Type(new Index($this->dm->getDatabase()->getConnection(), 'foo_index_no_auto_create'), 'foo_type');
+        self::assertEquals([
+            'foo_type' => [
+                'properties' => [
+                    'stringField' => ['type' => 'text'],
+                    'coordinates' => ['type' => 'geo_point'],
+                ],
+            ],
+        ], $type->getMapping());
+    }
 }

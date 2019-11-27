@@ -7,6 +7,7 @@ use Doctrine\Common\Persistence\ObjectManagerAware;
 use Elastica\Document;
 use Fazland\ODM\Elastica\Events\LifecycleEventManager;
 use Fazland\ODM\Elastica\Events\PreFlushEventArgs;
+use Fazland\ODM\Elastica\Exception\IndexNotFoundException;
 use Fazland\ODM\Elastica\Exception\InvalidIdentifierException;
 use Fazland\ODM\Elastica\Id\AssignedIdGenerator;
 use Fazland\ODM\Elastica\Id\GeneratorInterface;
@@ -715,7 +716,11 @@ final class UnitOfWork
             $managedCopy = null;
 
             if (null !== $id) {
-                $managedCopy = $this->manager->find($class->name, $id);
+                try {
+                    $managedCopy = $this->manager->find($class->name, $id);
+                } catch (IndexNotFoundException $e) {
+                    // Index does not exists, will be created.
+                }
 
                 if (null !== $managedCopy && self::STATE_REMOVED === $this->getDocumentState($managedCopy)) {
                     throw new \InvalidArgumentException('Removed document detected during merge.');
