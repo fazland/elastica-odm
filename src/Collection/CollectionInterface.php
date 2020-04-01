@@ -90,6 +90,17 @@ interface CollectionInterface
     public function delete(string $id): void;
 
     /**
+     * Request the deletion of a set of document, matched by the given query.
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html
+     *      for the limitations of this method and the available parameters.
+     *
+     * @param Query\AbstractQuery $query
+     * @param array $params
+     */
+    public function deleteByQuery(Query\AbstractQuery $query, array $params = []): void;
+
+    /**
      * Returns the last inserted identifier as string.
      *
      * @return string

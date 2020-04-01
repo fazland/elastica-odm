@@ -285,6 +285,27 @@ class Collection implements CollectionInterface
     /**
      * {@inheritdoc}
      */
+    public function deleteByQuery(Query\AbstractQuery $query, array $params = []): void
+    {
+        $endpoint = new Endpoints\DeleteByQuery();
+        $endpoint->setBody([
+            'query' => $query->toArray(),
+        ]);
+
+        try {
+            $response = $this->searchable->requestEndpoint($endpoint);
+        } catch (ResponseException $exception) {
+            $response = $exception->getResponse();
+        }
+
+        if (! $response->isOk()) {
+            throw new \RuntimeException('Response not OK: '.$response->getErrorMessage());
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getLastInsertedId(): ?string
     {
         return $this->_lastInsertId;
