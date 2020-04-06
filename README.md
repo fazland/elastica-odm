@@ -2,6 +2,11 @@ Fazland - Elastica ODM
 =============================
 [![Build Status](https://travis-ci.org/fazland/elastica-odm.svg?branch=master)](https://travis-ci.org/fazland/elastica-odm)
 
+#### ⚠️ Warning
+
+This repository has been deprecated.  
+The development of this package will continue on https://github.com/refugis/elastica-odm.
+
 Doctrine like document manager for ElasticSearch, based on [Elastica](https://www.github.com/ruflin/elastica)
 
 Requirements
