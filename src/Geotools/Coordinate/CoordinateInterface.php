@@ -2,9 +2,10 @@
 
 namespace Fazland\ODM\Elastica\Geotools\Coordinate;
 
+use Doctrine\Common\Comparable;
 use Elastica\ArrayableInterface;
 
-interface CoordinateInterface extends ArrayableInterface, \JsonSerializable
+interface CoordinateInterface extends ArrayableInterface, Comparable, \JsonSerializable
 {
     /**
      * Normalizes a latitude to the (-90, 90) range.

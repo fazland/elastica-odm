@@ -38,6 +38,18 @@ class Coordinate implements CoordinateInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function compareTo($other): int
+    {
+        if (! $other instanceof CoordinateInterface) {
+            return -1;
+        }
+
+        return $other->getLatitude() <=> $this->latitude ?: $other->getLongitude() <=> $this->longitude;
+    }
+
+    /**
      * Creates a new coordinate object.
      *
      * @param $coordinates

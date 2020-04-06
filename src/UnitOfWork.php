@@ -2,6 +2,7 @@
 
 namespace Fazland\ODM\Elastica;
 
+use Doctrine\Common\Comparable;
 use Doctrine\Common\EventManager;
 use Doctrine\Common\Persistence\ObjectManagerAware;
 use Elastica\Document;
@@ -545,6 +546,14 @@ final class UnitOfWork
 
                     // skip if value haven't changed
                     if ($orgValue === $actualValue) {
+                        continue;
+                    }
+
+                    if (
+                        $orgValue instanceof Comparable &&
+                        $actualValue instanceof Comparable &&
+                        0 === $orgValue->compareTo($actualValue)
+                    ) {
                         continue;
                     }
 
